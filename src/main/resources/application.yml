@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/ojt_team5?createDatabaseIfNotExist=true
     username: root
-    password: donut_12321
+    password: 12345678
   jooq:
     sql-dialect: org.hibernate.dialect.MySQL8Dialect
   jpa:
