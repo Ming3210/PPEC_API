@@ -28,7 +28,7 @@ public class Certificate {
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
-    @Column(name = "exam_date")
+    @Column(name = "examDate")
     private LocalDateTime examDate;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -38,24 +38,24 @@ public class Certificate {
     @Column(name = "status", nullable = false, length = 20)
     private CertificateStatus status;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by", nullable = false)
+    @Column(name = "createdBy", nullable = false)
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "updatedBy")
     private Long updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", insertable = false, updatable = false)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
     private User creator;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by", insertable = false, updatable = false)
+    @JoinColumn(name = "updatedBy", insertable = false, updatable = false)
     private User updater;
 
     @OneToMany(mappedBy = "certificate")
