@@ -35,8 +35,8 @@ public class Asset {
     @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 
-    @Column(name = "purchase_value", precision = 15, scale = 2)
-    private BigDecimal purchaseValue;
+
+    private Double purchaseValue;
 
     @Column(name = "category", length = 100)
     private String category;
