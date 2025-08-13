@@ -32,5 +32,5 @@ public class Skill {
 
 
     @ManyToMany(mappedBy = "skills")
-    private Set<Course> courses = new HashSet<>();
+    private Set<CourseOff> coursesOff = new HashSet<>();
 }
