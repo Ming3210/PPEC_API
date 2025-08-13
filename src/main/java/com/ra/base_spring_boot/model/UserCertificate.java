@@ -43,7 +43,7 @@ public class UserCertificate {
     @Column(name = "registered_at")
     private LocalDateTime registeredAt;
 
-    @Column(name = "completed_at")
+    @Column   (name = "completed_at")
     private LocalDateTime completedAt;
 
     @Column(name = "notes", columnDefinition = "TEXT")
