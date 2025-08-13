@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "asset_id")
     private Long id;
 
     @Column(name = "code", unique = true, nullable = false, length = 50)
@@ -44,7 +44,7 @@ public class Asset {
     @Column(name = "location", length = 200)
     private String location;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -53,21 +53,21 @@ public class Asset {
     @Column(name = "assigned_user_id")
     private Long assignedUserId;
 
-    @Column(name = "created_By", nullable = false)
+    @Column(name = "createdBy", nullable = false)
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "updatedBy")
     private Long updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "assignedUserId", insertable = false, updatable = false)
     private User assignedUser;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", insertable = false, updatable = false)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
     private User creator;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by", insertable = false, updatable = false)
+    @JoinColumn(name = "updatedBy", insertable = false, updatable = false)
     private User updater;
 }

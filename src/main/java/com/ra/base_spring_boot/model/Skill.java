@@ -30,7 +30,6 @@ public class Skill {
     )
     private LocalDateTime createdAt;
 
-
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "skills", fetch = FetchType.LAZY)
     private Set<CourseOff> coursesOff = new HashSet<>();
 }
