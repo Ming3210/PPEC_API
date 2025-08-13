@@ -36,11 +36,21 @@ public class Course {
 
     private BigDecimal price;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(
+            name = "created_at",
+            updatable = false,
+            insertable = false,
+            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    )
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(
+            name = "updated_at",
+            insertable = false,
+            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    )
+    private LocalDateTime updatedAt;
+
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

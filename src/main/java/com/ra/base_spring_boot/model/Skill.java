@@ -22,8 +22,14 @@ public class Skill {
 
     private String description;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(
+            name = "created_at",
+            updatable = false,
+            insertable = false,
+            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    )
+    private LocalDateTime createdAt;
+
 
     @ManyToMany(mappedBy = "skills")
     private Set<Course> courses = new HashSet<>();

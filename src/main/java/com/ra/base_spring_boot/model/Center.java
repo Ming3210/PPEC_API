@@ -23,8 +23,14 @@ public class Center {
 
     private String address;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(
+            name = "created_at",
+            updatable = false,
+            insertable = false,
+            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    )
+    private LocalDateTime createdAt;
+
 
     @OneToMany(mappedBy = "center", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Course> courses = new HashSet<>();
