@@ -5,6 +5,7 @@ import com.ra.base_spring_boot.model.base.BaseObject;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.management.relation.Role;
 import java.util.Set;
 
 @Entity
@@ -26,11 +27,5 @@ public class User extends BaseObject
 
     private Boolean status;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;
+
 }
