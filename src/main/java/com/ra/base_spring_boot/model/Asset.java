@@ -4,6 +4,7 @@ import com.ra.base_spring_boot.model.constants.AssetStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "asset_id")
     private Long id;
 
     @Column(name = "code", unique = true, nullable = false, length = 50)
@@ -31,11 +32,11 @@ public class Asset {
     @Column(name = "status", nullable = false, length = 20)
     private AssetStatus status;
 
-    @Column(name = "purchaseDate")
+    @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 
-    @Column(name = "purchaseValue", precision = 15, scale = 2)
-    private Double purchaseValue;
+    @Column(name = "purchase_value", precision = 15, scale = 2)
+    private BigDecimal purchaseValue;
 
     @Column(name = "category", length = 100)
     private String category;
@@ -46,10 +47,10 @@ public class Asset {
     @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "assignedUserId")
+    @Column(name = "assigned_user_id")
     private Long assignedUserId;
 
     @Column(name = "createdBy", nullable = false)
