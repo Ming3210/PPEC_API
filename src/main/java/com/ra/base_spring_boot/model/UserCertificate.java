@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,10 +23,10 @@ public class UserCertificate {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "userId", nullable = false)
     private Long userId;
 
-    @Column(name = "certificate_id", nullable = false)
+    @Column(name = "certificateId", nullable = false)
     private Long certificateId;
 
     @Enumerated(EnumType.STRING)
@@ -35,25 +34,25 @@ public class UserCertificate {
     private ExamResult result;
 
     @Column(name = "score", precision = 5, scale = 2)
-    private BigDecimal score;
+    private Double score;
 
-    @Column(name = "actual_exam_date")
+    @Column(name = "actualExamDate")
     private LocalDateTime actualExamDate;
 
-    @Column(name = "registered_at")
+    @Column(name = "registeredAt")
     private LocalDateTime registeredAt;
 
-    @Column(name = "completed_at")
+    @Column(name = "completedAt")
     private LocalDateTime completedAt;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
     @ManyToOne
-    @JoinColumn(name = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "userId", insertable = false, updatable = false)
     private User student;
 
     @ManyToOne
-    @JoinColumn(name = "certificate_id", insertable = false, updatable = false)
+    @JoinColumn(name = "certificateId", insertable = false, updatable = false)
     private Certificate certificate;
 }

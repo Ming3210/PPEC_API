@@ -4,7 +4,6 @@ import com.ra.base_spring_boot.model.constants.AssetStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,11 +31,11 @@ public class Asset {
     @Column(name = "status", nullable = false, length = 20)
     private AssetStatus status;
 
-    @Column(name = "purchase_date")
+    @Column(name = "purchaseDate")
     private LocalDateTime purchaseDate;
 
-    @Column(name = "purchase_value", precision = 15, scale = 2)
-    private BigDecimal purchaseValue;
+    @Column(name = "purchaseValue", precision = 15, scale = 2)
+    private Double purchaseValue;
 
     @Column(name = "category", length = 100)
     private String category;
@@ -44,30 +43,30 @@ public class Asset {
     @Column(name = "location", length = 200)
     private String location;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @Column(name = "assigned_user_id")
+    @Column(name = "assignedUserId")
     private Long assignedUserId;
 
-    @Column(name = "created_By", nullable = false)
+    @Column(name = "createdBy", nullable = false)
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "updatedBy")
     private Long updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "assignedUserId", insertable = false, updatable = false)
     private User assignedUser;
 
     @ManyToOne
-    @JoinColumn(name = "created_by", insertable = false, updatable = false)
+    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
     private User creator;
 
     @ManyToOne
-    @JoinColumn(name = "updated_by", insertable = false, updatable = false)
+    @JoinColumn(name = "updatedBy", insertable = false, updatable = false)
     private User updater;
 }
