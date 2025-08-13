@@ -1,62 +1,68 @@
 package com.ra.base_spring_boot.model;
-import com.ra.base_spring_boot.model.constants.TargetAudience;
-import jakarta.persistence.*;
 
+import com.ra.base_spring_boot.model.constants.Level;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+
+@Setter
+@Getter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "courses")
 public class Course {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(unique = true)
+    private String code;
 
-    private String bannerUrl;
+    private String title;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "target_audience")
-    private TargetAudience targetAudience;
+    @Column(columnDefinition = "TEXT")
+    private String subtitle;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "estimated_hours")
-    private Integer estimatedHours;
+    private String provider;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "center_id")
-    private Center center;
+    @Enumerated(EnumType.STRING)
+    private Level level;
 
     private BigDecimal price;
 
-    @Column(
-            name = "created_at",
-            updatable = false,
-            insertable = false,
-            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP"
-    )
+    private BigDecimal originalPrice;
+
+    private BigDecimal rating;
+
+    private Integer ratingCount;
+
+    private Integer studentsCount;
+
+    private String duration;
+
+    private Integer lessonCount;
+
+    private String imageUrl;
+
+    private Boolean isActive;
+
     private LocalDateTime createdAt;
 
-    @Column(
-            name = "updated_at",
-            insertable = false,
-            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-    )
     private LocalDateTime updatedAt;
 
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "course_skills",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id")
-    )
-    private Set<Skill> skills = new HashSet<>();
+    public Course(Long id, String code, String title) {
+        this.id = id;
+        this.code = code;
+        this.title = title;
+    }
+
 }
+

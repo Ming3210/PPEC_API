@@ -1,0 +1,58 @@
+package com.ra.base_spring_boot.model;
+
+import com.ra.base_spring_boot.model.constants.ExamResult;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "user_certificates", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"userId", "certificateId"})
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserCertificate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "userId", nullable = false)
+    private Long userId;
+
+    @Column(name = "certificateId", nullable = false)
+    private Long certificateId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "result", length = 20)
+    private ExamResult result;
+
+    @Column(name = "score", precision = 5, scale = 2)
+    private Double score;
+
+    @Column(name = "actualExamDate")
+    private LocalDateTime actualExamDate;
+
+    @Column(name = "registeredAt")
+    private LocalDateTime registeredAt;
+
+    @Column(name = "completedAt")
+    private LocalDateTime completedAt;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
+    @ManyToOne
+    @JoinColumn(name = "userId", insertable = false, updatable = false)
+    private User student;
+
+    @ManyToOne
+    @JoinColumn(name = "certificateId", insertable = false, updatable = false)
+    private Certificate certificate;
+}
