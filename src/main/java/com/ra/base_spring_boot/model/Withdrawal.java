@@ -33,7 +33,7 @@ public class Withdrawal {
     @Column(name = "bank_name", nullable = false)
     private String bankName;
 
-    @Column(name = "withdrawal_amount", precision = 15, scale = 0)
+    @Column(precision = 19, scale = 2)
     private BigDecimal withdrawalAmount;
 
     @Column(name = "withdrawal_date", updatable = false, insertable = false,

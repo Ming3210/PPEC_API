@@ -34,7 +34,6 @@ public class Asset {
     @Column(name = "purchaseDate")
     private LocalDateTime purchaseDate;
 
-    @Column(name = "purchaseValue", precision = 15, scale = 2)
     private Double purchaseValue;
 
     @Column(name = "category", length = 100)

@@ -1,21 +1,19 @@
 package com.ra.base_spring_boot.model;
+
 import com.ra.base_spring_boot.model.constants.TargetAudience;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "courses")
+@Table(name = "courses_off")
 public class CourseOff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,9 +38,10 @@ public class CourseOff {
     @JoinColumn(name = "center_id")
     private Center center;
 
+    @Column(precision = 19, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
@@ -55,4 +54,9 @@ public class CourseOff {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<Skill> skills = new HashSet<>();
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

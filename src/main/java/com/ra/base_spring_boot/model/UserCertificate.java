@@ -33,7 +33,6 @@ public class UserCertificate {
     @Column(name = "result", length = 20)
     private ExamResult result;
 
-    @Column(name = "score", precision = 5, scale = 2)
     private Double score;
 
     @Column(name = "actualExamDate")
