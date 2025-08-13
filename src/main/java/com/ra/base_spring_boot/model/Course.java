@@ -56,7 +56,9 @@ public class Course {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
+    @ManyToOne
+    @JoinColumn(name = "center_id") // foreign key column
+    private Center center;
 
     public Course(Long id, String code, String title) {
         this.id = id;

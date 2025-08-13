@@ -4,6 +4,7 @@ import com.ra.base_spring_boot.model.constants.AssetStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,7 +36,7 @@ public class Asset {
     private LocalDateTime purchaseDate;
 
     @Column(name = "purchaseValue", precision = 15, scale = 2)
-    private Double purchaseValue;
+    private BigDecimal purchaseValue;
 
     @Column(name = "category", length = 100)
     private String category;
