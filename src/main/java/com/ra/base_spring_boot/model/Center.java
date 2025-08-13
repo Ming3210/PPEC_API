@@ -33,7 +33,7 @@ public class Center {
 
 
     @OneToMany(mappedBy = "center", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Course> courses = new HashSet<>();
+    private Set<CourseOff> courses = new HashSet<>();
 
 }
 
