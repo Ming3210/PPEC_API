@@ -34,8 +34,8 @@ public class UserCertificate {
     @Column(name = "result", length = 20)
     private ExamResult result;
 
+    private Double score;
     @Column(name = "score", precision = 5, scale = 2)
-    private BigDecimal score;
 
     @Column(name = "actual_exam_date")
     private LocalDateTime actualExamDate;
