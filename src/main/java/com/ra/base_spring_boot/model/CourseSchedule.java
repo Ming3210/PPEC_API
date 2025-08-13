@@ -17,8 +17,8 @@ public class CourseSchedule {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @JoinColumn(name = "courseoff_id", nullable = false)
+    private CourseOff courseOff;
 
     @Column(name = "session_date", nullable = false)
     private LocalDate sessionDate;
