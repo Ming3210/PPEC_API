@@ -53,21 +53,21 @@ public class Asset {
     @Column(name = "assigned_user_id")
     private Long assignedUserId;
 
-    @Column(name = "createdBy", nullable = false)
+    @Column(name = "created_by", nullable = false)
     private Long createdBy;
 
-    @Column(name = "updatedBy")
+    @Column(name = "updated_by")
     private Long updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "assignedUserId", insertable = false, updatable = false)
+    @JoinColumn(name = "assigned_user_id", insertable = false, updatable = false)
     private User assignedUser;
 
     @ManyToOne
-    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
+    @JoinColumn(name = "created_by", insertable = false, updatable = false)
     private User creator;
 
     @ManyToOne
-    @JoinColumn(name = "updatedBy", insertable = false, updatable = false)
+    @JoinColumn(name = "updated_by", insertable = false, updatable = false)
     private User updater;
 }
