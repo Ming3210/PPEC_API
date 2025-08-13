@@ -35,11 +35,13 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    @Column(precision = 19, scale = 2)
     private BigDecimal price;
 
+    @Column(precision = 19, scale = 2)
     private BigDecimal originalPrice;
 
-    private BigDecimal rating;
+    private Double rating;
 
     private Integer ratingCount;
 
@@ -56,8 +58,9 @@ public class Course {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-    @ManyToOne
-    @JoinColumn(name = "center_id") // foreign key column
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "center_id")
     private Center center;
 
     public Course(Long id, String code, String title) {

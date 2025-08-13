@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "asset_id")
     private Long id;
 
     @Column(name = "code", unique = true, nullable = false, length = 50)
@@ -32,7 +32,7 @@ public class Asset {
     @Column(name = "status", nullable = false, length = 20)
     private AssetStatus status;
 
-    @Column(name = "purchaseDate")
+    @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 
     @Column(name = "purchaseValue", precision = 15, scale = 2)
@@ -47,27 +47,27 @@ public class Asset {
     @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "assignedUserId")
+    @Column(name = "assigned_user_id")
     private Long assignedUserId;
 
-    @Column(name = "createdBy", nullable = false)
+    @Column(name = "created_by", nullable = false)
     private Long createdBy;
 
-    @Column(name = "updatedBy")
+    @Column(name = "updated_by")
     private Long updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "assignedUserId", insertable = false, updatable = false)
+    @JoinColumn(name = "assigned_user_id", insertable = false, updatable = false)
     private User assignedUser;
 
     @ManyToOne
-    @JoinColumn(name = "createdBy", insertable = false, updatable = false)
+    @JoinColumn(name = "created_by", insertable = false, updatable = false)
     private User creator;
 
     @ManyToOne
-    @JoinColumn(name = "updatedBy", insertable = false, updatable = false)
+    @JoinColumn(name = "updated_by", insertable = false, updatable = false)
     private User updater;
 }
