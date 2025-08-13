@@ -32,7 +32,7 @@ public class Exam {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ExamStatus status; // UPCOMING, ONGOING, COMPLETED
+    private ExamStatus status;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)

@@ -1,7 +1,6 @@
 package com.ra.base_spring_boot.model;
 
 import jakarta.persistence.*;
-
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -31,10 +30,6 @@ public class Center {
     )
     private LocalDateTime createdAt;
 
-
-    @OneToMany(mappedBy = "center", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Course> courses = new HashSet<>();
-
+    @OneToMany(mappedBy = "center", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CourseOff> courseOffs = new HashSet<>();
 }
-
-
