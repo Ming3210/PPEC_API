@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,7 +35,7 @@ public class UserCertificate {
     private ExamResult result;
 
     @Column(name = "score", precision = 5, scale = 2)
-    private Double score;
+    private BigDecimal score;
 
     @Column(name = "actualExamDate")
     private LocalDateTime actualExamDate;
