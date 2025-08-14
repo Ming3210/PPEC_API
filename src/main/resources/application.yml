@@ -41,11 +41,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
-jwt:
-  expire: 3600
-  refresh: 7200
 
-cloudinary:
-  cloud_name: djppquc7s
-  api_key: 795681177339359
-  api_secret: KodU8NiCXli1PedjAOq8yMNDXzk
+jwt:
+  refresh : 3600
+  expire: 86400

@@ -52,8 +52,15 @@ public class GlobalHandleException {
     }
 
     @ExceptionHandler(HttpBadRequest.class)
-    public ResponseEntity<APIResponse<String>> handleHttpBadReqeust(HttpBadRequest ex) {
-        return buildErrorResponse("Yêu cầu không hợp lệ", ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> handleHttpBadRequest(HttpBadRequest ex)
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ResponseWrapper.builder()
+                        .data(ex.getMessage())
+                        .code(HttpStatus.BAD_REQUEST.value())
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build()
+        );
     }
 
     @ExceptionHandler(HttpUnAuthorized.class)

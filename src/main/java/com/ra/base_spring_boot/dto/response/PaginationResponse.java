@@ -1,6 +1,5 @@
 package com.ra.base_spring_boot.dto.response;
 
-import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
