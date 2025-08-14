@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.advice;
 
+import com.ra.base_spring_boot.dto.ResponseWrapper;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.exception.*;
 import org.springframework.http.HttpStatus;
