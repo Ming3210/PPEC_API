@@ -44,5 +44,17 @@ public class Student {
     @Size(max = 100)
     @Column(name = "class_name", length = 100)
     private String className;
+
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
+
+    @ManyToOne
+    @JoinColumn(name = "industry_id", nullable = false)
+    private Industry industry;
+
+    @Column (name = "image_url")
+    private String avatarUrl;
 }
 

@@ -13,7 +13,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "partners")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Partner {
 
     @Id
@@ -34,17 +38,25 @@ public class Partner {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Size(max = 50)
-    @Column(name = "tax_code", length = 50)
-    private String taxCode;
-
     @PositiveOrZero
     @Column(name = "number_of_employees")
     private Integer numberOfEmployees;
 
+    @PositiveOrZero
+    @Column(name = "number_of_courses")
+    private Integer numberOfCourses;
+
+    @NotBlank
+    @Column(name = "address", nullable = false, length = 255)
+    private String address;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Builder.Default
     private PartnerStatus status = PartnerStatus.ACTIVE;
 
     @CreationTimestamp
@@ -54,12 +66,13 @@ public class Partner {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "partner_industries",
             joinColumns = @JoinColumn(name = "partner_id"),
             inverseJoinColumns = @JoinColumn(name = "industry_id")
     )
+    @Builder.Default
     private Set<Industry> industries = new HashSet<>();
 }
-
