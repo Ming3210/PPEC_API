@@ -11,8 +11,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"courses"})
+@EqualsAndHashCode(exclude = {"courses"})
 @Entity
 @Table(name = "skills")
+@Builder
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
