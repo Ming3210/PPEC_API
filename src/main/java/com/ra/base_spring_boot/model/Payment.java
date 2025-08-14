@@ -32,10 +32,9 @@ public class Payment {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @Column(name = "total_amount", nullable = false, precision = 15, scale = 0)
+    @Column(precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
-    private BigDecimal amount;
     @Column(name = "payment_date", updatable = false, insertable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime paymentDate;
 

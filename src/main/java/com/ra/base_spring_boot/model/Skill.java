@@ -10,6 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"courses"})
 @Entity
 @Table(name = "skills")
 public class Skill {
@@ -17,7 +18,7 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     private String description;
@@ -30,6 +31,11 @@ public class Skill {
     )
     private LocalDateTime createdAt;
 
-    @ManyToMany(mappedBy = "skills", fetch = FetchType.LAZY)
-    private Set<CourseOff> coursesOff = new HashSet<>();
+    @ManyToMany(mappedBy = "skills")
+    private Set<CourseOff> courses = new HashSet<>();
+
+    public Skill(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

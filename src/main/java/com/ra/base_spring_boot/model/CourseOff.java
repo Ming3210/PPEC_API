@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "courseoff")
+@Table(name = "courses_off")
 public class CourseOff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,19 +38,25 @@ public class CourseOff {
     @JoinColumn(name = "center_id")
     private Center center;
 
+    @Column(precision = 19, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "courseoff_skills",
-            joinColumns = @JoinColumn(name = "courseoff_id"),
+            name = "course_skills",
+            joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<Skill> skills = new HashSet<>();
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
