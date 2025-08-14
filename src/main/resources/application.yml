@@ -46,3 +46,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
+jwt:
+  refresh: 3600
+  expire:  86400

@@ -1,11 +1,12 @@
 package com.ra.base_spring_boot.model;
 
-import com.ra.base_spring_boot.model.constants.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "lecturers")
@@ -31,18 +32,22 @@ public class Lecturer {
 
     @Past
     @Column(name = "date_of_birth")
-    private java.time.LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10)
-    private Gender gender;
+    @Size(max = 255)
+    @Column(name = "hometown", length = 255)
+    private String hometown;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Departments department;
 
-    @Size(max = 100)
-    @Column(name = "academic_title", length = 100)
-    private String academicTitle;
-}
+    @ManyToOne
+    @JoinColumn(name = "industry_id")
+    private Industry industry;
 
+    @Column(name = "work_year")
+    private Integer workYear;
+
+    private boolean isDeleted = false;
+}
