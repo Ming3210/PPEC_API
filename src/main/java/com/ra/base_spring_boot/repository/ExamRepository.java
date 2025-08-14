@@ -27,4 +27,6 @@ public interface ExamRepository extends JpaRepository<Exam, Long>, JpaSpecificat
     List<Exam> findByExamDateBetween(LocalDate startDate, LocalDate endDate);
 
     Page<Exam> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
+    Page<Exam> findByExamCodeContainingIgnoreCase(String examCode, Pageable pageable);
 }

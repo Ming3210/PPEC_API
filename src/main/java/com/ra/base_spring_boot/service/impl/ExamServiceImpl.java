@@ -1,13 +1,19 @@
 package com.ra.base_spring_boot.service.impl;
 
-import com.ra.base_spring_boot.dto.request.ExamRequestDTO;
-import com.ra.base_spring_boot.dto.response.ExamResponseDTO;
+import com.ra.base_spring_boot.exception.HttpNotFound;
+import com.ra.base_spring_boot.exception.HttpConflict;
+import com.ra.base_spring_boot.exception.HttpBadRequest;
 import com.ra.base_spring_boot.model.Exam;
 import com.ra.base_spring_boot.model.Course;
 import com.ra.base_spring_boot.model.Partner;
-
+import com.ra.base_spring_boot.dto.request.ExamRequestDTO;
+import com.ra.base_spring_boot.dto.request.ExamSearchFilterDTO;
+import com.ra.base_spring_boot.dto.request.PaginationDTO;
+import com.ra.base_spring_boot.dto.response.ExamResponseDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.repository.ExamRepository;
-
+import com.ra.base_spring_boot.repository.CourseRepository;
+import com.ra.base_spring_boot.repository.PartnerRepository;
 import com.ra.base_spring_boot.service.interfaces.IExamService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,8 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
-import org.webjars.NotFoundException;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,22 +42,22 @@ public class ExamServiceImpl implements IExamService {
 
     @Override
     public ExamResponseDTO createExam(ExamRequestDTO examRequestDTO) {
-        // Validate unique exam code
+        // Check unique exam code
         if (examRepository.existsByExamCode(examRequestDTO.getExamCode())) {
-            throw new IllegalArgumentException("Mã bài thi đã tồn tại: " + examRequestDTO.getExamCode());
+            throw new HttpConflict("Mã bài thi đã tồn tại: " + examRequestDTO.getExamCode());
         }
 
         // Validate course exists
         Course course = courseRepository.findById(examRequestDTO.getCourseId())
-                .orElseThrow(() -> new NotFoundException("Course not found with ID: " + examRequestDTO.getCourseId()));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + examRequestDTO.getCourseId()));
 
         // Validate partner exists
-        Partner partner = partnerRepository.findById(examRequestDTO.getPartnerId())
-                .orElseThrow(() -> new NotFoundException("Partner not found with ID: " + examRequestDTO.getPartnerId()));
+        Partner partner = partnerRepository.findById(Math.toIntExact(examRequestDTO.getPartnerId()))
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy đối tác với ID: " + examRequestDTO.getPartnerId()));
 
-        // Validate exam date is not in the past
+        // Validate exam date
         if (examRequestDTO.getExamDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Ngày thi không thể trong quá khứ");
+            throw new HttpBadRequest("Ngày thi không thể trong quá khứ");
         }
 
         Exam exam = Exam.builder()
@@ -66,32 +70,34 @@ public class ExamServiceImpl implements IExamService {
                 .build();
 
         Exam savedExam = examRepository.save(exam);
-        return convertToResponseDTO(savedExam);
+        return convertToExamResponseDTO(savedExam);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ExamResponseDTO getExamById(Long id) {
         Exam exam = examRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Exam not found with ID: " + id));
-        return convertToResponseDTO(exam);
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy bài thi với ID: " + id));
+        return convertToExamResponseDTO(exam);
     }
 
     @Override
     public ExamResponseDTO updateExam(Long id, ExamRequestDTO examRequestDTO) {
         Exam existingExam = examRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Exam not found with ID: " + id));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy bài thi với ID: " + id));
 
-        // Validate unique exam code (exclude current exam)
+        // Check unique exam code (exclude current)
         if (examRepository.existsByExamCodeAndExamIdNot(examRequestDTO.getExamCode(), id)) {
-            throw new IllegalArgumentException("Mã bài thi đã tồn tại: " + examRequestDTO.getExamCode());
+            throw new HttpConflict("Mã bài thi đã tồn tại: " + examRequestDTO.getExamCode());
         }
 
+        // Validate course exists
         Course course = courseRepository.findById(examRequestDTO.getCourseId())
-                .orElseThrow(() -> new NotFoundException("Course not found with ID: " + examRequestDTO.getCourseId()));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + examRequestDTO.getCourseId()));
 
-        Partner partner = partnerRepository.findById(examRequestDTO.getPartnerId())
-                .orElseThrow(() -> new NotFoundException("Partner not found with ID: " + examRequestDTO.getPartnerId()));
+        // Validate partner exists
+        Partner partner = partnerRepository.findById(Math.toIntExact(examRequestDTO.getPartnerId()))
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy đối tác với ID: " + examRequestDTO.getPartnerId()));
 
         existingExam.setExamCode(examRequestDTO.getExamCode());
         existingExam.setTitle(examRequestDTO.getTitle());
@@ -101,15 +107,15 @@ public class ExamServiceImpl implements IExamService {
         existingExam.setPartner(partner);
 
         Exam updatedExam = examRepository.save(existingExam);
-        return convertToResponseDTO(updatedExam);
+        return convertToExamResponseDTO(updatedExam);
     }
 
     @Override
     public void deleteExam(Long id) {
-        if (!examRepository.existsById(id)) {
-            throw new NotFoundException("Exam not found with ID: " + id);
-        }
-        examRepository.deleteById(id);
+        Exam existingExam = examRepository.findById(id)
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy bài thi với ID: " + id));
+
+        examRepository.delete(existingExam);
     }
 
     @Override
@@ -123,7 +129,7 @@ public class ExamServiceImpl implements IExamService {
         Page<Exam> examPage = examRepository.findAll(spec, pageable);
 
         List<ExamResponseDTO> examDTOs = examPage.getContent().stream()
-                .map(this::convertToResponseDTO)
+                .map(this::convertToExamResponseDTO)
                 .collect(Collectors.toList());
 
         PaginationDTO paginationDTO = new PaginationDTO(
@@ -145,7 +151,7 @@ public class ExamServiceImpl implements IExamService {
         Page<Exam> examPage = examRepository.findAll(pageable);
 
         List<ExamResponseDTO> examDTOs = examPage.getContent().stream()
-                .map(this::convertToResponseDTO)
+                .map(this::convertToExamResponseDTO)
                 .collect(Collectors.toList());
 
         PaginationDTO paginationDTO = new PaginationDTO(
@@ -218,7 +224,7 @@ public class ExamServiceImpl implements IExamService {
         return Sort.by(direction, sortBy);
     }
 
-    private ExamResponseDTO convertToResponseDTO(Exam exam) {
+    private ExamResponseDTO convertToExamResponseDTO(Exam exam) {
         return new ExamResponseDTO(
                 exam.getExamId(),
                 exam.getExamCode(),
@@ -227,7 +233,7 @@ public class ExamServiceImpl implements IExamService {
                 exam.getStatus(),
                 exam.getCourse().getId(),
                 exam.getCourse().getTitle(),
-                exam.getPartner().getId(),
+                Long.valueOf(exam.getPartner().getId()),
                 exam.getPartner().getName()
         );
     }

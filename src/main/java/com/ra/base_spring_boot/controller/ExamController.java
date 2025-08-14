@@ -1,7 +1,6 @@
 package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.ResponseWrapper;
-
 import com.ra.base_spring_boot.dto.request.ExamRequestDTO;
 import com.ra.base_spring_boot.dto.request.ExamSearchFilterDTO;
 import com.ra.base_spring_boot.dto.response.ExamResponseDTO;
@@ -9,6 +8,7 @@ import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.IExamService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +25,7 @@ public class ExamController {
 
     private final IExamService examService;
 
+
     @PostMapping
     public ResponseEntity<ResponseWrapper<ExamResponseDTO>> createExam(
             @Valid @RequestBody ExamRequestDTO examRequestDTO) {
@@ -40,6 +41,7 @@ public class ExamController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseWrapper<ExamResponseDTO>> getExamById(@PathVariable Long id) {
         ExamResponseDTO exam = examService.getExamById(id);
@@ -52,6 +54,7 @@ public class ExamController {
 
         return ResponseEntity.ok(response);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseWrapper<ExamResponseDTO>> updateExam(
@@ -68,7 +71,6 @@ public class ExamController {
 
         return ResponseEntity.ok(response);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseWrapper<String>> deleteExam(@PathVariable Long id) {
@@ -111,8 +113,8 @@ public class ExamController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long courseId,
             @RequestParam(required = false) Long partnerId,
-            @RequestParam(required = false) LocalDate examDateFrom,
-            @RequestParam(required = false) LocalDate examDateTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate examDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate examDateTo,
             @RequestParam(defaultValue = "examDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
             @RequestParam(defaultValue = "0") int page,
@@ -121,6 +123,12 @@ public class ExamController {
         ExamSearchFilterDTO filterDTO = new ExamSearchFilterDTO();
         filterDTO.setExamCode(examCode);
         filterDTO.setTitle(title);
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                filterDTO.setStatus(com.ra.base_spring_boot.until.ExamStatus.valueOf(status.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+            }
+        }
         filterDTO.setCourseId(courseId);
         filterDTO.setPartnerId(partnerId);
         filterDTO.setExamDateFrom(examDateFrom);
