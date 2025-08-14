@@ -7,10 +7,10 @@ import com.ra.base_spring_boot.model.Lecturer;
 import java.util.List;
 
 public interface LectureService {
-    List<Lecturer> getAllTeachers(String keyword, String specialization, String status);
+    List<LectureResponse> getAllTeachers(String keyword, String specialization, String status);
     LectureResponse createTeacher(LectureRequest request);
-    Lecturer updateTeacher(Long id, LectureRequest request);
+    LectureResponse  updateTeacher(Long id, LectureRequest request);
     void deleteTeacher(Long id);
-    Lecturer getTeacher(Long id);
-    Lecturer updateStatus(Long id, String status);
+    LectureResponse  getTeacher(Long id);
+    LectureResponse  updateStatus(Long id, String status);
 }

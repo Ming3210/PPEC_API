@@ -23,9 +23,27 @@ public class LectureServiceImpl implements LectureService {
     private IndustryRepository industryRepository;
 
     @Override
-    public List<Lecturer> getAllTeachers(String keyword, String specialization, String status) {
-        return List.of();
+    public List<LectureResponse> getAllTeachers(String keyword, String specialization, String status) {
+        Boolean deletedStatus = null;
+        if (status != null && !status.trim().isEmpty()) {
+            if (status.equalsIgnoreCase("deleted")) {
+                deletedStatus = true;
+            } else if (status.equalsIgnoreCase("active")) {
+                deletedStatus = false;
+            }
+        }
+
+        List<Lecturer> lecturers = lectureRepository.searchLecturers(
+                (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null,
+                (specialization != null && !specialization.trim().isEmpty()) ? specialization.trim() : null,
+                deletedStatus
+        );
+
+        return lecturers.stream()
+                .map(LectureServiceImpl::toResponse)
+                .toList();
     }
+
 
     @Override
     public LectureResponse createTeacher(LectureRequest request) {
@@ -57,23 +75,62 @@ public class LectureServiceImpl implements LectureService {
 
 
     @Override
-    public Lecturer updateTeacher(Long id, LectureRequest request) {
-        return null;
+    public LectureResponse updateTeacher(Long id, LectureRequest request) {
+        Lecturer lecturer = lectureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+
+        lecturer.setLecturerCode(request.getLecturerCode());
+        lecturer.setDateOfBirth(request.getDateOfBirth());
+        lecturer.setHometown(request.getHometown());
+        lecturer.setWorkYear(request.getWorkYear());
+
+        if (request.getDepartmentId() != null) {
+            Departments department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khoa với ID: " + request.getDepartmentId()));
+            lecturer.setDepartment(department);
+        }
+
+        if (request.getIndustryId() != null) {
+            Industry industry = industryRepository.findById(request.getIndustryId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyên ngành với ID: " + request.getIndustryId()));
+            lecturer.setIndustry(industry);
+        }
+
+        Lecturer updatedLecturer = lectureRepository.save(lecturer);
+        return toResponse(updatedLecturer);
     }
+
 
     @Override
     public void deleteTeacher(Long id) {
-
+        Lecturer lecturer = lectureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+        lecturer.setDeleted(true);
+        lectureRepository.save(lecturer);
     }
 
     @Override
-    public Lecturer getTeacher(Long id) {
-        return null;
+    public LectureResponse getTeacher(Long id) {
+        Lecturer lecturer = lectureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+        return toResponse(lecturer);
     }
 
     @Override
-    public Lecturer updateStatus(Long id, String status) {
-        return null;
+    public LectureResponse updateStatus(Long id, String status) {
+        Lecturer lecturer = lectureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+
+        if ("DELETED".equalsIgnoreCase(status)) {
+            lecturer.setDeleted(true);
+        } else if ("ACTIVE".equalsIgnoreCase(status)) {
+            lecturer.setDeleted(false);
+        } else {
+            throw new RuntimeException("Trạng thái không hợp lệ: " + status);
+        }
+
+        Lecturer savedLecturer = lectureRepository.save(lecturer);
+        return toResponse(savedLecturer);
     }
 
 
@@ -85,7 +142,7 @@ public class LectureServiceImpl implements LectureService {
                 .dateOfBirth(lecturer.getDateOfBirth())
                 .lecturerCode(lecturer.getLecturerCode())
                 .hometown(lecturer.getHometown())
-                .schoolId(lecturer.getDepartment() != null ? lecturer.getDepartment().getId() : null)
+                .departmentId(lecturer.getDepartment() != null ? lecturer.getDepartment().getId() : null)
                 .industryId(lecturer.getIndustry() != null ? lecturer.getIndustry().getId() : null)
                 .workYear(lecturer.getWorkYear())
                 .build();
