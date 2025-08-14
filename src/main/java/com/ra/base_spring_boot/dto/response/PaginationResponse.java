@@ -12,4 +12,3 @@ public class PaginationResponse<T> {
     private List<T> items;
     private PaginationDTO pagination;
 }
-
