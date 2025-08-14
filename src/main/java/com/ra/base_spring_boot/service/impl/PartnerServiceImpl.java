@@ -182,23 +182,4 @@ public class PartnerServiceImpl implements PartnerService {
                 .status(partnerDTO.getStatus())
                 .build();
     }
-
-    public PartnerDTO convertToPartnerDTO(Partner partner) {
-        List<Long> industryIds = partner.getIndustries() != null
-                ? partner.getIndustries().stream().map(Industry::getId).toList()
-                : new ArrayList<>();
-        Set<Long> industryIdSet = new HashSet<>(industryIds);
-
-        return PartnerDTO.builder()
-                .partnerCode(partner.getPartnerCode())
-                .name(partner.getName())
-                .description(partner.getDescription())
-                .numberOfEmployees(partner.getNumberOfEmployees())
-                .numberOfCourses(partner.getNumberOfCourses())
-                .address(partner.getAddress())
-                .avatar(partner.getAvatarUrl())
-                .industryIds(industryIdSet)
-                .status(partner.getStatus())
-                .build();
-    }
 }
