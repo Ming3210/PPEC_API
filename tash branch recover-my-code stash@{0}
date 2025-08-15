@@ -1,0 +1,148 @@
+[1mdiff --git a/src/main/java/com/ra/base_spring_boot/controller/NewsController.java b/src/main/java/com/ra/base_spring_boot/controller/NewsController.java[m
+[1mnew file mode 100644[m
+[1mindex 0000000..63380a7[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/java/com/ra/base_spring_boot/controller/NewsController.java[m
+[36m@@ -0,0 +1,58 @@[m
+[32m+[m[32mpackage com.ra.base_spring_boot.controller;[m
+[32m+[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.request.NewsRequest;[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.response.APIResponse;[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.response.NewsResponse;[m
+[32m+[m[32mimport com.ra.base_spring_boot.service.interfaces.NewsService;[m
+[32m+[m[32mimport jakarta.validation.Valid;[m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+[32m+[m[32mimport org.springframework.http.HttpStatus;[m
+[32m+[m[32mimport org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.*;[m
+[32m+[m
+[32m+[m[32mimport java.time.LocalDateTime;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+[32m+[m[32m@RestController[m
+[32m+[m[32m@RequestMapping("/api/news")[m
+[32m+[m[32mpublic class NewsController {[m
+[32m+[m
+[32m+[m[32m    @Autowired[m
+[32m+[m[32m    private NewsService newsService;[m
+[32m+[m
+[32m+[m[32m    @PostMapping[m
+[32m+[m[32m    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @RequestBody NewsRequest request) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Thêm tin tức thành công", newsService.create(request),[m
+[32m+[m[32m                HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @PutMapping("/{id}")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @RequestBody NewsRequest request) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Cập nhật tin tức thành công", newsService.update(id, request),[m
+[32m+[m[32m                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @DeleteMapping("/{id}")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<String>> delete(@PathVariable Long id) {[m
+[32m+[m[32m        newsService.delete(id);[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Xóa tin tức thành công", null,[m
+[32m+[m[32m                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @GetMapping[m
+[32m+[m[32m    public ResponseEntity<APIResponse<List<NewsResponse>>> getAll() {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Lấy tất cả tin tức thành công", newsService.getAll(),[m
+[32m+[m[32m                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @GetMapping("/search")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<List<NewsResponse>>> search(@RequestParam String keyword) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Tìm kiếm tin tức thành công", newsService.search(keyword),[m
+[32m+[m[32m                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/main/java/com/ra/base_spring_boot/controller/NotificationController.java b/src/main/java/com/ra/base_spring_boot/controller/NotificationController.java[m
+[1mnew file mode 100644[m
+[1mindex 0000000..af5f015[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/java/com/ra/base_spring_boot/controller/NotificationController.java[m
+[36m@@ -0,0 +1,50 @@[m
+[32m+[m[32mpackage com.ra.base_spring_boot.controller;[m
+[32m+[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.request.NotificationRequest;[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.response.APIResponse;[m
+[32m+[m[32mimport com.ra.base_spring_boot.dto.response.NotificationResponse;[m
+[32m+[m[32mimport com.ra.base_spring_boot.service.interfaces.NotificationService;[m
+[32m+[m[32mimport jakarta.validation.Valid;[m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+[32m+[m[32mimport org.springframework.http.HttpStatus;[m
+[32m+[m[32mimport org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.*;[m
+[32m+[m
+[32m+[m[32mimport java.time.LocalDateTime;[m
+[32m+[m[32mimport java.util.List;[m
+[32m+[m
+[32m+[m[32m@RestController[m
+[32m+[m[32m@RequestMapping("/api/notifications")[m
+[32m+[m[32mpublic class NotificationController {[m
+[32m+[m
+[32m+[m[32m    @Autowired[m
+[32m+[m[32m    private NotificationService notificationService;[m
+[32m+[m
+[32m+[m[32m    @GetMapping("/user/{userId}")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<List<NotificationResponse>>> getAllByUser(@PathVariable Long userId) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Lấy tất cả thông báo của người dùng thành công",[m
+[32m+[m[32m                notificationService.getAllByUser(userId), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @PostMapping[m
+[32m+[m[32m    public ResponseEntity<APIResponse<NotificationResponse>> create(@Valid @RequestBody NotificationRequest request) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Tạo thông báo thành công",[m
+[32m+[m[32m                notificationService.create(request), HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @PutMapping("/{id}/read")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<NotificationResponse>> markAsRead(@PathVariable Long id) {[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Thông báo đã được đọc", notificationService.markAsRead(id),[m
+[32m+[m[32m                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    @DeleteMapping("/{id}")[m
+[32m+[m[32m    public ResponseEntity<APIResponse<String>> delete(@PathVariable Long id) {[m
+[32m+[m[32m        notificationService.delete(id);[m
+[32m+[m[32m        return new ResponseEntity<>([m
+[32m+[m[32m            new APIResponse<>(true, "Xóa thông báo thành công", null, HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/main/java/com/ra/base_spring_boot/dto/request/NewsRequest.java b/src/main/java/com/ra/base_spring_boot/dto/request/NewsRequest.java[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9385203[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/java/com/ra/base_spring_boot/dto/request/NewsRequest.java[m
+[36m@@ -0,0 +1,23 @@[m
+[32m+[m[32mpackage com.ra.base_spring_boot.dto.request;[m
+[32m+[m
+[32m+[m
+[32m+[m[32mimport jakarta.validation.constraints.NotBlank;[m
+[32m+[m[32mimport jakarta.validation.constraints.NotNull;[m
+[32m+[m[32mimport lombok.Data;[m
+[32m+[m
+[32m+[m[32m@Data[m
+[32m+[m[32mpublic class NewsRequest {[m
+[32m+[m[32m    @NotBlank(message = "Tiêu đề không được để trống")[m
+[32m+[m[32m    private String title;[m
+[32m+[m
+[32m+[m[32m    @NotBlank(message = "Ban tóm tắt không được để trống")[m
+[32m+[m[32m    private String summary;[m
+[32m+[m
+[32m+[m[32m    @NotBlank(message = "Noội dung không được để trống")[m
+[32m+[m[32m    private String content;[m
+[32m+[m
+[32m+[m[32m    private String imageUrl;[m
+[3
