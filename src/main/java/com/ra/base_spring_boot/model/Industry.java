@@ -10,7 +10,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "industries")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Industry {
 
     @Id
@@ -21,7 +25,12 @@ public class Industry {
     @Size(max = 255)
     @Column(nullable = false, unique = true, length = 255)
     private String name;
-    @ManyToMany(mappedBy = "industries")
-    private Set<Partner> partners = new HashSet<>();
-}
 
+    @ManyToMany(mappedBy = "industries", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Partner> partners = new HashSet<>();
+
+    @OneToMany(mappedBy = "industry")
+    private Set<Student> students = new HashSet<>();
+
+}
