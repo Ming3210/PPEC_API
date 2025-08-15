@@ -45,7 +45,7 @@ public class StudentController {
     @DeleteMapping("/{studentId}")
     public ResponseEntity<APIResponse<?>> deleteStudent(@PathVariable Long studentId) {
         studentService.deleteStudent(studentId);
-        return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!", null, HttpStatus.OK, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!", null, HttpStatus.NO_CONTENT, LocalDateTime.now().toString()));
     }
 
 
