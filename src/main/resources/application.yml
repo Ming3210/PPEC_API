@@ -33,6 +33,15 @@ spring:
           useUnicode: true
     open-in-view: false
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+
 server:
   port: 8080
 jwt:
