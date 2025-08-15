@@ -20,7 +20,7 @@ public class StudentController {
     @PostMapping
     public ResponseEntity<APIResponse<?>> createStudent(@Valid @ModelAttribute StudentRequest studentRequest) {
         {
-            return ResponseEntity.ok(new APIResponse<>(true, "Create student successfully!", IStudentService.createStudent(studentRequest), HttpStatus.OK, LocalDateTime.now().toString()));
+            return ResponseEntity.ok(new APIResponse<>(true, "Create student successfully!", IStudentService.createStudent(studentRequest), HttpStatus.OK, LocalDateTime.now()));
         }
     }
 
@@ -29,23 +29,23 @@ public class StudentController {
                                                           @RequestParam(defaultValue = "10") Integer itemPage,
                                                           @RequestParam(defaultValue = "id") String sortBy,
                                                           @RequestParam(defaultValue = "true") Boolean orderBy) {
-        return ResponseEntity.ok(new APIResponse<>(true, "Get student successfully!", IStudentService.getAllStudents(page, itemPage, sortBy, orderBy), HttpStatus.CREATED, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new APIResponse<>(true, "Get student successfully!", IStudentService.getAllStudents(page, itemPage, sortBy, orderBy), HttpStatus.CREATED, LocalDateTime.now()));
     }
 
     @GetMapping("/{studentId}")
     public ResponseEntity<APIResponse<?>> getStudentById(@PathVariable Long studentId) {
-        return ResponseEntity.ok(new APIResponse<>(true, "Get student successfully!", IStudentService.getStudentById(studentId), HttpStatus.OK, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new APIResponse<>(true, "Get student successfully!", IStudentService.getStudentById(studentId), HttpStatus.OK, LocalDateTime.now()));
     }
 
     @PutMapping("/{studentId}")
     public ResponseEntity<APIResponse<?>> updateStudent(@PathVariable Long studentId, @Valid @ModelAttribute StudentUpdateDTO studentRequest) {
-        return ResponseEntity.ok(new APIResponse<>(true, "Update student successfully!", IStudentService.updateStudent(studentId, studentRequest), HttpStatus.OK, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new APIResponse<>(true, "Update student successfully!", IStudentService.updateStudent(studentId, studentRequest), HttpStatus.OK, LocalDateTime.now()));
     }
 
     @DeleteMapping("/{studentId}")
     public ResponseEntity<APIResponse<?>> deleteStudent(@PathVariable Long studentId) {
         IStudentService.deleteStudent(studentId);
-        return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!", null, HttpStatus.OK, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!", null, HttpStatus.OK, LocalDateTime.now()));
     }
 
 
