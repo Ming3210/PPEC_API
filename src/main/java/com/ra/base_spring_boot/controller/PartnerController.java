@@ -3,7 +3,7 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.model.Partner;
-import com.ra.base_spring_boot.service.interfaces.PartnerService;
+import com.ra.base_spring_boot.service.interfaces.IPartnerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,13 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/partners")
 public class PartnerController {
     @Autowired
-    private PartnerService partnerService;
+    private IPartnerService partnerService;
     @PostMapping
     public ResponseEntity<APIResponse<Partner>> createPartner(@Valid @ModelAttribute PartnerDTO partnerDTO) {
         Partner createdPartner = partnerService.createPartner(partnerDTO);

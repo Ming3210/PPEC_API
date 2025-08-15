@@ -43,5 +43,6 @@ logging:
     com.phenikaauniversity.coursemanagement: DEBUG
 
 jwt:
-  refresh : 3600
-  expire: 86400
+  expire: 86400000
+  refresh: 172800000
+  secret: 123456789101234567890qưertyuiopasdfghjklzxcvbnm
