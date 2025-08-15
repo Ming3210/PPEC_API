@@ -29,4 +29,8 @@ public class Industry {
     @ManyToMany(mappedBy = "industries", fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Partner> partners = new HashSet<>();
+
+    @OneToMany(mappedBy = "industry")
+    private Set<Student> students = new HashSet<>();
+
 }

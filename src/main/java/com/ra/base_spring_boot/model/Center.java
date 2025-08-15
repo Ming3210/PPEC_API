@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,9 +32,11 @@ public class Center {
     )
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "center", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Course> courses = new ArrayList<>();
+    @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Course> courses;
 
-    @OneToMany(mappedBy = "center", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<CourseOff> coursesOff = new ArrayList<>();
+    @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<CourseOff> coursesOff;
 }
