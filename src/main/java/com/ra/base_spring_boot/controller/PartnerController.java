@@ -22,25 +22,25 @@ public class PartnerController {
     public ResponseEntity<APIResponse<Partner>> createPartner(@Valid @ModelAttribute PartnerDTO partnerDTO) {
         Partner createdPartner = partnerService.createPartner(partnerDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new APIResponse<>(true, "Thêm đối tác thành công !!!", createdPartner, HttpStatus.CREATED, LocalDateTime.now().toString()));
+                .body(new APIResponse<>(true, "Thêm đối tác thành công !!!", createdPartner, HttpStatus.CREATED, LocalDateTime.now()));
     }
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<Partner>> updatePartner(@PathVariable Long id, @Valid @ModelAttribute PartnerDTO partnerDTO) {
         Partner updatedPartner = partnerService.updatePartner(id, partnerDTO);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new APIResponse<>(true, "Cập nhật đối tác thành công !!!", updatedPartner, HttpStatus.OK, LocalDateTime.now().toString()));
+                .body(new APIResponse<>(true, "Cập nhật đối tác thành công !!!", updatedPartner, HttpStatus.OK, LocalDateTime.now()));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<String>> deletePartner(@PathVariable Long id) {
         partnerService.deletePartner(id);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new APIResponse<>(true, "Xóa đối tác thành công !!!", "Đối tác đã được xóa", HttpStatus.OK, LocalDateTime.now().toString()));
+                .body(new APIResponse<>(true, "Xóa đối tác thành công !!!", "Đối tác đã được xóa", HttpStatus.OK, LocalDateTime.now()));
     }
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<Partner>> getPartnerById(@PathVariable Long id) {
         Partner partner = partnerService.getPartnerById(id);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new APIResponse<>(true, "Lấy thông tin đối tác thành công !!!", partner, HttpStatus.OK, LocalDateTime.now().toString()));
+                .body(new APIResponse<>(true, "Lấy thông tin đối tác thành công !!!", partner, HttpStatus.OK, LocalDateTime.now()));
     }
     @GetMapping
     public ResponseEntity<Page<Partner>> getPartners(

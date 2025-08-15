@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class IPartnerServiceImpl implements IPartnerService {
+public class PartnerServiceImpl implements IPartnerService {
 
     @Autowired
     private PartnerRepository partnerRepository;

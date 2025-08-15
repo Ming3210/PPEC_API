@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.dto.request;
 
-import com.ra.base_spring_boot.until.ExamStatus;
+
+import com.ra.base_spring_boot.model.constants.ExamStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

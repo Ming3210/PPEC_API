@@ -1,4 +1,4 @@
-package com.ra.base_spring_boot.until;
+package com.ra.base_spring_boot.model.constants;
 
 public enum ExamStatus {
     UPCOMING, ONGOING, COMPLETED

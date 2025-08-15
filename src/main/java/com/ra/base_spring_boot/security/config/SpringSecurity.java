@@ -52,6 +52,7 @@ public class SpringSecurity {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
+
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -64,8 +65,4 @@ public class SpringSecurity {
 
         return http.build();
     }
-
-
-
-
 }

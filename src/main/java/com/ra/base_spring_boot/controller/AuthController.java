@@ -25,11 +25,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<APIResponse<User>> registerUser(@Valid @RequestBody RegisterRequest userRegister){
         User newUser = authService.Register(userRegister);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new APIResponse<>(true, "Register user successfully!", newUser, HttpStatus.CREATED, LocalDateTime.now().toString()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new APIResponse<>(true, "Register user successfully!", newUser, HttpStatus.CREATED, LocalDateTime.now()));
     }
     @PostMapping("/login")
     public ResponseEntity<APIResponse<JWTResponse>> login(@Valid @RequestBody LoginRequest userLogin){
         JWTResponse user = authService.login(userLogin);
-        return ResponseEntity.status(HttpStatus.OK).body(new APIResponse<>(true, "Login successfully!", user, HttpStatus.OK, LocalDateTime.now().toString()));
+        return ResponseEntity.status(HttpStatus.OK).body(new APIResponse<>(true, "Login successfully!", user, HttpStatus.OK, LocalDateTime.now()));
     }
 }
