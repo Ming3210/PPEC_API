@@ -33,15 +33,23 @@ spring:
           useUnicode: true
     open-in-view: false
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+
 server:
   port: 8080
+jwt:
+  refresh : 3600
+  expire: 86400
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
-
-jwt:
-  refresh : 3600
-  expire: 86400

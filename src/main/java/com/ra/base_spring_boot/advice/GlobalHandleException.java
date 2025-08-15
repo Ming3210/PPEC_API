@@ -1,7 +1,8 @@
 package com.ra.base_spring_boot.advice;
 
-import com.ra.base_spring_boot.exception.*;
 import com.ra.base_spring_boot.dto.ResponseWrapper;
+import com.ra.base_spring_boot.dto.response.APIResponse;
+import com.ra.base_spring_boot.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,82 +12,46 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalHandleException
-{
-    /**
-     * @param ex MethodArgumentNotValidException
-     * @apiNote handle valid exception for validation (400)
-     */
+public class GlobalHandleException {
+
+    private <T> ResponseEntity<APIResponse<T>> buildErrorResponse(String message, T data, HttpStatus status) {
+        APIResponse<T> response = APIResponse.<T>builder()
+                .status(false)
+                .message(message)
+                .data(data)
+                .httpStatus(status)
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(response, status);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidException(MethodArgumentNotValidException ex)
-    {
+    public ResponseEntity<APIResponse<Map<String, String>>> handleValidException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ResponseWrapper.builder()
-                        .data(errors)
-                        .code(HttpStatus.BAD_REQUEST.value())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build()
-        );
+        return buildErrorResponse("Dữ liệu không hợp lệ", errors, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * @param ex MaxUploadSizeExceededException
-     * @apiNote handle exception max upload file (400)
-     */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<?> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex)
-    {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.BAD_REQUEST.value())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        return buildErrorResponse("Kích thước tệp vượt quá giới hạn", ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * @param ex NoResourceFoundException
-     * @apiNote handle exception not found resource (404)
-     * */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException ex)
-    {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.NOT_FOUND.value())
-                        .status(HttpStatus.NOT_FOUND)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleNoResourceFoundException(NoResourceFoundException ex) {
+        return buildErrorResponse("Không tìm thấy tài nguyên", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * @param ex UsernameNotFoundException
-     * @apiNote handle username not found exception
-     * */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException ex)
-    {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.NOT_FOUND.value())
-                        .status(HttpStatus.NOT_FOUND)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        return buildErrorResponse("Không tìm thấy người dùng", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * @param ex HttpBadRequest
-     * @apiNote handle exception bad request (400)
-     * */
     @ExceptionHandler(HttpBadRequest.class)
     public ResponseEntity<?> handleHttpBadRequest(HttpBadRequest ex)
     {
@@ -99,69 +64,35 @@ public class GlobalHandleException
         );
     }
 
-    /**
-     * @param ex HttpUnAuthorized
-     * @apiNote handle exception unauthorized (401)
-     * */
     @ExceptionHandler(HttpUnAuthorized.class)
-    public ResponseEntity<?> handleHttpUnAuthorized(HttpUnAuthorized ex)
-    {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.UNAUTHORIZED.value())
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleHttpUnAuthorized(HttpUnAuthorized ex) {
+        return buildErrorResponse("Không được phép truy cập", ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    /**
-     * @param ex HttpForbiden
-     * @apiNote handle exception forbiden (403)
-     * */
     @ExceptionHandler(HttpForbiden.class)
-    public ResponseEntity<?> handleHttpForbiden(HttpForbiden ex)
-    {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.FORBIDDEN.value())
-                        .status(HttpStatus.FORBIDDEN)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleHttpForbiden(HttpForbiden ex) {
+        return buildErrorResponse("Truy cập bị từ chối", ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    /**
-     * @param ex HttpNotFound
-     * @apiNote handle exception not found (404)
-     * */
     @ExceptionHandler(HttpNotFound.class)
-    public ResponseEntity<?> handleHttpNotFound(HttpNotFound ex)
-    {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.NOT_FOUND.value())
-                        .status(HttpStatus.NOT_FOUND)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleHttpNotFound(HttpNotFound ex) {
+        return buildErrorResponse("Không tìm thấy", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * @param ex HttpConflict
-     * @apiNote handle exception conflict (409)
-     * */
+    @ExceptionHandler(PartnerAlreadyExistsException.class)
+    public ResponseEntity<APIResponse<Object>> handlePartnerExists(PartnerAlreadyExistsException ex) {
+        return buildErrorResponse("Đối tác đã tồn tại", null, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<APIResponse<Map<String, String>>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("errorDetail", ex.getMessage());
+        return buildErrorResponse("Yêu cầu không hợp lệ", errors, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(HttpConflict.class)
-    public ResponseEntity<?> handleHttpConflict(HttpConflict ex)
-    {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                ResponseWrapper.builder()
-                        .data(ex.getMessage())
-                        .code(HttpStatus.CONFLICT.value())
-                        .status(HttpStatus.CONFLICT)
-                        .build()
-        );
+    public ResponseEntity<APIResponse<String>> handleHttpConflict(HttpConflict ex) {
+        return buildErrorResponse("Xung đột dữ liệu", ex.getMessage(), HttpStatus.CONFLICT);
     }
-
-
 }
