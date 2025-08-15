@@ -25,6 +25,9 @@ public class Lecturer {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @NotBlank
     @Size(max = 50)
     @Column(name = "lecturer_code", nullable = false, unique = true, length = 50)
@@ -35,7 +38,7 @@ public class Lecturer {
     private LocalDate dateOfBirth;
 
     @Size(max = 255)
-    @Column(name = "hometown", length = 255)
+    @Column(name = "hometown")
     private String hometown;
 
     @ManyToOne

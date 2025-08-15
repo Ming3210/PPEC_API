@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
-public class IStudentServiceImpl implements IStudentService {
+public class StudentServiceImpl implements IStudentService {
 
     @Autowired
     private StudentRepository studentRepository;

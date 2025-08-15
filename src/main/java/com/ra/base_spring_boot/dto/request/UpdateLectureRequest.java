@@ -4,19 +4,14 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LectureRequest {
+public class UpdateLectureRequest {
     private MultipartFile image;
-
-    @NotNull(message = "User ID không được để trống")
-    private Long userId;
 
     @NotBlank(message = "Mã giảng viên không được để trống")
     @Size(max = 50, message = "Mã giảng viên không vượt quá 50 ký tự")
