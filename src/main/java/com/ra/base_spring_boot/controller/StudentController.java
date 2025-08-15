@@ -22,7 +22,7 @@ public class StudentController {
     @Autowired
     private IStudentService IStudentService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping  (consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<APIResponse<?>> createStudent(@Valid @ModelAttribute StudentRequest studentRequest) {
         return ResponseEntity.ok(new APIResponse<>(true, "Create student successfully!",
