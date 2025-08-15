@@ -15,7 +15,7 @@ import com.ra.base_spring_boot.repository.DepartmentRepository;
 import com.ra.base_spring_boot.repository.IndustryRepository;
 import com.ra.base_spring_boot.repository.StudentRepository;
 import com.ra.base_spring_boot.repository.UserRepository;
-import com.ra.base_spring_boot.service.interfaces.StudentService;
+import com.ra.base_spring_boot.service.interfaces.IStudentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,12 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
-public class StudentServiceImpl implements StudentService {
+public class IStudentServiceImpl implements IStudentService {
 
     @Autowired
     private StudentRepository studentRepository;

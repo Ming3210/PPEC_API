@@ -5,14 +5,14 @@ import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
-import com.ra.base_spring_boot.service.interfaces.LectureService;
+import com.ra.base_spring_boot.service.interfaces.ILectureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class LectureServiceImpl implements LectureService {
+public class ILectureServiceImpl implements ILectureService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -40,7 +40,7 @@ public class LectureServiceImpl implements LectureService {
         );
 
         return lecturers.stream()
-                .map(LectureServiceImpl::toResponse)
+                .map(ILectureServiceImpl::toResponse)
                 .toList();
     }
 
