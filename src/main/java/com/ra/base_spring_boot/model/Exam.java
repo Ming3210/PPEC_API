@@ -1,6 +1,6 @@
 package com.ra.base_spring_boot.model;
 
-import com.ra.base_spring_boot.until.ExamStatus;
+import com.ra.base_spring_boot.model.constants.ExamStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
