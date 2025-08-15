@@ -152,26 +152,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
     }
 
     @Override
-<<<<<<< HEAD
-    public CourseOffDTO getCourseById(Long id) {
-        CourseOff courseOff = getCourseOffById(id);
-        return convertToDTO(courseOff);
-    }
-
-    public CourseOffDTO convertToDTO(CourseOff courseOff) {
-        return CourseOffDTO.builder()
-                .name(courseOff.getName())
-                .bannerUrl(courseOff.getBannerUrl())
-                .targetAudience(courseOff.getTargetAudience())
-                .description(courseOff.getDescription())
-                .estimatedHours(courseOff.getEstimatedHours())
-                .price(courseOff.getPrice())
-                .centerName(courseOff.getCenter().getName())
-                .skills(courseOff.getSkills().stream()
-                        .map(Skill::getName)
-                        .collect(Collectors.toSet()))
-                .build();
-=======
     public void deleteCourseOff(Long id) {
         CourseOff existingCourseOff = courseOffRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + id));
@@ -314,6 +294,5 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 courseOff.getCenter().getName(),
                 skillDTOs
         );
->>>>>>> f95082d9ea40f5f7d001aa459046c707539cfd98
     }
 }

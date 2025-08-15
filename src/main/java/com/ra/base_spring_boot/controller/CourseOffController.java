@@ -1,8 +1,10 @@
 package com.ra.base_spring_boot.controller;
 
+import com.ra.base_spring_boot.dto.request.CourseOffRequest;
 import com.ra.base_spring_boot.dto.request.CourseOffRequestDTO;
 import com.ra.base_spring_boot.dto.request.CourseOffSearchFilterDTO;
 import com.ra.base_spring_boot.dto.ResponseWrapper;
+import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.CourseOffResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.ICourseOffService;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/courses-off")
@@ -98,5 +101,39 @@ public class CourseOffController {
                         .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<APIResponse<CourseOffResponseDTO>> addCourseOff(@Valid @RequestBody CourseOffRequestDTO courseOffRequest){
+        return new ResponseEntity<>(new APIResponse<>(
+                true,
+                "Thao tác thêm thành công!",
+                courseOffService.createCourseOff(courseOffRequest),
+                HttpStatus.CREATED,
+                LocalDateTime.now().toString()
+        ), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<CourseOffResponseDTO>> updateCourseOff(@PathVariable Long id, @Valid @RequestBody CourseOffRequestDTO courseOffRequest){
+        return new ResponseEntity<>(new APIResponse<>(
+                true,
+                "Thao tác cập nhật thành công!",
+                courseOffService.updateCourseOff(id, courseOffRequest),
+                HttpStatus.OK,
+                LocalDateTime.now().toString()
+        ), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCourseOff(@PathVariable Long id){
+        courseOffService.deleteCourseOff(id);
+        return new ResponseEntity<>(new APIResponse<>(
+                true,
+                "Thao tác xóa thành công!",
+                null,
+                HttpStatus.OK,
+                LocalDateTime.now().toString()
+        ), HttpStatus.OK);
     }
 }
