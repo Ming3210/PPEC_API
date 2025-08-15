@@ -10,6 +10,7 @@ import com.ra.base_spring_boot.service.interfaces.ICourseOffService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,6 @@ import java.util.Map;
 public class CourseOffController {
 
     private final ICourseOffService courseOffService;
-
 
     @GetMapping
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> getAllCoursesOff(
@@ -105,7 +105,7 @@ public class CourseOffController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseWrapper<CourseOffResponseDTO>> createCourseOff(
             @Valid @ModelAttribute CourseOffRequestDTO courseOffRequestDTO) {
@@ -122,7 +122,7 @@ public class CourseOffController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseWrapper<CourseOffResponseDTO>> updateCourseOff(
             @PathVariable Long id,
