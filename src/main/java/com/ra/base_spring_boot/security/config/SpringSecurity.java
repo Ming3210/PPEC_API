@@ -51,7 +51,6 @@ public class SpringSecurity {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/lectures/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex

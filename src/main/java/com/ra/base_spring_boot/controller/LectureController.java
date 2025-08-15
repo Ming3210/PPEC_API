@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.LectureRequest;
+import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.service.interfaces.ILectureService;
@@ -36,7 +37,7 @@ public class LectureController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<APIResponse<LectureResponse>> createLecture(@Valid @RequestBody LectureRequest request) {
+    public ResponseEntity<APIResponse<LectureResponse>> createLecture(@Valid @ModelAttribute LectureRequest request) {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Lecture created successfully",
                         lectureService.createTeacher(request),
@@ -44,11 +45,11 @@ public class LectureController {
         );
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','LECTURE')")
+    @PreAuthorize("hasAnyRole('ADMIN','LECTURER')")
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<LectureResponse>> updateLecture(
             @PathVariable Long id,
-            @Valid @RequestBody LectureRequest request) {
+            @Valid @ModelAttribute UpdateLectureRequest request) {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Lecture updated successfully",
                         lectureService.updateTeacher(id, request),
@@ -63,7 +64,7 @@ public class LectureController {
         return ResponseEntity.ok(new APIResponse<>(true, "Teacher deleted successfully", null, null, null));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','LECTURE')")
+    @PreAuthorize("hasAnyRole('ADMIN','LECTURER')")
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<LectureResponse>> getTeacher(@PathVariable Long id) {
         return ResponseEntity.ok(
