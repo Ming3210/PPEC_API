@@ -5,6 +5,7 @@ import com.ra.base_spring_boot.dto.request.ExamRequestDTO;
 import com.ra.base_spring_boot.dto.request.ExamSearchFilterDTO;
 import com.ra.base_spring_boot.dto.response.ExamResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.model.constants.ExamStatus;
 import com.ra.base_spring_boot.service.interfaces.IExamService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/admin/exams")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('_ROLE_ADMIN')")
 public class ExamController {
 
     private final IExamService examService;
@@ -125,7 +126,7 @@ public class ExamController {
         filterDTO.setTitle(title);
         if (status != null && !status.trim().isEmpty()) {
             try {
-                filterDTO.setStatus(com.ra.base_spring_boot.until.ExamStatus.valueOf(status.toUpperCase()));
+                filterDTO.setStatus(ExamStatus.valueOf(status.toUpperCase()));
             } catch (IllegalArgumentException e) {
             }
         }

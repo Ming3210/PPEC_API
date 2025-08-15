@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/centers")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CenterController {
 
     private final ICenterService centerService;

@@ -25,7 +25,7 @@ public class GlobalHandleException {
                 .message(message)
                 .data(data)
                 .httpStatus(status)
-                .timestamp(LocalDateTime.now().toString())
+                .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(response, status);
     }

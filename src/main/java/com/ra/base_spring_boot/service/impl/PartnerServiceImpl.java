@@ -8,12 +8,11 @@ import com.ra.base_spring_boot.model.Industry;
 import com.ra.base_spring_boot.model.Partner;
 import com.ra.base_spring_boot.repository.IndustryRepository;
 import com.ra.base_spring_boot.repository.PartnerRepository;
-import com.ra.base_spring_boot.service.interfaces.PartnerService;
+import com.ra.base_spring_boot.service.interfaces.IPartnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-public class PartnerServiceImpl implements PartnerService {
+public class PartnerServiceImpl implements IPartnerService {
 
     @Autowired
     private PartnerRepository partnerRepository;

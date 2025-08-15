@@ -1,18 +1,27 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.dto.request.LectureRequest;
+import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
-import com.ra.base_spring_boot.service.interfaces.LectureService;
+import com.ra.base_spring_boot.service.interfaces.ILectureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
-public class LectureServiceImpl implements LectureService {
+public class LectureServiceImpl implements ILectureService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -21,6 +30,26 @@ public class LectureServiceImpl implements LectureService {
     private DepartmentRepository departmentRepository;
     @Autowired
     private IndustryRepository industryRepository;
+    @Autowired
+    private Cloudinary cloudinary;
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user hiện tại"));
+    }
+
+    private void checkOwnerOrAdmin(Long lectureId) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getRole() == RoleName.LECTURER) {
+            Lecturer myLecturer = lectureRepository.findByUserId(currentUser.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên của user hiện tại"));
+            if (!myLecturer.getId().equals(lectureId)) {
+                throw new AccessDeniedException("Không có quyền truy cập");
+            }
+        }
+    }
+
 
     @Override
     public List<LectureResponse> getAllTeachers(String keyword, String specialization, String status) {
@@ -32,18 +61,15 @@ public class LectureServiceImpl implements LectureService {
                 deletedStatus = false;
             }
         }
-
         List<Lecturer> lecturers = lectureRepository.searchLecturers(
                 (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null,
                 (specialization != null && !specialization.trim().isEmpty()) ? specialization.trim() : null,
                 deletedStatus
         );
-
         return lecturers.stream()
                 .map(LectureServiceImpl::toResponse)
                 .toList();
     }
-
 
     @Override
     public LectureResponse createTeacher(LectureRequest request) {
@@ -69,13 +95,26 @@ public class LectureServiceImpl implements LectureService {
             lecturer.setIndustry(industry);
         }
 
+        MultipartFile image = request.getImage();
+        if (image != null && !image.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(
+                        image.getBytes(),
+                        ObjectUtils.emptyMap()
+                );
+                lecturer.setImageUrl(uploadResult.get("secure_url").toString());
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi tải ảnh", e);
+            }
+        }
+
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
     }
 
-
     @Override
-    public LectureResponse updateTeacher(Long id, LectureRequest request) {
+    public LectureResponse updateTeacher(Long id, UpdateLectureRequest request) {
+        checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
 
@@ -96,6 +135,19 @@ public class LectureServiceImpl implements LectureService {
             lecturer.setIndustry(industry);
         }
 
+        MultipartFile image = request.getImage();
+        if (image != null && !image.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(
+                        image.getBytes(),
+                        ObjectUtils.emptyMap()
+                );
+                lecturer.setImageUrl(uploadResult.get("secure_url").toString());
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi tải ảnh", e);
+            }
+        }
+
         Lecturer updatedLecturer = lectureRepository.save(lecturer);
         return toResponse(updatedLecturer);
     }
@@ -103,6 +155,7 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public void deleteTeacher(Long id) {
+        checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
         lecturer.setDeleted(true);
@@ -111,6 +164,7 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public LectureResponse getTeacher(Long id) {
+        checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
         return toResponse(lecturer);
@@ -118,9 +172,9 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public LectureResponse updateStatus(Long id, String status) {
+        checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
-
         if ("DELETED".equalsIgnoreCase(status)) {
             lecturer.setDeleted(true);
         } else if ("ACTIVE".equalsIgnoreCase(status)) {
@@ -128,11 +182,9 @@ public class LectureServiceImpl implements LectureService {
         } else {
             throw new RuntimeException("Trạng thái không hợp lệ: " + status);
         }
-
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
     }
-
 
     public static LectureResponse toResponse(Lecturer lecturer) {
         return LectureResponse.builder()
@@ -145,6 +197,7 @@ public class LectureServiceImpl implements LectureService {
                 .departmentId(lecturer.getDepartment() != null ? lecturer.getDepartment().getId() : null)
                 .industryId(lecturer.getIndustry() != null ? lecturer.getIndustry().getId() : null)
                 .workYear(lecturer.getWorkYear())
+                .imageUrl(lecturer.getImageUrl())
                 .build();
     }
 }
