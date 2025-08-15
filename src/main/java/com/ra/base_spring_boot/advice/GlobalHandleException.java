@@ -88,7 +88,7 @@ public class GlobalHandleException
      * @apiNote handle exception bad request (400)
      * */
     @ExceptionHandler(HttpBadRequest.class)
-    public ResponseEntity<?> handleHttpBadReqeust(HttpBadRequest ex)
+    public ResponseEntity<?> handleHttpBadRequest(HttpBadRequest ex)
     {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ResponseWrapper.builder()
