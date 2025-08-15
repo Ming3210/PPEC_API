@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/ojt_team5?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
     username: root
-    password: Lhn09112005@
+    password: donut_12321
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 20
@@ -35,13 +35,12 @@ spring:
 
 server:
   port: 8080
+jwt:
+  refresh : 3600
+  expire: 86400
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
-
-jwt:
-  refresh : 3600
-  expire: 86400
