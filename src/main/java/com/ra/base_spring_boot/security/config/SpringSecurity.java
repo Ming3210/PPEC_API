@@ -51,17 +51,8 @@ public class SpringSecurity {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // tất cả đều được xem
-                        .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
-                        // chỉ admin + school_admin được thêm
-                        .requestMatchers(HttpMethod.POST, "/api/news/**").hasAnyRole("ADMIN", "SCHOOL_ADMIN")
-                        // chỉ admin + school_admin được sửa
-                        .requestMatchers(HttpMethod.PUT, "/api/news/**").hasAnyRole("ADMIN", "SCHOOL_ADMIN")
-                        // chỉ admin + school_admin được xóa
-                        .requestMatchers(HttpMethod.DELETE, "/api/news/**").hasAnyRole("ADMIN", "SCHOOL_ADMIN")
+                        .anyRequest().permitAll()
 
-
-                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())

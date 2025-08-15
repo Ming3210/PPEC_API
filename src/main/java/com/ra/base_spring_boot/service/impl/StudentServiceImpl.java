@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.dto.request.StudentRequest;
 import com.ra.base_spring_boot.dto.request.StudentUpdateDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.StudentResponse;
 import com.ra.base_spring_boot.model.Departments;
 import com.ra.base_spring_boot.model.Industry;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
-public class IStudentServiceImpl implements IStudentService {
+public class StudentServiceImpl implements IStudentService {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -99,7 +100,7 @@ public class IStudentServiceImpl implements IStudentService {
     }
 
     @Override
-    public Page<StudentResponse> getAllStudents(Integer page, Integer itemPage, String sortBy, Boolean orderBy) {
+    public PaginationResponse<StudentResponse> getAllStudents(Integer page, Integer itemPage, String sortBy, Boolean orderBy) {
         Pageable pageable;
         if (sortBy != null && !sortBy.isEmpty()) {
             Sort sort = orderBy
@@ -111,37 +112,11 @@ public class IStudentServiceImpl implements IStudentService {
         }
 
         Page<Student> students = studentRepository.findAll(pageable);
+        Page<StudentResponse> studentResponses = students.map(this::toStudentResponse);
 
-        return students.map(student -> {
-            User user = student.getUser();
-            Departments department = student.getDepartment();
-            Industry industry = student.getIndustry();
-
-            return StudentResponse.builder()
-                    .studentId(student.getId())
-
-                    .userId(user != null ? user.getId() : null)
-                    .username(user != null ? user.getUsername() : null)
-                    .fullName(user != null ? user.getFullName() : null)
-                    .dateOfBirth(student.getDateOfBirth())
-                    .gender(student.getGender())
-                    .email(user != null ? user.getEmail() : null)
-                    .phoneNumber(user != null ? user.getPhoneNumber() : null)
-                    .address(student.getAddress())
-                    .avatarUrl(user != null ? student.getAvatarUrl() : null)
-
-                    // Thông tin Student
-                    .studentCode(student.getStudentCode())
-                    .className(student.getClassName())
-
-                    // Thông tin liên kết
-                    .departmentId(department != null ? department.getId() : null)
-                    .departmentName(department != null ? department.getName() : null)
-                    .industryId(industry != null ? industry.getId() : null)
-                    .industryName(industry != null ? industry.getName() : null)
-                    .build();
-        });
+        return PaginationResponse.of(studentResponses);
     }
+
 
     @Override
     public StudentResponse getStudentById(Long studentId) {
