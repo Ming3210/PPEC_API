@@ -49,6 +49,17 @@ public class CourseOffController {
         ), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<CourseOffDTO>> getCourseOffById(@PathVariable Long id) {
+        return new ResponseEntity<>(new APIResponse<>(
+                true,
+                "Lấy chi tiết 1 khóa học thành công!",
+                courseOffService.getCourseById(id),
+                HttpStatus.OK,
+                LocalDateTime.now().toString()
+        ), HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<APIResponse<CourseOffDTO>> addCourseOff(@Valid @RequestBody CourseOffRequest courseOffRequest){
         return new ResponseEntity<>(new APIResponse<>(

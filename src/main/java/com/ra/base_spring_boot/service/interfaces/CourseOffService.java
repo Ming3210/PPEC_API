@@ -15,4 +15,6 @@ public interface CourseOffService {
     CourseOffDTO update(Long id, CourseOffRequest courseOffRequest);
 
     void delete(Long id);
+
+    CourseOffDTO getCourseById(Long id);
 }

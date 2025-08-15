@@ -110,6 +110,12 @@ public class CourseOffServiceImpl implements CourseOffService {
         courseOffRepository.delete(courseOff);
     }
 
+    @Override
+    public CourseOffDTO getCourseById(Long id) {
+        CourseOff courseOff = getCourseOffById(id);
+        return convertToDTO(courseOff);
+    }
+
     public CourseOffDTO convertToDTO(CourseOff courseOff) {
         return CourseOffDTO.builder()
                 .name(courseOff.getName())
