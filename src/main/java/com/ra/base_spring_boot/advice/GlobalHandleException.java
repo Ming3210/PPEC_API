@@ -81,7 +81,7 @@ public class GlobalHandleException {
 
     @ExceptionHandler(PartnerAlreadyExistsException.class)
     public ResponseEntity<APIResponse<Object>> handlePartnerExists(PartnerAlreadyExistsException ex) {
-        return buildErrorResponse("Đối tác đã tồn tại", null, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
