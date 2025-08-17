@@ -19,10 +19,6 @@ public class School {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
-
     @NotBlank
     @Size(max = 255)
     @Column(name = "school_name", nullable = false, length = 255)

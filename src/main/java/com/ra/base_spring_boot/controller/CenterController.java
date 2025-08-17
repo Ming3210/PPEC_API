@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/centers")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CenterController {
 
     private final ICenterService centerService;
@@ -82,7 +82,7 @@ public class CenterController {
 
         return ResponseEntity.ok(response);
     }
-
+    // chưa kiểm tra id có tồn tại hay
     @GetMapping("/{id}/can-delete")
     public ResponseEntity<ResponseWrapper<Map<String, Object>>> checkCanDelete(@PathVariable Long id) {
         boolean canDelete = centerService.canDeleteCenter(id);

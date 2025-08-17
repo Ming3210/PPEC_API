@@ -1,184 +1,157 @@
 package com.ra.base_spring_boot.service.impl;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.advice.PartnerAlreadyExistsException;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.model.Industry;
 import com.ra.base_spring_boot.model.Partner;
 import com.ra.base_spring_boot.repository.IndustryRepository;
 import com.ra.base_spring_boot.repository.PartnerRepository;
+import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
+import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PartnerServiceImpl implements IPartnerService {
 
-    @Autowired
-    private PartnerRepository partnerRepository;
-
-    @Autowired
-    private IndustryRepository industryRepository;
-
-    @Autowired
-    private Cloudinary cloudinary;
+    private final PartnerRepository partnerRepository;
+    private final IndustryRepository industryRepository;
+    private final ICloudinaryService cloudinaryService;
 
     @Override
-    public Partner createPartner(PartnerDTO partnerDTO) {
-        if (partnerRepository.existsByPartnerCode(partnerDTO.getPartnerCode())) {
-            throw new PartnerAlreadyExistsException("Đối tác đã tồn tại");
+    public PartnerResponseDTO createPartner(PartnerDTO dto) {
+        if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
+            throw new PartnerAlreadyExistsException("Mã đối tác đã tồn tại");
+        }
+        if (partnerRepository.existsByName(dto.getName())) {
+            throw new PartnerAlreadyExistsException("Tên đối tác đã tồn tại");
         }
 
-        if (partnerDTO.getIndustryIds() != null) {
-            for (Long industryId : partnerDTO.getIndustryIds()) {
-                if (!industryRepository.existsByIdCustom(industryId)) {
-                    throw new IllegalArgumentException("Không tìm thấy ngành công nghiệp với ID: " + industryId);
-                }
-            }
-        }
-        String logoUrl = null;
-        try {
-            MultipartFile imageFile = partnerDTO.getAvatarUrl();
-            if (imageFile != null && !imageFile.isEmpty()) {
-                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
-                logoUrl = uploadResult.get("url").toString();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Đăng ảnh lên không thành công", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi không xác định", e);
-        }
-
-        Set<Industry> industries = partnerDTO.getIndustryIds() != null
-                ? new HashSet<>(industryRepository.findAllById(partnerDTO.getIndustryIds()))
-                : new HashSet<>();
-
-        Partner newPartner = Partner.builder()
-                .partnerCode(partnerDTO.getPartnerCode())
-                .name(partnerDTO.getName())
-                .description(partnerDTO.getDescription())
-                .numberOfEmployees(partnerDTO.getNumberOfEmployees())
-                .numberOfCourses(partnerDTO.getNumberOfCourses())
-                .address(partnerDTO.getAddress())
-                .status(partnerDTO.getStatus())
-                .industries(industries)
-                .avatarUrl(logoUrl)
-                .build();
-
-        return partnerRepository.save(newPartner);
+        Partner partner = new Partner();
+        mapDtoToEntity(dto, partner);
+        partner = partnerRepository.save(partner);
+        return mapEntityToResponse(partner);
     }
 
     @Override
-    public Partner updatePartner(Long id, PartnerDTO partnerDTO) {
-        Partner existingPartner = partnerRepository.findById(Math.toIntExact(id))
-                .orElseThrow(() -> new IllegalArgumentException("Partner with id " + id + " not found"));
+    @Transactional
+    public PartnerResponseDTO updatePartner(Long id, PartnerDTO dto) {
+        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
-        if (partnerRepository.existsByPartnerCodeAndIdNot(partnerDTO.getPartnerCode(), id)) {
-            throw new PartnerAlreadyExistsException("Đối tác đã tồn tại với mã đối tác: " + partnerDTO.getPartnerCode());
+        if (!partner.getPartnerCode().equals(dto.getPartnerCode()) &&
+                partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
+            throw new PartnerAlreadyExistsException("Mã đối tác đã tồn tại");
+        }
+        if (!partner.getName().equals(dto.getName()) &&
+                partnerRepository.existsByName(dto.getName())) {
+            throw new PartnerAlreadyExistsException("Tên đối tác đã tồn tại");
         }
 
-        if (partnerDTO.getIndustryIds() != null) {
-            for (Long industryId : partnerDTO.getIndustryIds()) {
-                if (!industryRepository.existsByIdCustom(industryId)) {
-                    throw new IllegalArgumentException("Không tìm thấy ngành công nghiệp với ID: " + industryId);
-                }
-            }
-        }
+        mapDtoToEntity(dto, partner);
+        partner = partnerRepository.save(partner);
+        partner.getIndustries().size();
 
-        String logoUrl = null;
-        try {
-            MultipartFile imageFile = partnerDTO.getAvatarUrl();
-            if (imageFile != null && !imageFile.isEmpty()) {
-                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
-                logoUrl = uploadResult.get("url").toString();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Đăng ảnh lên không thành công", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi không xác định", e);
-        }
+        return mapEntityToResponse(partner);
+    }
 
-        Set<Industry> industries = partnerDTO.getIndustryIds() != null
-                ? new HashSet<>(industryRepository.findAllById(partnerDTO.getIndustryIds()))
-                : new HashSet<>();
 
-        existingPartner.setPartnerCode(partnerDTO.getPartnerCode());
-        existingPartner.setName(partnerDTO.getName());
-        existingPartner.setDescription(partnerDTO.getDescription());
-        existingPartner.setNumberOfEmployees(partnerDTO.getNumberOfEmployees());
-        existingPartner.setNumberOfCourses(partnerDTO.getNumberOfCourses());
-        existingPartner.setAddress(partnerDTO.getAddress());
-        existingPartner.setStatus(partnerDTO.getStatus());
-        existingPartner.setIndustries(industries);
-        existingPartner.setAvatarUrl(logoUrl);
-
-        return partnerRepository.save(existingPartner);
+    @Override
+    public PartnerResponseDTO getPartnerById(Long id) {
+        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
+        return mapEntityToResponse(partner);
     }
 
     @Override
-    public Partner getPartnerById(Long id) {
-        return partnerRepository.findById((int) id.longValue())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đối tác với ID: " + id));
+    public List<PartnerResponseDTO> getAllPartners() {
+        return partnerRepository.findAll()
+                .stream()
+                .map(this::mapEntityToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deletePartner(Long id) {
-        Partner existingPartner = partnerRepository.findById(Math.toIntExact(id))
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đối tác với ID: " + id));
-        if (existingPartner.getIndustries() == null || existingPartner.getIndustries().isEmpty()) {
-            throw new IllegalArgumentException("Không thể xóa đối tác đã có ngành nghiệp");
+        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
+
+        if (partner.getAvatarUrl() != null) {
+            String publicId = cloudinaryService.extractPublicIdFromUrl(partner.getAvatarUrl());
+            cloudinaryService.deleteImage(publicId);
         }
-        partnerRepository.delete(existingPartner);
+
+        partnerRepository.delete(partner);
     }
 
     @Override
-    public List<Partner> getAllPartners() {
-        return partnerRepository.findAll();
-    }
-
-    @Override
-    public Page<Partner> searchPartners(String keyword, int page, int size) {
+    public Page<PartnerResponseDTO> searchPartners(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Partner> partnerPage;
-        if (keyword == null || keyword.isEmpty()) {
-            partnerPage = partnerRepository.findAll(pageable);
-        } else {
-            partnerPage = partnerRepository.findByNameContainingIgnoreCase(keyword, pageable);
-        }
+
+        Page<Partner> partnerPage = partnerRepository.searchWithIndustries(keyword, pageable);
+
         if (partnerPage.isEmpty()) {
-            throw new IllegalArgumentException("Không còn đối tác");
+            throw new IllegalArgumentException("Không tìm thấy đối tác");
         }
-        return partnerPage;
+
+        return partnerPage.map(this::mapEntityToResponse);
     }
 
-    public Partner convertToPartner(PartnerDTO partnerDTO) {
-        List<Industry> industryList = partnerDTO.getIndustryIds() != null
-                ? industryRepository.findAllById(partnerDTO.getIndustryIds())
-                : new ArrayList<>();
-        Set<Industry> industries = new HashSet<>(industryList);
 
-        return Partner.builder()
-                .partnerCode(partnerDTO.getPartnerCode())
-                .name(partnerDTO.getName())
-                .description(partnerDTO.getDescription())
-                .numberOfEmployees(partnerDTO.getNumberOfEmployees())
-                .numberOfCourses(partnerDTO.getNumberOfCourses())
-                .address(partnerDTO.getAddress())
-                .avatarUrl(partnerDTO.getAvatar())
-                .industries(industries)
-                .status(partnerDTO.getStatus())
+
+    private void mapDtoToEntity(PartnerDTO dto, Partner partner) {
+        partner.setPartnerCode(dto.getPartnerCode());
+        partner.setName(dto.getName());
+        partner.setDescription(dto.getDescription());
+        partner.setNumberOfEmployees(dto.getNumberOfEmployees());
+        partner.setNumberOfCourses(dto.getNumberOfCourses());
+        partner.setAddress(dto.getAddress());
+        partner.setStatus(dto.getStatus());
+
+        // Xử lý avatar
+        if (dto.getAvatarUrl() != null && !dto.getAvatarUrl().isEmpty()) {
+            String uploadedUrl = cloudinaryService.uploadImage(dto.getAvatarUrl(), "partners");
+            partner.setAvatarUrl(uploadedUrl);
+        } else if (dto.getAvatar() != null) {
+            partner.setAvatarUrl(dto.getAvatar());
+        }
+
+        if (dto.getIndustryIds() != null && !dto.getIndustryIds().isEmpty()) {
+            Set<Industry> industries = industryRepository.findAllById(dto.getIndustryIds())
+                    .stream().collect(Collectors.toSet());
+            partner.setIndustries(industries);
+        }
+    }
+
+    private PartnerResponseDTO mapEntityToResponse(Partner partner) {
+        return PartnerResponseDTO.builder()
+                .id(partner.getId())
+                .partnerCode(partner.getPartnerCode())
+                .name(partner.getName())
+                .description(partner.getDescription())
+                .numberOfEmployees(partner.getNumberOfEmployees())
+                .numberOfCourses(partner.getNumberOfCourses())
+                .address(partner.getAddress())
+                .avatarUrl(partner.getAvatarUrl())
+                .status(partner.getStatus())
+                .industries(
+                        partner.getIndustries() != null
+                                ? partner.getIndustries().stream()
+                                .map(Industry::getName)
+                                .collect(Collectors.toSet())
+                                : null
+                )
                 .build();
     }
 }
