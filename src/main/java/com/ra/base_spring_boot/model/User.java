@@ -38,7 +38,6 @@ public class User {
     @Pattern(regexp = "^(\\+\\d{1,3}[- ]?)?\\d{9,15}$", message = "Số điện thoại không hợp lệ")
     @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
