@@ -35,8 +35,6 @@ public class Payment {
     @Column(precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(precision = 19, scale = 2)
-    private BigDecimal amount;
     @Column(name = "payment_date", updatable = false, insertable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime paymentDate;
 

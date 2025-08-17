@@ -35,12 +35,14 @@ spring:
 
 server:
   port: 8080
-jwt:
-  refresh : 3600
-  expire: 86400
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
+
+jwt:
+  expire: 86400000
+  refresh: 172800000
+  secret: 123456789101234567890qưertyuiopasdfghjklzxcvbnm

@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.service.impl;
 
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +51,11 @@ public class CloudinaryServiceImpl implements ICloudinaryService {
                     "folder", folder,
                     "public_id", folder + "/" + uniqueFilename.replace(".", "_"),
                     "resource_type", "image",
-                    "transformation", ObjectUtils.asMap(
-                            "quality", "auto",
-                            "fetch_format", "auto"
-                    )
+                    "transformation", new Transformation()
+                            .quality("auto")
+                            .fetchFormat("auto")
             );
+
 
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
             String imageUrl = uploadResult.get("secure_url").toString();

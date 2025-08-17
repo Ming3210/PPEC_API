@@ -26,7 +26,7 @@ public class StudentController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<APIResponse<?>> createStudent(@Valid @ModelAttribute StudentRequest studentRequest) {
         return ResponseEntity.ok(new APIResponse<>(true, "Create student successfully!",
-                IStudentService.createStudent(studentRequest), HttpStatus.OK, LocalDateTime.now().toString()));
+                IStudentService.createStudent(studentRequest), HttpStatus.OK, LocalDateTime.now()));
     }
 
     @GetMapping
@@ -40,7 +40,7 @@ public class StudentController {
                 "Get student successfully!",
                 IStudentService.getAllStudents(page, itemPage, sortBy, orderBy),
                 HttpStatus.OK,
-                LocalDateTime.now().toString()
+                LocalDateTime.now()
         ));
     }
 
@@ -48,22 +48,22 @@ public class StudentController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER', 'STUDENT')")
     public ResponseEntity<APIResponse<?>> getStudentById(@PathVariable Long studentId) {
         return ResponseEntity.ok(new APIResponse<>(true, "Get student successfully!",
-                IStudentService.getStudentById(studentId), HttpStatus.OK, LocalDateTime.now().toString()));
+                IStudentService.getStudentById(studentId), HttpStatus.OK, LocalDateTime.now()));
     }
 
     @PutMapping("/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')") // chỉ ADMIN và LECTURER được sửa
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<APIResponse<?>> updateStudent(@PathVariable Long studentId,
                                                         @Valid @ModelAttribute StudentUpdateDTO studentRequest) {
         return ResponseEntity.ok(new APIResponse<>(true, "Update student successfully!",
-                IStudentService.updateStudent(studentId, studentRequest), HttpStatus.OK, LocalDateTime.now().toString()));
+                IStudentService.updateStudent(studentId, studentRequest), HttpStatus.OK, LocalDateTime.now()));
     }
 
     @DeleteMapping("/{studentId}")
-    @PreAuthorize("hasRole('ADMIN')") // chỉ ADMIN được xóa
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<APIResponse<?>> deleteStudent(@PathVariable Long studentId) {
         IStudentService.deleteStudent(studentId);
         return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!",
-                null, HttpStatus.OK, LocalDateTime.now().toString()));
+                null, HttpStatus.OK, LocalDateTime.now()));
     }
 }
