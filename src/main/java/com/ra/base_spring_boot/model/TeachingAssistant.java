@@ -26,7 +26,7 @@ public class TeachingAssistant {
     @Size(max = 50)
     @Column(name = "ta_code", nullable = false, unique = true, length = 50)
     private String taCode;
-
+    private String avatar;
     @ManyToOne
     @JoinColumn(name = "assigned_lecturer_id")
     private Lecturer assignedLecturer;

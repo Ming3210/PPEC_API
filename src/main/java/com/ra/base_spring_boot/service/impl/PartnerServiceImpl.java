@@ -119,7 +119,6 @@ public class PartnerServiceImpl implements IPartnerService {
         partner.setAddress(dto.getAddress());
         partner.setStatus(dto.getStatus());
 
-        // Xử lý avatar
         if (dto.getAvatarUrl() != null && !dto.getAvatarUrl().isEmpty()) {
             String uploadedUrl = cloudinaryService.uploadImage(dto.getAvatarUrl(), "partners");
             partner.setAvatarUrl(uploadedUrl);
