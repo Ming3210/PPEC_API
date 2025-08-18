@@ -24,8 +24,6 @@ public class UserCertificate {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
 
     @Column(name = "certificate_id", nullable = false)
     private Long certificateId;

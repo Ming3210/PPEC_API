@@ -56,6 +56,7 @@ public class CloudinaryServiceImpl implements ICloudinaryService {
                             .fetchFormat("auto")
             );
 
+
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
             String imageUrl = uploadResult.get("secure_url").toString();
 

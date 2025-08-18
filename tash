@@ -1,0 +1,274 @@
+[33mcommit b1c48e3c3ff1abeee1276ebc590b854808b4b3fd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m)[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Mon Aug 18 00:43:02 2025 +0700
+
+    add
+
+[33mcommit d9aabbb6c8f467f59618ae968064427bfb017050[m[33m ([m[1;31morigin/develop[m[33m)[m
+Merge: bbd8da2 dc7d29f
+Author: Nguyễn Đình Dương <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 08:08:17 2025 +0000
+
+    Merge branch 'feature/dinhduong' into 'develop'
+    
+    Feature/dinhduong
+    
+    See merge request ojt-k23-ptit/team05!38
+
+[33mcommit dc7d29fd0a40791bf3d491326e4b2cee10b4f9cc[m[33m ([m[1;31morigin/feature/dinhduong[m[33m)[m
+Merge: 8946d4d bbd8da2
+Author: Nguyễn Đình Dương <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 08:07:39 2025 +0000
+
+    Merge branch 'develop' into 'feature/dinhduong'
+    
+    # Conflicts:
+    #   src/main/java/com/ra/base_spring_boot/security/config/SpringSecurity.java
+
+[33mcommit 8946d4db3ed801a250547db9f37511afd781b44d[m
+Merge: 66819fb 3b805a9
+Author: Duong <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 15:04:54 2025 +0700
+
+    CRUD notificatio, new
+
+[33mcommit bbd8da2bd105a685df600dc497a9c4d49f89f4f9[m
+Merge: 32e0a69 9d3f9bb
+Author: Lại Hoàng  Nam <laihoangnam2005@gmail.com>
+Date:   Fri Aug 15 07:54:06 2025 +0000
+
+    Merge branch 'feature/hoangnam' into 'develop'
+    
+    Feature/hoangnam
+    
+    See merge request ojt-k23-ptit/team05!37
+
+[33mcommit 9d3f9bb7f9f7001962017be9a8f1338327c94f7c[m[33m ([m[1;31morigin/feature/hoangnam[m[33m, [m[1;32mfeature/hoangnam[m[33m)[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Fri Aug 15 14:53:09 2025 +0700
+
+     fix lecture add mutipartfile
+
+[33mcommit 32e0a691b5a48c7b328d1116afb4fef545f49f5e[m
+Merge: 3b805a9 ceaaba4
+Author: Pham Van Minh <vminh0227@gmail.com>
+Date:   Fri Aug 15 07:47:13 2025 +0000
+
+    Merge branch 'feature/Ming' into 'develop'
+    
+    Feature/ming
+    
+    See merge request ojt-k23-ptit/team05!36
+
+[33mcommit 66819fba78ffb04538c29f316da2dad6fe897e23[m
+Author: Duong <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 14:44:37 2025 +0700
+
+    fix
+
+[33mcommit 3b805a9433222a9692119b666b8d668ede4bafa5[m
+Merge: 730ed67 38abcdb
+Author: Nguyễn Huy Hoàng <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 07:40:08 2025 +0000
+
+    Merge branch 'feature/Hoang' into 'develop'
+    
+    Feat: Create Authorize
+    
+    See merge request ojt-k23-ptit/team05!35
+
+[33mcommit 38abcdb656b2a6bdb850e212de04df9b59db8218[m
+Merge: 6dae5b0 730ed67
+Author: Nguyễn Huy Hoàng <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 07:39:54 2025 +0000
+
+    Merge branch 'develop' into 'feature/Hoang'
+    
+    # Conflicts:
+    #   src/main/resources/application.yml
+
+[33mcommit 6dae5b0095645287a7e7f7ffd2cb42c6f043102c[m
+Author: Hoang <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 14:38:08 2025 +0700
+
+    Create authorize
+
+[33mcommit ceaaba4e20d039b0f00d8a93f9eb9d94ba8ed121[m[33m ([m[1;31morigin/feature/Ming[m[33m)[m
+Author: unknown <vminh0227@gmail.com>
+Date:   Fri Aug 15 14:36:31 2025 +0700
+
+    feat:update upload image to formData(not json)
+
+[33mcommit 4b75a33f6fd38f18a5b1f532460c566e49a5bd48[m
+Author: unknown <vminh0227@gmail.com>
+Date:   Fri Aug 15 14:35:31 2025 +0700
+
+    add
+
+[33mcommit 01b73503ec47cca9b9d6cb5c4fb91e69c2241469[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: ae461f1 eeca26d
+Author: Nguyễn Đình Dương <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 07:25:40 2025 +0000
+
+    Merge branch 'recover-my-code' into 'main'
+    
+    CRUD notification, news
+    
+    See merge request ojt-k23-ptit/team05!34
+
+[33mcommit eeca26dd1ab60e67a9f1dd3458a5e6c361efe80e[m
+Merge: 29be2b1 ae461f1
+Author: Nguyễn Đình Dương <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 07:25:18 2025 +0000
+
+    Merge branch 'main' into 'recover-my-code'
+    
+    # Conflicts:
+    #   src/main/resources/application.yml
+
+[33mcommit 29be2b18ca7f57eff992aa951d15bfc188c38127[m
+Author: Duong <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 14:23:24 2025 +0700
+
+    CRUD notification, news
+
+[33mcommit 26c9ae638d40401e276b45c5b478b621304a8572[m
+Author: Duong <nguyendinhduong2005yt@gmail.com>
+Date:   Fri Aug 15 14:19:50 2025 +0700
+
+    add code
+
+[33mcommit 69abfa8ddb1ebbdd2ca4ea3443f954f17261b8b6[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Fri Aug 15 13:29:10 2025 +0700
+
+    fix lecture check role
+
+[33mcommit 56279d77abc98eca67a55fa505d82d53c5e358fc[m
+Merge: 225975b 730ed67
+Author: unknown <vminh0227@gmail.com>
+Date:   Fri Aug 15 13:07:25 2025 +0700
+
+    feat:mergin
+
+[33mcommit 225975b475aad8bbc105a3b3c4eeb3cec1402e29[m
+Author: unknown <vminh0227@gmail.com>
+Date:   Fri Aug 15 13:03:45 2025 +0700
+
+    feat:still working
+
+[33mcommit 730ed6795c99347e2fe92148802a8344cdfffab6[m
+Merge: 4b2023f 3337284
+Author: Lại Hoàng  Nam <laihoangnam2005@gmail.com>
+Date:   Fri Aug 15 06:00:48 2025 +0000
+
+    Merge branch 'feature/hoangnam' into 'develop'
+    
+    feat: rename interface Lecture Partner Student
+    
+    See merge request ojt-k23-ptit/team05!33
+
+[33mcommit 3337284e4cbb32c2bf6bab61a8cb9078d8b8a4c2[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Fri Aug 15 13:00:07 2025 +0700
+
+    feat: rename interface Lecture Partner Student
+
+[33mcommit 93157e90aeefc310d2c3aeeffadcb17cf7a430d8[m
+Merge: ae758e0 4b2023f
+Author: Hoang <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 08:21:48 2025 +0700
+
+    Feat: Resolve conflict
+
+[33mcommit ae758e026d34e8cf4a3f001c32b87681ec188939[m
+Author: Hoang <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 08:20:44 2025 +0700
+
+    Feat: CRUD Course Offline
+
+[33mcommit 4b2023f796823a4e0bbc7a47fd7e79fb0169447c[m
+Merge: f95082d 2ce683c
+Author: Nguyễn Đỗ Huy Hoàng <phongdztv112234@gmail.com>
+Date:   Fri Aug 15 01:16:48 2025 +0000
+
+    Merge branch 'feature/NguyenDoHuyHoang' into 'develop'
+    
+    feat: update Authorize CourseOff endpoint
+    
+    See merge request ojt-k23-ptit/team05!32
+
+[33mcommit 2ce683c4c611d5b59457fde1008ccaaf6cb061e3[m[33m ([m[1;31morigin/feature/NguyenDoHuyHoang[m[33m)[m
+Author: donut <phongdztv112234@gmail.com>
+Date:   Fri Aug 15 08:15:55 2025 +0700
+
+    feat: update Authorize CourseOff endpoint
+
+[33mcommit b90ff93e6e93549363365f97f2e83e0237e9f726[m
+Merge: 8c33161 f95082d
+Author: Hoang <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 07:50:21 2025 +0700
+
+    Feat: Resolve Conflict
+
+[33mcommit 8c331616d5a4c55394a12d48816c94057e06082d[m
+Author: Hoang <huyhoangcs2611@gmail.com>
+Date:   Fri Aug 15 07:47:47 2025 +0700
+
+    Feat: CRUD Course ÃOffline
+
+[33mcommit f95082d9ea40f5f7d001aa459046c707539cfd98[m
+Merge: f63c9c5 b398548
+Author: Nguyễn Đỗ Huy Hoàng <phongdztv112234@gmail.com>
+Date:   Fri Aug 15 00:43:16 2025 +0000
+
+    Merge branch 'feature/NguyenDoHuyHoang' into 'develop'
+    
+    Feature/nguyen do huy hoang
+    
+    See merge request ojt-k23-ptit/team05!31
+
+[33mcommit b3985481d1dfc8f2a0b2b0ca82f3e8b16c4fcc59[m
+Merge: 2ec1218 f63c9c5
+Author: donut <phongdztv112234@gmail.com>
+Date:   Fri Aug 15 07:42:07 2025 +0700
+
+    feat: resolve conflig in Center, CourseOff and Skill
+
+[33mcommit f63c9c5f0f4e6f561fdfe9e21b60be9e9e42b87d[m
+Merge: b09d170 009e014
+Author: Lại Hoàng  Nam <laihoangnam2005@gmail.com>
+Date:   Thu Aug 14 16:42:45 2025 +0000
+
+    Merge branch 'feature/hoangnam' into 'develop'
+    
+    Feature/hoangnam
+    
+    See merge request ojt-k23-ptit/team05!30
+
+[33mcommit 009e014bd72c974c3f1f512872c4fafa159c0513[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Thu Aug 14 23:41:36 2025 +0700
+
+    fix departmentRepo
+
+[33mcommit 895fe4e9c7e271268d636a401f946414e5149cb5[m
+Merge: a81ade6 b09d170
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Thu Aug 14 23:35:34 2025 +0700
+
+    add
+
+[33mcommit a81ade619e49c88f2ce28e284872c8bd8d79583d[m
+Author: LHN0911 <laihoangnam2005@gmail.com>
+Date:   Thu Aug 14 23:30:13 2025 +0700
+
+    update CRUD_Lecture
+
+[33mcommit 2ec1218266a55922bfd7c26c34f930e309ef941a[m
+Author: donut <phongdztv112234@gmail.com>
+Date:   Thu Aug 14 23:29:21 2025 +0700
+
+    feat: CRUD Exam, Course, Center, Skill, CourseOff, Cetificate
+
+[33mcommit

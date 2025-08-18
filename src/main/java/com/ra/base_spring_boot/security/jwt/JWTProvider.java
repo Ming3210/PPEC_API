@@ -21,13 +21,15 @@ public class JWTProvider {
     @Value("${jwt.refresh}")
     private long jwtRefresh;
 
+    @Value("${jwt.secret}")
+    private String secretKeyString; // Lấy từ cấu hình
+
     private Key key;
 
     @PostConstruct
     public void init() {
-        key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-        String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
-        log.info("Generated JWT Secret Key (Base64): {}", encodedKey);
+        byte[] keyBytes = Base64.getEncoder().encode(secretKeyString.getBytes());
+        key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username){
@@ -36,7 +38,7 @@ public class JWTProvider {
                 .setSubject(username)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + jwtExpire))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
@@ -44,22 +46,23 @@ public class JWTProvider {
         try{
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e){
             log.error("JWT token expired!");
-        }catch (UnsupportedJwtException e){
+        } catch (UnsupportedJwtException e){
             log.error("JWT token unsupported!");
-        }catch (MalformedJwtException e){
+        } catch (MalformedJwtException e){
             log.error("JWT token malformed!");
-        }catch (SignatureException e){
+        } catch (SignatureException e){
             log.error("JWT token signature error!");
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e){
             log.error("JWT token argument error!");
         }
         return false;
     }
 
     public String getUsernameFromToken(String token){
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     public String refreshToken(String token, String username){
@@ -69,7 +72,7 @@ public class JWTProvider {
                     .setSubject(username)
                     .setIssuedAt(now)
                     .setExpiration(new Date(now.getTime() + jwtRefresh))
-                    .signWith(key)
+                    .signWith(key, SignatureAlgorithm.HS512)
                     .compact();
         }
         return null;

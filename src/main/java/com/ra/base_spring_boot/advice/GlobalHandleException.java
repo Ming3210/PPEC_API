@@ -5,6 +5,8 @@ import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,7 +38,15 @@ public class GlobalHandleException {
         ex.getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         return buildErrorResponse("Dữ liệu không hợp lệ", errors, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<APIResponse<String>> handleBadCredentials(BadCredentialsException ex) {
+        return buildErrorResponse("Lỗi xác thực", "Tên đăng nhập hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
+    }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<APIResponse<String>> handleAuthenticationException(AuthenticationException ex) {
+        return buildErrorResponse("Lỗi xác thực", ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<APIResponse<String>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         return buildErrorResponse("Kích thước tệp vượt quá giới hạn", ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -81,7 +91,7 @@ public class GlobalHandleException {
 
     @ExceptionHandler(PartnerAlreadyExistsException.class)
     public ResponseEntity<APIResponse<Object>> handlePartnerExists(PartnerAlreadyExistsException ex) {
-        return buildErrorResponse("Đối tác đã tồn tại", null, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
