@@ -71,6 +71,19 @@ public class AssetController {
         );
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<AssetResponseDTO>> getAssetById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                new APIResponse<>(
+                        true,
+                        "Get asset successfully!",
+                        assetService.getAssetById(id),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
 
 
 }

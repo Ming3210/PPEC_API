@@ -67,6 +67,8 @@ public class AuthServiceImpl implements AuthService {
                     .username(user.getUsername())
                     .fullName(user.getFullName())
                     .email(user.getEmail())
+                    .phoneNumber(user.getPhoneNumber())
+                    .role(user.getRole())
                     .status(user.getStatus())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())

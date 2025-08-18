@@ -12,4 +12,6 @@ public interface IAssetService {
     void deleteAsset(Long id);
 
     PaginationResponse<AssetResponseDTO> getAllAssets(int page, int size, String sortBy, Boolean sortDirection);
+
+    AssetResponseDTO getAssetById(Long id);
 }
