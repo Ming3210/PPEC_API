@@ -4,8 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.dto.request.StudentRequest;
 import com.ra.base_spring_boot.dto.request.StudentUpdateDTO;
+import com.ra.base_spring_boot.dto.request.UpdateStudentProfileRequest;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.dto.response.StudentProfileResponse;
 import com.ra.base_spring_boot.dto.response.StudentResponse;
+import com.ra.base_spring_boot.exception.HttpConflict;
 import com.ra.base_spring_boot.model.Departments;
 import com.ra.base_spring_boot.model.Industry;
 import com.ra.base_spring_boot.model.Student;
@@ -23,11 +26,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -50,6 +56,19 @@ public class StudentServiceImpl implements IStudentService {
     @Override
     @Transactional
     public StudentResponse createStudent(StudentRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new HttpConflict("Ten tai khoan da ton tai");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new HttpConflict("Email da ton tai");
+        }
+        if(userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new HttpConflict("So dien thoai da ton tai");
+        }
+        if(studentRepository.existsByStudentCode(request.getStudentCode())) {
+            throw new HttpConflict("Ma sinh vien da ton tai");
+        }
+
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -88,7 +107,7 @@ public class StudentServiceImpl implements IStudentService {
                 .dateOfBirth(request.getDateOfBirth())
                 .gender(request.getGender())
                 .department(department)
-                .className(request.getClassName())
+                .academicYear(request.getAcademicYear())
                 .address(request.getAddress())
                 .industry(industry)
                 .avatarUrl(imageUrl)
@@ -190,10 +209,125 @@ public class StudentServiceImpl implements IStudentService {
 
     @Override
     public void deleteStudent(Long studentId) {
+
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new NoSuchElementException("Không tìm thấy sinh viên"));
-        studentRepository.delete(student);
+
+        User user = student.getUser();
+
+        userRepository.findById(user.getId()).orElseThrow(() -> new NoSuchElementException("Không tìm thấy người dung"));
+        if (user.getStatus() == AccountStatus.ACTIVE) {
+            throw new IllegalStateException("Đã xóa người dùng");
+        }
+
+        user.setStatus(AccountStatus.INACTIVE);
+        userRepository.save(user);
+
     }
+
+    @Override
+    public StudentProfileResponse toProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User userLogin = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+        Student student = studentRepository.findByUser_Username(username);
+
+
+        return StudentProfileResponse.builder()
+                .userId(userLogin.getId())
+                .studentId(student.getId())
+                .username(userLogin.getUsername())
+                .fullName(userLogin.getFullName())
+                .email(userLogin.getEmail())
+                .phoneNumber(userLogin.getPhoneNumber())
+                .studentCode(student.getStudentCode())
+                .dateOfBirth(student.getDateOfBirth())
+                .gender(student.getGender())
+                .academicYear(student.getAcademicYear())
+                .address(student.getAddress())
+                .departmentId(student.getDepartment() != null ? student.getDepartment().getId() : null)
+                .departmentName(student.getDepartment() != null ? student.getDepartment().getName() : null)
+                .industryId(student.getIndustry().getId())
+                .industryName(student.getIndustry().getName())
+                .avatarUrl(student.getAvatarUrl())
+                .toSchoolPercentage("Chưa làm thống kê")
+                .homeworkPercentage("Chưa làm thống kê")
+                .taskPreparationPercentage("Chưa làm thống kê")
+                .build();
+
+    }
+
+    @Override
+    public StudentResponse updateProfile(Long studentId, UpdateStudentProfileRequest request) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy sinh viên"));
+        User user = student.getUser();
+
+        // chỉ update nếu khác null & không rỗng
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getAddress() != null && !request.getAddress().isBlank()) {
+            student.setAddress(request.getAddress());
+        }
+
+        // Xử lý avatar
+        MultipartFile avatar = request.getAvatar();
+        String avatarUrl = request.getAvatarUrl();
+
+        // Nếu có file avatar mới
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(
+                        avatar.getBytes(),
+                        ObjectUtils.emptyMap()
+                );
+                student.setAvatarUrl(uploadResult.get("secure_url").toString());
+            } catch (IOException e) {
+                throw new RuntimeException("Lỗi khi tải ảnh", e);
+            }
+        }
+        // Nếu không có file mới nhưng có avatarUrl
+        else if (avatarUrl != null && !avatarUrl.isBlank()) {
+            student.setAvatarUrl(avatarUrl);
+        }
+        // Nếu không có cả hai thì giữ nguyên avatar cũ
+
+        // các field khác
+        if (request.getDateOfBirth() != null) {
+            student.setDateOfBirth(request.getDateOfBirth());
+        }
+        if (request.getGender() != null) {
+            student.setGender(request.getGender());
+        }
+        if (request.getAcademicYear() != null && !request.getAcademicYear().isBlank()) {
+            student.setAcademicYear(request.getAcademicYear());
+        }
+        if (request.getDepartmentId() != null) {
+            Departments department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new NoSuchElementException("Không tìm thấy khoa"));
+            student.setDepartment(department);
+        }
+        if (request.getIndustryId() != null) {
+            Industry industry = industryRepository.findById(request.getIndustryId())
+                    .orElseThrow(() -> new NoSuchElementException("Không tìm thấy ngành"));
+            student.setIndustry(industry);
+        }
+
+        userRepository.save(user);
+        studentRepository.save(student);
+
+        return toStudentResponse(student);
+    }
+
+
 
 
     private StudentResponse toStudentResponse(Student student) {
@@ -207,7 +341,7 @@ public class StudentServiceImpl implements IStudentService {
                 .studentCode(student.getStudentCode())
                 .dateOfBirth(student.getDateOfBirth())
                 .gender(student.getGender())
-                .className(student.getClassName())
+                .academicYear(student.getAcademicYear())
                 .address(student.getAddress())
                 .departmentId(student.getDepartment() != null ? student.getDepartment().getId() : null)
                 .departmentName(student.getDepartment() != null ? student.getDepartment().getName() : null)
