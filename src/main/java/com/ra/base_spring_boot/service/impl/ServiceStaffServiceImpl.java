@@ -75,6 +75,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
             String uploadedUrl = cloudinaryService.uploadImage(requestDTO.getAvatar(), "assistants");
             serviceStaff.setAvatarUrl(uploadedUrl);
         }
+
+
         staffRepository.save(serviceStaff);
 
         return toResponseDTO(user, serviceStaff, center);
@@ -172,6 +174,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
                 .position(staff.getPosition())
                 .centerId(center.getId())
                 .centerName(center.getName())
+                .staffServiceCode(staff.getStaffCode())
                 .build();
     }
 }
