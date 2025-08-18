@@ -137,4 +137,20 @@ public class AssetServiceImpl implements IAssetService {
         );
     }
 
+    @Override
+    public AssetResponseDTO getAssetById(Long id) {
+        Asset asset = assetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+        return AssetResponseDTO.builder()
+                .id(asset.getId())
+                .code(asset.getCode())
+                .name(asset.getName())
+                .notes(asset.getNotes())
+                .assignedUserId(asset.getAssignedUser() != null ? asset.getAssignedUser().getId() : null)
+                .assignedUserName(asset.getAssignedUser() != null ? asset.getAssignedUser().getFullName() : null)
+                .assignedUserEmail(asset.getAssignedUser() != null ? asset.getAssignedUser().getEmail() : null)
+                .assignedUserPhone(asset.getAssignedUser() != null ? asset.getAssignedUser().getPhoneNumber() : null)
+                .build();
+    }
+
 }
