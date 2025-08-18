@@ -1,13 +1,11 @@
 package com.ra.base_spring_boot.service.impl;
 
 import com.ra.base_spring_boot.dto.request.StaffDTO;
+import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
 import com.ra.base_spring_boot.dto.response.StaffResponseDTO;
 import com.ra.base_spring_boot.exception.HttpConflict;
 import com.ra.base_spring_boot.exception.HttpNotFound;
-import com.ra.base_spring_boot.model.School;
-import com.ra.base_spring_boot.model.Staff;
-import com.ra.base_spring_boot.model.User;
-import com.ra.base_spring_boot.model.UserDetail;
+import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.AccountStatus;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
@@ -15,6 +13,9 @@ import com.ra.base_spring_boot.service.interfaces.IAccountSchoolService;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
@@ -79,9 +80,14 @@ public class AccountSchoolServiceImpl implements IAccountSchoolService {
 
     @Override
     public StaffResponseDTO updateAccountSchool(Long staffId, StaffDTO staffDTO) {
+        User isCheckUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!isCheckUser.getRole().equals(RoleName.ADMIN)) {
+            if (!isCheckUser.getId().equals(staffId)) {
+                throw new HttpNotFound("Bạn không có quyền sửa thông tin nhân viên khác");
+            }
+        }
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy nhân viên"));
-
         User user = staff.getUser();
         user.setFullName(staffDTO.getFullName());
         user.setEmail(staffDTO.getEmail());
@@ -126,8 +132,20 @@ public class AccountSchoolServiceImpl implements IAccountSchoolService {
 
     @Override
     public Page<StaffResponseDTO> getAllAccountSchools(String keyword, int page, int size) {
-        return null;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Staff> staffPage = staffRepository.searchByKeyword(keyword, pageable);
+
+        if (staffPage.isEmpty()) {
+            throw new HttpNotFound("Không tìm thấy nhân viên");
+        }
+
+        return staffPage.map(staff -> {
+            User user = staff.getUser();
+            UserDetail userDetail = userDetailRepository.findByUserId(user.getId()).orElse(null);
+            return mapToResponse(user, userDetail, staff);
+        });
     }
+
 
     private StaffResponseDTO mapToResponse(User user, UserDetail userDetail, Staff staff) {
         return StaffResponseDTO.builder()

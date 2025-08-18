@@ -28,7 +28,6 @@ public class UpdateLectureRequest {
 
     @NotNull(message = "Chuyên ngành không được để trống")
     private Long industryId;
-
     @Min(value = 1900, message = "Năm làm việc phải từ 1900 trở lên")
     @Max(value = 2100, message = "Năm làm việc không được vượt quá 2100")
     private Integer workYear;
