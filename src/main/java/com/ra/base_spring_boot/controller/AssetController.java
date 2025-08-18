@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class AssetController {
     @Autowired
     private IAssetService assetService;
 
+    @PreAuthorize( "hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<APIResponse<?>> getAllAssets(@RequestParam(defaultValue = "0") Integer page,
                                                        @RequestParam(defaultValue = "10") Integer itemPage,
@@ -26,6 +28,7 @@ public class AssetController {
         return new ResponseEntity<>(new APIResponse<>(true, "Get all assets successfully!", assetService.getAllAssets(page, itemPage, sortBy, orderBy), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
     }
 
+    @PreAuthorize( "hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<APIResponse<AssetResponseDTO>> createAsset(
             @Valid @RequestBody AssetRequestDTO assetRequestDTO
@@ -40,7 +43,7 @@ public class AssetController {
                 )
         );
     }
-
+    @PreAuthorize( "hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<AssetResponseDTO>> updateAsset(
             @PathVariable Long id,
@@ -56,7 +59,7 @@ public class AssetController {
                 )
         );
     }
-
+    @PreAuthorize( "hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> deleteAsset(@PathVariable Long id) {
         assetService.deleteAsset(id);
@@ -70,7 +73,7 @@ public class AssetController {
                 )
         );
     }
-
+    @PreAuthorize( "hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<AssetResponseDTO>> getAssetById(@PathVariable Long id) {
         return ResponseEntity.ok(

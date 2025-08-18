@@ -57,8 +57,10 @@ public class StudentRequest {
     @NotNull(message = "Khoa không được để trống")
     private Long departmentId;
 
-    @Size(max = 100, message = "Tên lớp tối đa 100 ký tự")
-    private String className;
+    @Pattern(
+            regexp = "^[0-9]{4}-[0-9]{4}$",
+            message = "Năm học phải công khải")
+    private String academicYear;
 
     @NotNull(message = "Ngành học không được để trống")
     private Long industryId;

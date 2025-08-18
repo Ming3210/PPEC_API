@@ -22,9 +22,7 @@ public class StudentProgress {
 
     private String studentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
@@ -46,7 +44,6 @@ public class StudentProgress {
     public StudentProgress(Long id, String studentId, Course course, Lesson lesson) {
         this.id = id;
         this.studentId = studentId;
-        this.course = course;
         this.lesson = lesson;
     }
 
