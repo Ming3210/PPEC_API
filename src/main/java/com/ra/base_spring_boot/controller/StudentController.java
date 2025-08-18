@@ -52,7 +52,7 @@ public class StudentController {
     }
 
     @PutMapping("/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')") // chỉ ADMIN và LECTURER được sửa
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<APIResponse<?>> updateStudent(@PathVariable Long studentId,
                                                         @Valid @ModelAttribute StudentUpdateDTO studentRequest) {
         return ResponseEntity.ok(new APIResponse<>(true, "Update student successfully!",
@@ -60,7 +60,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{studentId}")
-    @PreAuthorize("hasRole('ADMIN')") // chỉ ADMIN được xóa
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<APIResponse<?>> deleteStudent(@PathVariable Long studentId) {
         IStudentService.deleteStudent(studentId);
         return ResponseEntity.ok(new APIResponse<>(true, "Delete student successfully!",
