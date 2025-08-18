@@ -72,7 +72,7 @@ public class LectureController {
         return ResponseEntity.ok(new APIResponse<>(true, "Teacher deleted successfully", null, null, null));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','LECTURER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<LectureResponse>> getTeacher(@PathVariable Long id) {
         return ResponseEntity.ok(
@@ -93,5 +93,15 @@ public class LectureController {
                         null, null)
         );
     }
+    @PreAuthorize("hasAnyRole('LECTURER','ADMIN')")
+    @GetMapping("/me")
+    public ResponseEntity<APIResponse<LectureResponse>> getMyProfile() {
+        return ResponseEntity.ok(
+                new APIResponse<>(true, "Lấy thông tin profile thành công",
+                        lectureService.getMyProfile(),
+                        null, null)
+        );
+    }
+
 }
 
