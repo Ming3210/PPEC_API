@@ -11,6 +11,8 @@ import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,6 +37,9 @@ public class AuthServiceImpl implements AuthService {
 
         if (userRepository.findByEmail(userRegister.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email đã tồn tại");
+        }
+        if(userRepository.existsByPhoneNumber(userRegister.getPhoneNumber())){
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
 
         User newUser = new User();
@@ -67,6 +72,8 @@ public class AuthServiceImpl implements AuthService {
                     .username(user.getUsername())
                     .fullName(user.getFullName())
                     .email(user.getEmail())
+                    .phoneNumber(user.getPhoneNumber())
+                    .role(user.getRole())
                     .status(user.getStatus())
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
@@ -74,8 +81,10 @@ public class AuthServiceImpl implements AuthService {
                     .token(token)
                     .build();
 
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Sai tài khoản hoặc mật khẩu");
         } catch (AuthenticationException e) {
-            throw new IllegalArgumentException("Lỗi xác thực: " + e.getMessage());
+            throw new RuntimeException("Xác thực thất bại: " + e.getMessage());
         }
     }
 }

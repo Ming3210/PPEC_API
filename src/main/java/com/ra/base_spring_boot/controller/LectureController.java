@@ -4,6 +4,7 @@ import com.ra.base_spring_boot.dto.request.LectureRequest;
 import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.ILectureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +24,24 @@ public class LectureController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<APIResponse<List<LectureResponse>>> getAllTeachers(
+    public ResponseEntity<APIResponse<PaginationResponse<LectureResponse>>> getAllTeachers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String specialization,
-            @RequestParam(required = false) String status) {
-
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         return ResponseEntity.ok(
-                new APIResponse<>(true, "Danh sách giảng viên",
-                        lectureService.getAllTeachers(keyword, specialization, status),
-                        null, null)
+                new APIResponse<>(
+                        true,
+                        "Danh sách giảng viên",
+                        lectureService.getAllTeachers(keyword, specialization, status, page, size),
+                        null,
+                        null
+                )
         );
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping

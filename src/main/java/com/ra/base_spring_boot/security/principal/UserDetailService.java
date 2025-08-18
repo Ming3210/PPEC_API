@@ -26,11 +26,11 @@ public class UserDetailService implements UserDetailsService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
-                .password(user.getPassword()) // đổi từ passwordHash
+                .password(user.getPassword())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole())
-                .status(user.getStatus()) // đổi từ isActive
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .authorities(Collections.singletonList(
