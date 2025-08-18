@@ -69,5 +69,8 @@ public class Course {
         this.title = title;
     }
 
+    @Column(length = 20)
+    private String type;
+
 }
 
