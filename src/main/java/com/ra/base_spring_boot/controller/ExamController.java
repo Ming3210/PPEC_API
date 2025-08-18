@@ -42,7 +42,6 @@ public class ExamController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<ResponseWrapper<ExamResponseDTO>> getExamById(@PathVariable Long id) {
         ExamResponseDTO exam = examService.getExamById(id);
