@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class LectureResponse {
     private Long id;
     private String fullName;
+    private String imageUrl;
     private String email;
     private LocalDate dateOfBirth;
     private String lecturerCode;
