@@ -20,4 +20,6 @@ public interface ILectureService {
     void deleteTeacher(Long id);
     LectureResponse  getTeacher(Long id);
     LectureResponse  updateStatus(Long id, String status);
+    LectureResponse getMyProfile();
+
 }

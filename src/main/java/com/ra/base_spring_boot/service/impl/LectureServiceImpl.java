@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class LectureServiceImpl implements ILectureService {
@@ -206,6 +207,15 @@ public class LectureServiceImpl implements ILectureService {
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
     }
+
+    @Override
+    public LectureResponse getMyProfile() {
+        User currentUser = getCurrentUser();
+        Lecturer lecturer = lectureRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy hồ sơ giảng viên cho user hiện tại"));
+        return toResponse(lecturer);
+    }
+
 
     public static LectureResponse toResponse(Lecturer lecturer) {
         return LectureResponse.builder()
