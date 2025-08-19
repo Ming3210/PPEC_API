@@ -40,4 +40,7 @@ public class Exam {
     @ManyToOne
     @JoinColumn(name = "partner_id", nullable = false)
     private Partner partner;
+
+    @Column(length = 1000)
+    private String description;
 }
