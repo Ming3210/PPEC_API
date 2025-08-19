@@ -34,4 +34,7 @@ public class TeachingAssistant {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Departments department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 }

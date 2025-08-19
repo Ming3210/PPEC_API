@@ -1,17 +1,17 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.ServiceStaffRequestDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.ServiceStaffResponseDTO;
 import com.ra.base_spring_boot.model.Center;
 import com.ra.base_spring_boot.model.ServiceStaff;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.constants.AccountStatus;
-import com.ra.base_spring_boot.repository.CenterRepository;
-import com.ra.base_spring_boot.repository.ServiceStaffRepository;
-import com.ra.base_spring_boot.repository.UserRepository;
+import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IServiceStaffService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceStaffServiceImpl implements IServiceStaffService {
@@ -34,6 +36,12 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
     private CenterRepository centerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ServiceStaffRepository serviceStaffRepository;
+    @Autowired
+    private LectureRepository lectureRepository;
+    @Autowired
+    private TeachingAssistantRepository teachingAssistantRepository;
     @Override
     @Transactional
     public ServiceStaffResponseDTO create(ServiceStaffRequestDTO requestDTO) {
@@ -141,10 +149,23 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
 
 
     @Override
-    public Page<ServiceStaffResponseDTO> getAll(String keyword, Pageable pageable) {
-        return staffRepository.search(keyword, pageable)
-                .map(s -> toResponseDTO(s.getUser(), s, s.getCenter()));
+    @Transactional(readOnly = true)
+    public PaginationResponse<ServiceStaffResponseDTO> getAll(String keyword, Pageable pageable) {
+        Page<ServiceStaff> serviceStaffs = staffRepository.search(keyword, pageable);
+
+        List<ServiceStaffResponseDTO> listDTO = serviceStaffs.getContent().stream()
+                .map(s -> toResponseDTO(s.getUser(), s, s.getCenter()))
+                .collect(Collectors.toList());
+
+        PaginationDTO paginationDTO = new PaginationDTO(
+                serviceStaffs.getNumber(),
+                serviceStaffs.getSize(),
+                serviceStaffs.getTotalPages(),
+                serviceStaffs.getTotalElements()
+        );
+        return new PaginationResponse<>(listDTO, paginationDTO);
     }
+
 
 
     @Override

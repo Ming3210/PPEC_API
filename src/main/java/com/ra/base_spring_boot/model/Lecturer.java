@@ -53,4 +53,5 @@ public class Lecturer {
     private Integer workYear;
 
     private boolean isDeleted = false;
+
 }

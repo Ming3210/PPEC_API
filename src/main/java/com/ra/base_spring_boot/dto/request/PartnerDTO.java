@@ -40,4 +40,12 @@ public class PartnerDTO {
     private PartnerStatus status;
 
     private Set<Long> industryIds;
+    @Size(max = 100, message = "Danh sách giảng viên không được vượt quá 100 người")
+    private Set<@NotNull(message = "ID giảng viên không được để trống") Long> lecturerIds;
+
+    @Size(max = 100, message = "Danh sách trợ giảng không được vượt quá 100 người")
+    private Set<@NotNull(message = "ID trợ giảng không được để trống") Long> teachingAssistantIds;
+
+    @Size(max = 100, message = "Danh sách nhân viên dịch vụ không được vượt quá 100 người")
+    private Set<@NotNull(message = "ID nhân viên dịch vụ không được để trống") Long> serviceStaffIds;
 }
