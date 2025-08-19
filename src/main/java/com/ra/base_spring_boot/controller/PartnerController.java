@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
+import com.ra.base_spring_boot.dto.response.GetDetailPartnerResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
@@ -60,5 +61,20 @@ public class PartnerController {
 
         return ResponseEntity.ok(apiResponse);
     }
+    @GetMapping("/{id}/students")
+    public ResponseEntity<APIResponse<GetDetailPartnerResponse>> getStudentsByPartnerId(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                new APIResponse<>(
+                        true,
+                        "Lấy chi tiết đối tác thành công !!!",
+                        partnerService.getDetailPartner(Math.toIntExact(id)),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
 
 }

@@ -26,5 +26,7 @@ public class JWTResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Collection<? extends GrantedAuthority> authorities;
+
     private String token;
+    private String refreshToken;
 }

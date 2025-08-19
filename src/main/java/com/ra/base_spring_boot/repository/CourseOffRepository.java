@@ -36,4 +36,6 @@ public interface CourseOffRepository extends JpaRepository<CourseOff, Long>, Jpa
 
     @Query("SELECT c FROM CourseOff c JOIN c.skills s WHERE s.id = :skillId")
     Page<CourseOff> findBySkillId(@Param("skillId") Long skillId, Pageable pageable);
+    @Query("SELECT c FROM CourseOff c WHERE c.partnerId = :partnerId")
+    List<CourseOff> findByPartnerId(@Param("partnerId") Long partnerId);
 }

@@ -22,4 +22,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByProviderContainingIgnoreCase(String provider);
     long countByCenterId(Long centerId);
+    List<Course> findByPartnerId(int partnerId);
 }

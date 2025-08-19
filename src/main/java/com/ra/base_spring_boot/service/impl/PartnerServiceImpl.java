@@ -3,16 +3,9 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.advice.PartnerAlreadyExistsException;
 import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
-import com.ra.base_spring_boot.dto.response.GetDetailPartnerResponse;
-import com.ra.base_spring_boot.dto.response.PaginationResponse;
-import com.ra.base_spring_boot.model.Course;
-import com.ra.base_spring_boot.model.Industry;
-import com.ra.base_spring_boot.model.Partner;
-import com.ra.base_spring_boot.repository.CourseRepository;
-import com.ra.base_spring_boot.repository.EnrollmentOnlineRepository;
-import com.ra.base_spring_boot.repository.IndustryRepository;
-import com.ra.base_spring_boot.repository.PartnerRepository;
-import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
+import com.ra.base_spring_boot.dto.response.*;
+import com.ra.base_spring_boot.model.*;
+import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +29,10 @@ public class PartnerServiceImpl implements IPartnerService {
     private final ICloudinaryService cloudinaryService;
     private final EnrollmentOnlineRepository enrollmentOnlineRepository;
     private final CourseRepository courseRepository;
-
+    private final StudentCourseOffRepository studentCourseOffRepository;
+    private final LessonRepository lessonRepository;
+    private final CourseOffRepository courseOffRepository;
+    private final StudentProgressRepository studentProgressRepository;
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
         if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
@@ -133,22 +129,57 @@ public class PartnerServiceImpl implements IPartnerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GetDetailPartnerResponse getDetailPartner(int partnerId) {
-        Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
-        List<Course> courses = courseRepository.findAll().stream().filter(c->c.getPartnerId().equals(partnerId)).toList();
-        int classOpened = 15;
-        double graduationRate = 0.85;
-        int totalStudent = enrollmentOnlineRepository.findAll().stream()
-                .filter(e -> e.getCourse().getPartnerId().equals(partnerId))
-                .mapToInt(e -> e.getStudent().getId().intValue())
-                .distinct()
-                .toArray().length;
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
+
+        PartnerResponseDTO partnerDTO = mapEntityToResponse(partner);
+
+        List<Course> courses = courseRepository.findByPartnerId(partnerId);
+        List<CourseOff> courseOffs = courseOffRepository.findByPartnerId((long) partnerId);
+
+        List<Long> courseIds = courses.stream().map(Course::getId).toList();
+        List<Long> courseOffIds = courseOffs.stream().map(CourseOff::getId).toList();
+
+        int totalStudentOnline = courseIds.isEmpty() ? 0 : enrollmentOnlineRepository.countByCourseIdIn(courseIds);
+        int totalStudentOffline = courseOffIds.isEmpty() ? 0 : studentCourseOffRepository.countByCourseIdIn(courseOffIds);
+        int totalStudent = totalStudentOnline + totalStudentOffline;
+
+        int graduatedOffline = countGraduated(courseOffIds, true);
+        int graduatedOnline = countGraduated(courseIds, false);
+
+        int totalGraduated = graduatedOnline + graduatedOffline;
+        double graduationRate = (totalStudent == 0) ? 0.0 : (double) totalGraduated / totalStudent;
+
+        List<CourseOnlineDTO> onlineCourses = courses.stream()
+                .map(c -> new CourseOnlineDTO(
+                        c.getId(),
+                        c.getCode(),
+                        c.getTitle(),
+                        c.getPrice(),
+                        c.getImageUrl()
+                ))
+                .toList();
+
+        List<CourseOfflineDTO> offlineCourses = courseOffs.stream()
+                .map(c -> new CourseOfflineDTO(
+                        c.getId(),
+                        c.getName(),
+                        c.getPrice(),
+                        c.getBannerUrl(),
+                        c.getEstimatedHours()
+                ))
+                .toList();
+
         GetDetailPartnerResponse response = new GetDetailPartnerResponse();
-        response.setClassOpened(classOpened);
+        response.setClassOpened(courses.size() + courseOffs.size());
         response.setGraduationRate(graduationRate);
         response.setTotalStudent(totalStudent);
-        response.setPartner(partner);
-        response.setCourses(courses);
+        response.setPartner(partnerDTO);
+        response.setOnlineCourses(onlineCourses);
+        response.setOfflineCourses(offlineCourses);
+
         return response;
     }
 
@@ -195,5 +226,36 @@ public class PartnerServiceImpl implements IPartnerService {
                                 : null
                 )
                 .build();
+    }
+    private int countGraduated(List<Long> courseIds, boolean isOffline) {
+        int graduated = 0;
+
+        for (Long courseId : courseIds) {
+            List<Lesson> lessons = lessonRepository.findByCourseId(courseId);
+            if (lessons.isEmpty()) continue;
+            List<Long> studentIds = isOffline
+                    ? studentCourseOffRepository.findStudentIdsByCourseId(courseId)
+                    : enrollmentOnlineRepository.findStudentIdsByCourseId(courseId);
+            for (Long studentId : studentIds) {
+                boolean completedAll = true;
+                for (Lesson lesson : lessons) {
+                    List<StudentProgress> progresses =
+                            studentProgressRepository.findByLessonIdAndStudentId(lesson.getId(), studentId);
+
+                    boolean finished = progresses.stream()
+                            .anyMatch(p -> Double.valueOf(1.0).equals(p.getCompletionPercentage()));
+
+                    if (!finished) {
+                        completedAll = false;
+                        break;
+                    }
+                }
+
+                if (completedAll) {
+                    graduated++;
+                }
+            }
+        }
+        return graduated;
     }
 }

@@ -5,7 +5,6 @@ import com.ra.base_spring_boot.model.Partner;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 @Data
 @NoArgsConstructor
@@ -14,6 +13,8 @@ public class GetDetailPartnerResponse {
     private int classOpened;
     private double graduationRate;
     private int totalStudent;
-    private Partner partner;
-    private List<Course> courses;
+    private PartnerResponseDTO partner;
+    private List<CourseOnlineDTO> onlineCourses;
+    private List<CourseOfflineDTO> offlineCourses;
 }
+
