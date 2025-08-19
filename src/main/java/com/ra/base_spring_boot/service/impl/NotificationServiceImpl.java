@@ -45,6 +45,18 @@ public class NotificationServiceImpl implements NotificationService {
         return mapToResponse(repo.save(noti));
     }
 
+
+    @Override
+    public NotificationResponse update(Long id, NotificationRequest request) {
+        Notification noti = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Thông báo không tìm thấy"));
+
+        noti.setTitle(request.getTitle());
+        noti.setContent(request.getContent());
+
+        return mapToResponse(repo.save(noti));
+    }
+
     @Override
     public NotificationResponse markAsRead(Long id) {
         Notification noti = repo.findById(id)
@@ -56,6 +68,18 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void delete(Long id) {
         repo.deleteById(id);
+    }
+
+    @Override
+    public PaginationResponse<NotificationResponse> search(Long userId, String keyword, int page, int size) {
+        Page<Notification> notifications = repo
+                .findByUserIdAndTitleContainingIgnoreCaseOrUserIdAndContentContainingIgnoreCase(
+                        userId, keyword, userId, keyword, PageRequest.of(page, size));
+
+        return PaginationResponse.of(
+                notifications.map(this::mapToResponse).getContent(),
+                page, size, notifications.getTotalElements()
+        );
     }
 
     private NotificationResponse mapToResponse(Notification n) {

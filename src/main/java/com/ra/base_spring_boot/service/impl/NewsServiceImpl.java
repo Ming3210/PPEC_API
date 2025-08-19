@@ -7,6 +7,7 @@ import com.ra.base_spring_boot.model.News;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.repository.NewsRepository;
 import com.ra.base_spring_boot.repository.UserRepository;
+import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,17 +22,25 @@ public class NewsServiceImpl implements NewsService {
     private NewsRepository newsRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ICloudinaryService cloudinaryService;
 
     @Override
     public NewsResponse create(NewsRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
+        // Upload ảnh lên Cloudinary
+        String imageUrl = null;
+        if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(request.getImageUrl(), "news");
+        }
+
         News news = News.builder()
                 .title(request.getTitle())
                 .summary(request.getSummary())
                 .content(request.getContent())
-                .imageUrl(request.getImageUrl())
+                .imageUrl(imageUrl)
                 .user(user)
                 .build();
 
@@ -46,7 +55,11 @@ public class NewsServiceImpl implements NewsService {
         news.setTitle(request.getTitle());
         news.setSummary(request.getSummary());
         news.setContent(request.getContent());
-        news.setImageUrl(request.getImageUrl());
+
+        if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(request.getImageUrl(), "news");
+            news.setImageUrl(imageUrl);
+        }
 
         return mapToResponse(newsRepository.save(news));
     }
