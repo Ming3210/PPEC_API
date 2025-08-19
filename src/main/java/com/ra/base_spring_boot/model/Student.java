@@ -56,5 +56,7 @@ public class Student {
 
     @Column (name = "image_url")
     private String avatarUrl;
+
+
 }
 
