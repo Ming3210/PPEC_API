@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.TeachingAssistantRequestDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.TeachingAssistantResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.ITeachingAssistantService;
 import lombok.RequiredArgsConstructor;
@@ -80,19 +81,21 @@ public class TeachingAssistantController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<Page<TeachingAssistantResponseDTO>>> getAllTeachingAssistants(
+    public ResponseEntity<APIResponse<PaginationResponse<TeachingAssistantResponseDTO>>> getAllTeachingAssistants(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<TeachingAssistantResponseDTO> assistants = teachingAssistantService.getAllTeachingAssistants(keyword, page, size);
-        return ResponseEntity.ok(
-                APIResponse.<Page<TeachingAssistantResponseDTO>>builder()
-                        .status(true)
-                        .message("Lấy danh sách trợ giảng thành công")
-                        .data(assistants)
-                        .httpStatus(HttpStatus.OK)
-                        .timestamp(LocalDateTime.now())
-                        .build()
-        );
+
+        PaginationResponse<TeachingAssistantResponseDTO> result = teachingAssistantService.getAllTeachingAssistants(keyword, page, size);
+
+        APIResponse<PaginationResponse<TeachingAssistantResponseDTO>> apiResponse = APIResponse.<PaginationResponse<TeachingAssistantResponseDTO>>builder()
+                .status(true)
+                .message("Lấy danh sách trợ giảng thành công")
+                .data(result)
+                .httpStatus(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 }

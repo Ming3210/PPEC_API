@@ -1,21 +1,27 @@
 package com.ra.base_spring_boot.service.impl;
 
 import com.ra.base_spring_boot.advice.PartnerAlreadyExistsException;
+import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
+import com.ra.base_spring_boot.dto.response.GetDetailPartnerResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.model.Course;
 import com.ra.base_spring_boot.model.Industry;
 import com.ra.base_spring_boot.model.Partner;
+import com.ra.base_spring_boot.repository.CourseRepository;
+import com.ra.base_spring_boot.repository.EnrollmentOnlineRepository;
 import com.ra.base_spring_boot.repository.IndustryRepository;
 import com.ra.base_spring_boot.repository.PartnerRepository;
 import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -28,6 +34,8 @@ public class PartnerServiceImpl implements IPartnerService {
     private final PartnerRepository partnerRepository;
     private final IndustryRepository industryRepository;
     private final ICloudinaryService cloudinaryService;
+    private final EnrollmentOnlineRepository enrollmentOnlineRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
@@ -96,7 +104,8 @@ public class PartnerServiceImpl implements IPartnerService {
     }
 
     @Override
-    public Page<PartnerResponseDTO> searchPartners(String keyword, int page, int size) {
+    @Transactional(readOnly = true)
+    public PaginationResponse<PartnerResponseDTO> searchPartners(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Partner> partnerPage = partnerRepository.searchWithIndustries(keyword, pageable);
@@ -105,9 +114,43 @@ public class PartnerServiceImpl implements IPartnerService {
             throw new IllegalArgumentException("Không tìm thấy đối tác");
         }
 
-        return partnerPage.map(this::mapEntityToResponse);
+        List<PartnerResponseDTO> partnerDTOs = partnerPage.getContent().stream()
+                .map(this::mapEntityToResponse)
+                .collect(Collectors.toList());
+
+        PaginationDTO paginationDTO = new PaginationDTO(
+                partnerPage.getNumber(),
+                partnerPage.getSize(),
+                partnerPage.getTotalPages(),
+                partnerPage.getTotalElements()
+        );
+        return new PaginationResponse<>(partnerDTOs, paginationDTO);
     }
 
+    @Override
+    public Page<PartnerResponseDTO> getPartners(String keyword, int page, int size) {
+        return null;
+    }
+
+    @Override
+    public GetDetailPartnerResponse getDetailPartner(int partnerId) {
+        Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
+        List<Course> courses = courseRepository.findAll().stream().filter(c->c.getPartnerId().equals(partnerId)).toList();
+        int classOpened = 15;
+        double graduationRate = 0.85;
+        int totalStudent = enrollmentOnlineRepository.findAll().stream()
+                .filter(e -> e.getCourse().getPartnerId().equals(partnerId))
+                .mapToInt(e -> e.getStudent().getId().intValue())
+                .distinct()
+                .toArray().length;
+        GetDetailPartnerResponse response = new GetDetailPartnerResponse();
+        response.setClassOpened(classOpened);
+        response.setGraduationRate(graduationRate);
+        response.setTotalStudent(totalStudent);
+        response.setPartner(partner);
+        response.setCourses(courses);
+        return response;
+    }
 
 
     private void mapDtoToEntity(PartnerDTO dto, Partner partner) {

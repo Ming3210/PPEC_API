@@ -62,7 +62,7 @@ public class Course {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "center_id")
     private Center center;
-
+    private Long partnerId;
     public Course(Long id, String code, String title) {
         this.id = id;
         this.code = code;
@@ -71,6 +71,5 @@ public class Course {
 
     @Column(length = 20)
     private String type;
-
 }
 

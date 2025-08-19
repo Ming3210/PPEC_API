@@ -1,6 +1,8 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.TeachingAssistantRequestDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.TeachingAssistantResponseDTO;
 import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.Departments;
@@ -19,10 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -145,14 +150,26 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
     }
 
     @Override
-    public Page<TeachingAssistantResponseDTO> getAllTeachingAssistants(String keyword, int page, int size) {
-        Page<TeachingAssistant> assistants = teachingAssistantRepository.findAll(PageRequest.of(page, size));
-        return new PageImpl<>(
-                assistants.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList()),
-                assistants.getPageable(),
+    @Transactional(readOnly = true)
+    public PaginationResponse<TeachingAssistantResponseDTO> getAllTeachingAssistants(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<TeachingAssistant> assistants = teachingAssistantRepository.findAll(pageable);
+        List<TeachingAssistantResponseDTO> assistantDTOs = assistants.getContent().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+
+        PaginationDTO paginationDTO = new PaginationDTO(
+                assistants.getNumber(),
+                assistants.getSize(),
+                assistants.getTotalPages(),
                 assistants.getTotalElements()
         );
+
+        // Trả về PaginationResponse
+        return new PaginationResponse<>(assistantDTOs, paginationDTO);
     }
+
 
     private String generateUniqueEmployeeCode() {
         String code;

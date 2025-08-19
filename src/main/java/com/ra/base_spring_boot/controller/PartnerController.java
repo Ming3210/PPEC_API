@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
 import jakarta.validation.Valid;
@@ -43,12 +44,21 @@ public class PartnerController {
                 .body(new APIResponse<>(true, "Lấy thông tin đối tác thành công !!!", partner, HttpStatus.OK, LocalDateTime.now()));
     }
     @GetMapping
-    public ResponseEntity<Page<PartnerResponseDTO>> getPartners(
+    public ResponseEntity<APIResponse<PaginationResponse<PartnerResponseDTO>>> getPartners(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<PartnerResponseDTO> response = partnerService.searchPartners(keyword, page, size);
-        return ResponseEntity.ok(response);
+        PaginationResponse<PartnerResponseDTO> result = partnerService.searchPartners(keyword, page, size);
+        APIResponse<PaginationResponse<PartnerResponseDTO>> apiResponse = APIResponse.<PaginationResponse<PartnerResponseDTO>>builder()
+                .status(true)
+                .message("Lấy danh sách đối tác thành công")
+                .data(result)
+                .httpStatus(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
+
 }
