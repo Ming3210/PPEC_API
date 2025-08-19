@@ -46,7 +46,7 @@ public class NewsController {
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Lấy tất cả tin tức thành công",
@@ -60,7 +60,7 @@ public class NewsController {
     public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Tìm kiếm tin tức thành công",
