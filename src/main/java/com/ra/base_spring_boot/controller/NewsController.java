@@ -3,6 +3,7 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.NewsRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.NewsResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/news")
@@ -43,16 +43,29 @@ public class NewsController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<NewsResponse>>> getAll() {
+    public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Lấy tất cả tin tức thành công", newsService.getAll(),
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(true, "Lấy tất cả tin tức thành công",
+                        newsService.getAll(page, size), HttpStatus.OK, LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<APIResponse<List<NewsResponse>>> search(@RequestParam String keyword) {
+    public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Tìm kiếm tin tức thành công", newsService.search(keyword),
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(true, "Tìm kiếm tin tức thành công",
+                        newsService.search(keyword, page, size), HttpStatus.OK, LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 }

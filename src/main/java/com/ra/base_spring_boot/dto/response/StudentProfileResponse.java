@@ -4,13 +4,12 @@ import com.ra.base_spring_boot.model.constants.Gender;
 import lombok.*;
 
 import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudentResponse {
+public class StudentProfileResponse {
     private Long studentId;
 
     // Thông tin User
@@ -33,4 +32,10 @@ public class StudentResponse {
     private String departmentName;
     private Long industryId;
     private String industryName;
+
+    // Thống kê
+    private String toSchoolPercentage;
+    private String homeworkPercentage;
+    private String taskPreparationPercentage;
+
 }
