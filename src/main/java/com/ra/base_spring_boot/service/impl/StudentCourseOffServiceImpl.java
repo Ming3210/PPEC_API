@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.service.impl;
 
 import com.ra.base_spring_boot.dto.request.StudentCourseOffRequest;
+import com.ra.base_spring_boot.dto.request.StudentRegisterCourseOffRequest;
 import com.ra.base_spring_boot.dto.response.StudentCourseOffResponse;
 import com.ra.base_spring_boot.model.CourseOff;
 import com.ra.base_spring_boot.model.Student;
@@ -72,6 +73,31 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         return principal.getId();
+    }
+    @Override
+    public StudentCourseOffResponse registerCourseOff(StudentRegisterCourseOffRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        Long studentId = principal.getId();
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên với ID: " + studentId));
+
+        CourseOff courseOff = courseOffRepository.findById(request.getCourseOffId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
+        studentCourseOffRepository.findByStudentIdAndCourseOffId(studentId, courseOff.getId())
+                .ifPresent(sc -> { throw new RuntimeException("Bạn đã đăng ký khóa học này rồi"); });
+
+        StudentCourseOff studentCourseOff = StudentCourseOff.builder()
+                .student(student)
+                .courseOff(courseOff)
+                .status("REGISTERED")
+                .registrationDate(LocalDateTime.now())
+                .build();
+
+        StudentCourseOff saved = studentCourseOffRepository.save(studentCourseOff);
+
+        return toResponse(saved);
     }
 
 
