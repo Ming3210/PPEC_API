@@ -8,4 +8,9 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     Page<Notification> findByUserId(Long userId, Pageable pageable);
+    Page<Notification> findByUserIdAndTitleContainingIgnoreCaseOrUserIdAndContentContainingIgnoreCase(
+            Long userId1, String titleKeyword,
+            Long userId2, String contentKeyword,
+            Pageable pageable
+    );
 }

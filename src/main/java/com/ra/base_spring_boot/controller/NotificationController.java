@@ -27,12 +27,32 @@ public class NotificationController {
             @RequestParam(defaultValue = "5") int size
     ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Lấy tất cả thông báo của người dùng thành công",
-                        notificationService.getAllByUser(userId, page, size), HttpStatus.OK, LocalDateTime.now()
-                ),
-                HttpStatus.OK
-        );
+            new APIResponse<>(true, "Lấy tất cả thông báo của người dùng thành công",
+                notificationService.getAllByUser(userId, page, size), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<NotificationResponse>> update(
+            @PathVariable Long id,
+            @RequestBody NotificationRequest request
+    ) {
+        return new ResponseEntity<>(
+            new APIResponse<>(true, "Cập nhật thông báo thành công",
+                notificationService.update(id, request), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<APIResponse<PaginationResponse<NotificationResponse>>> search(
+            @RequestParam Long userId,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(new APIResponse<>(
+            true, "Tìm kiếm thông báo thành công", notificationService.search(userId, keyword, page, size),
+                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<APIResponse<NotificationResponse>> create(@Valid @RequestBody NotificationRequest request) {

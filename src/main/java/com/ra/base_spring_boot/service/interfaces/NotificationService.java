@@ -8,6 +8,9 @@ public interface NotificationService {
     PaginationResponse<NotificationResponse> getAllByUser(Long userId, int page, int size);
 
     NotificationResponse create(NotificationRequest request);
+    NotificationResponse update(Long id, NotificationRequest request);
     NotificationResponse markAsRead(Long id);
     void delete(Long id);
+
+    PaginationResponse<NotificationResponse> search(Long userId, String keyword, int page, int size);
 }

@@ -8,6 +8,7 @@ import com.ra.base_spring_boot.service.interfaces.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,15 +21,15 @@ public class NewsController {
     @Autowired
     private NewsService newsService;
 
-    @PostMapping
-    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @RequestBody NewsRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @ModelAttribute NewsRequest request) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Thêm tin tức thành công", newsService.create(request),
                         HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @RequestBody NewsRequest request) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @ModelAttribute NewsRequest request) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Cập nhật tin tức thành công", newsService.update(id, request),
                         HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
