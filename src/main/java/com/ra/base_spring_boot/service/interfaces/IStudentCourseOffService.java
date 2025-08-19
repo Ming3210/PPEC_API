@@ -12,4 +12,7 @@ public interface IStudentCourseOffService {
     List<StudentCourseOffResponse> getStudentsOfCourse(Long courseOffId);
 
     List<StudentCourseOffResponse> getCoursesOfStudent(Long studentId);
+
+    List<StudentCourseOffResponse> getMyCourses();
+
 }
