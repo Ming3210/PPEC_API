@@ -60,4 +60,16 @@ public class StudentCourseOffController {
                 .data(responses)
                 .build());
     }
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ResponseWrapper<List<StudentCourseOffResponse>>> getMyCourses() {
+
+        List<StudentCourseOffResponse> responses = studentCourseOffService.getMyCourses();
+
+        return ResponseEntity.ok(ResponseWrapper.<List<StudentCourseOffResponse>>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(responses)
+                .build());
+    }
 }

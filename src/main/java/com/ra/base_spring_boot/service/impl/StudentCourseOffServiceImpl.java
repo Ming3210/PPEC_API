@@ -8,8 +8,11 @@ import com.ra.base_spring_boot.model.StudentCourseOff;
 import com.ra.base_spring_boot.repository.CourseOffRepository;
 import com.ra.base_spring_boot.repository.StudentCourseOffRepository;
 import com.ra.base_spring_boot.repository.StudentRepository;
+import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.IStudentCourseOffService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,6 +61,20 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
         List<StudentCourseOff> list = studentCourseOffRepository.findByStudentId(studentId);
         return list.stream().map(StudentCourseOffServiceImpl::toResponse).collect(Collectors.toList());
     }
+    @Override
+    public List<StudentCourseOffResponse> getMyCourses() {
+        Long studentId = getCurrentStudentId();
+        List<StudentCourseOff> list = studentCourseOffRepository.findByStudentId(studentId);
+        return list.stream().map(StudentCourseOffServiceImpl::toResponse).collect(Collectors.toList());
+    }
+
+    private Long getCurrentStudentId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return principal.getId();
+    }
+
+
 
     private static StudentCourseOffResponse toResponse(StudentCourseOff sco) {
         return StudentCourseOffResponse.builder()
