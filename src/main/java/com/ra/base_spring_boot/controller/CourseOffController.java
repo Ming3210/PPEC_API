@@ -3,10 +3,14 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.CourseOffRequestDTO;
 import com.ra.base_spring_boot.dto.request.CourseOffSearchFilterDTO;
 import com.ra.base_spring_boot.dto.ResponseWrapper;
+import com.ra.base_spring_boot.dto.request.StudyProgramRequest;
 import com.ra.base_spring_boot.dto.response.CourseOffResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.dto.response.StudyProgramResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.ICourseOffService;
 
+import com.ra.base_spring_boot.service.interfaces.IStudyProgramService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +29,8 @@ import java.util.Map;
 public class CourseOffController {
 
     private final ICourseOffService courseOffService;
+
+    private final IStudyProgramService studyProgramService;
 
     @GetMapping
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> getAllCoursesOff(
@@ -210,4 +216,114 @@ public class CourseOffController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(value = "/{courseId}/study-programs")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Thêm mới chương trình học theo khóa học")
+    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> createStudyProgram(
+            @PathVariable Long courseId,
+            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+    ){
+        StudyProgramResponseDTO createStudyProgram = studyProgramService.addStudyProgram(courseId, studyProgramRequest);
+
+        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+                .status(HttpStatus.CREATED)
+                .code(HttpStatus.CREATED.value())
+                .data(createStudyProgram)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/{courseId}/study-programs/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cập nhật chương trình học theo khóa học")
+    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> updateStudyProgram(
+            @PathVariable Long courseId,
+            @PathVariable Long id,
+            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+    ){
+        StudyProgramResponseDTO updated = studyProgramService.updateStudyProgram(id, courseId, studyProgramRequest);
+
+        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(updated)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{courseId}/study-programs/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Xóa chương trình học theo khóa học")
+    public ResponseEntity<ResponseWrapper<String>> deleteStudyProgram(
+            @PathVariable Long courseId,
+            @PathVariable Long id
+    ){
+        studyProgramService.deleteStudyProgram(courseId, id);
+
+        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data("Xóa chương trình học thành công!")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+//    @PostMapping(value = "/{courseId}/input-requirements")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @Operation(summary = "Thêm mới yêu cầu đầu vào theo khóa học")
+//    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> createInputRequirement(
+//            @PathVariable Long courseId,
+//            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+//    ){
+//        StudyProgramResponseDTO createStudyProgram = studyProgramService.addStudyProgram(courseId, studyProgramRequest);
+//
+//        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+//                .status(HttpStatus.CREATED)
+//                .code(HttpStatus.CREATED.value())
+//                .data(createStudyProgram)
+//                .build();
+//
+//        return new ResponseEntity<>(response, HttpStatus.CREATED);
+//    }
+//
+//    @PutMapping(value = "/{courseId}/input-requirements/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @Operation(summary = "Cập nhật yêu cầu đầu vào theo khóa học")
+//    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> updateInputRequirement(
+//            @PathVariable Long courseId,
+//            @PathVariable Long id,
+//            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+//    ){
+//        StudyProgramResponseDTO updated = studyProgramService.updateStudyProgram(id, courseId, studyProgramRequest);
+//
+//        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+//                .status(HttpStatus.OK)
+//                .code(HttpStatus.OK.value())
+//                .data(updated)
+//                .build();
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping(value = "/{courseId}/input-requirements/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @Operation(summary = "Xóa yêu cầu đầu vào theo khóa học")
+//    public ResponseEntity<ResponseWrapper<String>> deleteInputRequirement(
+//            @PathVariable Long courseId,
+//            @PathVariable Long id
+//    ){
+//        studyProgramService.deleteStudyProgram(courseId, id);
+//
+//        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
+//                .status(HttpStatus.OK)
+//                .code(HttpStatus.OK.value())
+//                .data("Xóa chương trình học thành công!")
+//                .build();
+//
+//        return ResponseEntity.ok(response);
+//    }
 }

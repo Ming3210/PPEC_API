@@ -3,6 +3,7 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.NotificationRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.NotificationResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.NotificationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -21,11 +21,38 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<APIResponse<List<NotificationResponse>>> getAllByUser(@PathVariable Long userId) {
+    public ResponseEntity<APIResponse<PaginationResponse<NotificationResponse>>> getAllByUser(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return new ResponseEntity<>(
             new APIResponse<>(true, "Lấy tất cả thông báo của người dùng thành công",
-                notificationService.getAllByUser(userId), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                notificationService.getAllByUser(userId, page, size), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<NotificationResponse>> update(
+            @PathVariable Long id,
+            @RequestBody NotificationRequest request
+    ) {
+        return new ResponseEntity<>(
+            new APIResponse<>(true, "Cập nhật thông báo thành công",
+                notificationService.update(id, request), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<APIResponse<PaginationResponse<NotificationResponse>>> search(
+            @RequestParam Long userId,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(new APIResponse<>(
+            true, "Tìm kiếm thông báo thành công", notificationService.search(userId, keyword, page, size),
+                HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<APIResponse<NotificationResponse>> create(@Valid @RequestBody NotificationRequest request) {

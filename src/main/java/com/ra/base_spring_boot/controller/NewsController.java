@@ -3,15 +3,16 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.NewsRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.NewsResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.NewsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/news")
@@ -20,15 +21,15 @@ public class NewsController {
     @Autowired
     private NewsService newsService;
 
-    @PostMapping
-    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @RequestBody NewsRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @ModelAttribute NewsRequest request) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Thêm tin tức thành công", newsService.create(request),
                         HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @RequestBody NewsRequest request) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @ModelAttribute NewsRequest request) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Cập nhật tin tức thành công", newsService.update(id, request),
                         HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
@@ -43,16 +44,29 @@ public class NewsController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<NewsResponse>>> getAll() {
+    public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Lấy tất cả tin tức thành công", newsService.getAll(),
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(true, "Lấy tất cả tin tức thành công",
+                        newsService.getAll(page, size), HttpStatus.OK, LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<APIResponse<List<NewsResponse>>> search(@RequestParam String keyword) {
+    public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Tìm kiếm tin tức thành công", newsService.search(keyword),
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(true, "Tìm kiếm tin tức thành công",
+                        newsService.search(keyword, page, size), HttpStatus.OK, LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 }
