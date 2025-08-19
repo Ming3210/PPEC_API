@@ -41,8 +41,7 @@ public class StaffDTO {
     @NotBlank(message = "Vị trí không được để trống")
     private String position;
 
-    // Thông tin School
     @NotNull(message = "Trường không được để trống")
-    private Long schoolId; // dùng ID để map vào entity School
+    private Long schoolId;
 }
 

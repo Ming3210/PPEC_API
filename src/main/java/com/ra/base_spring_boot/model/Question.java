@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -32,7 +33,9 @@ public class Question {
     private QuestionType type;
 
     @Column(columnDefinition = "TEXT")
-    private String options;
+    private List<String> options;
+
+    private String answer;
 
     private String correctAnswer;
 

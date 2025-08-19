@@ -35,7 +35,6 @@ public class Center {
     @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Course> courses;
-
     @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<CourseOff> coursesOff;
