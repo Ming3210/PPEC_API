@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.service.interfaces;
 
 import com.ra.base_spring_boot.dto.request.TeachingAssistantRequestDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.TeachingAssistantResponseDTO;
 import org.springframework.data.domain.Page;
 
@@ -16,6 +17,6 @@ public interface ITeachingAssistantService {
 
     TeachingAssistantResponseDTO getTeachingAssistantById(Long id);
 
-    Page<TeachingAssistantResponseDTO> getAllTeachingAssistants(String keyword, int page, int size);
+    PaginationResponse<TeachingAssistantResponseDTO> getAllTeachingAssistants(String keyword, int page, int size);
 }
 

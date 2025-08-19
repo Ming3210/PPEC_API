@@ -1,6 +1,8 @@
 package com.ra.base_spring_boot.service.interfaces;
 
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
+import com.ra.base_spring_boot.dto.response.GetDetailPartnerResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.PartnerResponseDTO;
 import org.springframework.data.domain.Page;
 
@@ -12,5 +14,7 @@ public interface IPartnerService {
     PartnerResponseDTO getPartnerById(Long id);
     List<PartnerResponseDTO> getAllPartners();
     void deletePartner(Long id);
-    Page<PartnerResponseDTO> searchPartners(String keyword, int page, int size);
+    PaginationResponse<PartnerResponseDTO> searchPartners(String keyword, int page, int size);
+    Page<PartnerResponseDTO> getPartners(String keyword, int page, int size);
+    GetDetailPartnerResponse getDetailPartner(int partnerId);
 }

@@ -6,6 +6,7 @@ import com.ra.base_spring_boot.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalHandleException {
@@ -104,5 +106,13 @@ public class GlobalHandleException {
     @ExceptionHandler(HttpConflict.class)
     public ResponseEntity<APIResponse<String>> handleHttpConflict(HttpConflict ex) {
         return buildErrorResponse("Xung đột dữ liệu", ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<APIResponse<String>> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return buildErrorResponse("Truy cập bị từ chối", ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<APIResponse<String>> handleNoSuchElementException(NoSuchElementException ex) {
+        return buildErrorResponse("Lỗi", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

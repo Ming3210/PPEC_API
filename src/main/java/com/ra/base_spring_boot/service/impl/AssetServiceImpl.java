@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AssetServiceImpl implements IAssetService {
@@ -35,7 +36,7 @@ public class AssetServiceImpl implements IAssetService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User creator = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
 
         Asset asset = new Asset();
         asset.setCode(assetRequestDTO.getCode());
