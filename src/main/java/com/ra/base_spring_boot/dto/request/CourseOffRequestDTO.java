@@ -37,6 +37,8 @@ public class CourseOffRequestDTO {
 
     private List<Long> skillIds;
 
+    private Long partnerId;
+
     private MultipartFile bannerFile;
 }
 
