@@ -32,7 +32,6 @@ public class CenterServiceImpl implements ICenterService {
 
     private final CenterRepository centerRepository;
     private final CourseRepository courseRepository;
-    private final CourseOffRepository courseOffRepository;
     private final ICloudinaryService cloudinaryService;
 
     @Override
@@ -152,13 +151,11 @@ public class CenterServiceImpl implements ICenterService {
     @Transactional(readOnly = true)
     public boolean canDeleteCenter(Long id) {
         long courseCount = courseRepository.countByCenterId(id);
-        long courseOffCount = courseOffRepository.countByCenterId(id);
-        return courseCount == 0 && courseOffCount == 0;
+        return courseCount == 0;
     }
 
     private CenterResponseDTO convertToCenterResponseDTO(Center center) {
         Long totalCourses = courseRepository.countByCenterId(center.getId());
-        Long totalCoursesOff = courseOffRepository.countByCenterId(center.getId());
 
         return new CenterResponseDTO(
                 center.getId(),
@@ -166,8 +163,7 @@ public class CenterServiceImpl implements ICenterService {
                 center.getAddress(),
                 center.getLogoUrl(),
                 center.getCreatedAt(),
-                totalCourses,
-                totalCoursesOff
+                totalCourses
         );
     }
 }
