@@ -3,6 +3,7 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.exception.HttpConflict;
 import com.ra.base_spring_boot.exception.HttpBadRequest;
+import com.ra.base_spring_boot.model.CourseOff;
 import com.ra.base_spring_boot.model.Exam;
 import com.ra.base_spring_boot.model.Course;
 import com.ra.base_spring_boot.model.Partner;
@@ -11,6 +12,7 @@ import com.ra.base_spring_boot.dto.request.ExamSearchFilterDTO;
 import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.response.ExamResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.repository.CourseOffRepository;
 import com.ra.base_spring_boot.repository.ExamRepository;
 import com.ra.base_spring_boot.repository.CourseRepository;
 import com.ra.base_spring_boot.repository.PartnerRepository;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 public class ExamServiceImpl implements IExamService {
 
     private final ExamRepository examRepository;
-    private final CourseRepository courseRepository;
+    private final CourseOffRepository courseOffRepository;
     private final PartnerRepository partnerRepository;
 
     @Override
@@ -48,11 +50,11 @@ public class ExamServiceImpl implements IExamService {
         }
 
         // Validate course exists
-        Course course = courseRepository.findById(examRequestDTO.getCourseId())
+        CourseOff course = courseOffRepository.findById(examRequestDTO.getCourseId())
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + examRequestDTO.getCourseId()));
 
         // Validate partner exists
-        Partner partner = partnerRepository.findById(Math.toIntExact(examRequestDTO.getPartnerId()))
+        Partner partner = partnerRepository.findById(examRequestDTO.getPartnerId())
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy đối tác với ID: " + examRequestDTO.getPartnerId()));
 
         // Validate exam date
@@ -65,7 +67,7 @@ public class ExamServiceImpl implements IExamService {
                 .title(examRequestDTO.getTitle())
                 .examDate(examRequestDTO.getExamDate())
                 .status(examRequestDTO.getStatus())
-                .course(course)
+                .courseOff(course)
                 .partner(partner)
                 .build();
 
@@ -92,18 +94,18 @@ public class ExamServiceImpl implements IExamService {
         }
 
         // Validate course exists
-        Course course = courseRepository.findById(examRequestDTO.getCourseId())
+        CourseOff course = courseOffRepository.findById(examRequestDTO.getCourseId())
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + examRequestDTO.getCourseId()));
 
         // Validate partner exists
-        Partner partner = partnerRepository.findById(Math.toIntExact(examRequestDTO.getPartnerId()))
+        Partner partner = partnerRepository.findById(examRequestDTO.getPartnerId())
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy đối tác với ID: " + examRequestDTO.getPartnerId()));
 
         existingExam.setExamCode(examRequestDTO.getExamCode());
         existingExam.setTitle(examRequestDTO.getTitle());
         existingExam.setExamDate(examRequestDTO.getExamDate());
         existingExam.setStatus(examRequestDTO.getStatus());
-        existingExam.setCourse(course);
+        existingExam.setCourseOff(course);
         existingExam.setPartner(partner);
 
         Exam updatedExam = examRepository.save(existingExam);
@@ -231,9 +233,8 @@ public class ExamServiceImpl implements IExamService {
                 exam.getTitle(),
                 exam.getExamDate(),
                 exam.getStatus(),
-                exam.getCourse().getId(),
-                exam.getCourse().getTitle(),
-                Long.valueOf(exam.getPartner().getId()),
+                exam.getCourseOff().getId(),
+                exam.getCourseOff().getName(),
                 exam.getPartner().getName()
         );
     }
