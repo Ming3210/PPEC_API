@@ -1,9 +1,9 @@
 package com.ra.base_spring_boot.controller;
 
-
 import com.ra.base_spring_boot.dto.ResponseWrapper;
 import com.ra.base_spring_boot.dto.request.CourseRequestDTO;
 import com.ra.base_spring_boot.dto.response.CourseResponseDTO;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.ICourseService;
 
 import lombok.RequiredArgsConstructor;
@@ -17,27 +17,11 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/courses")
+@RequestMapping("/api/courses")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CourseController {
 
     private final ICourseService courseService;
-
-    @PostMapping
-    public ResponseEntity<ResponseWrapper<CourseResponseDTO>> createCourse(
-            @Valid @ModelAttribute CourseRequestDTO courseRequestDTO) {
-
-        CourseResponseDTO createdCourse = courseService.createCourse(courseRequestDTO);
-
-        ResponseWrapper<CourseResponseDTO> response = ResponseWrapper.<CourseResponseDTO>builder()
-                .status(HttpStatus.CREATED)
-                .code(HttpStatus.CREATED.value())
-                .data(createdCourse)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseWrapper<CourseResponseDTO>> getCourseById(@PathVariable Long id) {
@@ -47,35 +31,6 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .code(HttpStatus.OK.value())
                 .data(course)
-                .build();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseWrapper<CourseResponseDTO>> updateCourse(
-            @PathVariable Long id,
-            @Valid @ModelAttribute CourseRequestDTO courseRequestDTO) {
-
-        CourseResponseDTO updatedCourse = courseService.updateCourse(id, courseRequestDTO);
-
-        ResponseWrapper<CourseResponseDTO> response = ResponseWrapper.<CourseResponseDTO>builder()
-                .status(HttpStatus.OK)
-                .code(HttpStatus.OK.value())
-                .data(updatedCourse)
-                .build();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseWrapper<String>> deleteCourse(@PathVariable Long id) {
-        courseService.deleteCourse(id);
-
-        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
-                .status(HttpStatus.OK)
-                .code(HttpStatus.OK.value())
-                .data("Xóa khóa học thành công")
                 .build();
 
         return ResponseEntity.ok(response);
@@ -94,10 +49,11 @@ public class CourseController {
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/search")
     public ResponseEntity<ResponseWrapper<Page<CourseResponseDTO>>> searchCourses(
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<CourseResponseDTO> courses = courseService.searchCourses(keyword, page, size);
@@ -110,5 +66,54 @@ public class CourseController {
 
         return ResponseEntity.ok(response);
     }
-}
 
+
+
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseWrapper<CourseResponseDTO>> createCourse(
+            @Valid @ModelAttribute CourseRequestDTO courseRequestDTO) {
+
+        CourseResponseDTO createdCourse = courseService.createCourse(courseRequestDTO);
+
+        ResponseWrapper<CourseResponseDTO> response = ResponseWrapper.<CourseResponseDTO>builder()
+                .status(HttpStatus.CREATED)
+                .code(HttpStatus.CREATED.value())
+                .data(createdCourse)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseWrapper<CourseResponseDTO>> updateCourse(
+            @PathVariable Long id,
+            @Valid @ModelAttribute CourseRequestDTO courseRequestDTO) {
+
+        CourseResponseDTO updatedCourse = courseService.updateCourse(id, courseRequestDTO);
+
+        ResponseWrapper<CourseResponseDTO> response = ResponseWrapper.<CourseResponseDTO>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(updatedCourse)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseWrapper<String>> deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(id);
+
+        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data("Xóa khóa học thành công")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+}
