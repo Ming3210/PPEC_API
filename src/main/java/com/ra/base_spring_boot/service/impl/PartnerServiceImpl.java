@@ -47,7 +47,7 @@ public class PartnerServiceImpl implements IPartnerService {
     @Override
     @Transactional
     public PartnerResponseDTO updatePartner(Long id, PartnerDTO dto) {
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         if (!partner.getPartnerCode().equals(dto.getPartnerCode()) &&
@@ -69,7 +69,7 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public PartnerResponseDTO getPartnerById(Long id) {
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
         return mapEntityToResponse(partner);
     }
@@ -84,7 +84,7 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public void deletePartner(Long id) {
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         if (partner.getAvatarUrl() != null) {

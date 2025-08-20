@@ -20,6 +20,10 @@ public class CourseOff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "partner_id", nullable = false)
+    private Partner partner;
+
     @Column(nullable = false)
     private String name;
 
@@ -34,10 +38,6 @@ public class CourseOff {
 
     @Column(name = "estimated_hours")
     private Integer estimatedHours;
-
-    @ManyToOne
-    @JoinColumn(name = "center_id")
-    private Center center;
 
     @Column(precision = 19, scale = 2)
     private BigDecimal price;

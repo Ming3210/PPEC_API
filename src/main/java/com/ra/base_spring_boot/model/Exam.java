@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "exams")
@@ -34,13 +35,13 @@ public class Exam {
     private ExamStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @JoinColumn(name = "course_off_id", nullable = false)
+    private CourseOff courseOff;
 
     @ManyToOne
     @JoinColumn(name = "partner_id", nullable = false)
     private Partner partner;
 
-    @Column(length = 1000)
+    @Column(name = "description", length = 1000)
     private String description;
 }

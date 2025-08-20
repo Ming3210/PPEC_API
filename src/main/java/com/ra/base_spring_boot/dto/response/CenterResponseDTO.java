@@ -17,5 +17,4 @@ public class CenterResponseDTO {
     private String logoUrl;
     private LocalDateTime createdAt;
     private Long totalCourses;
-    private Long totalCoursesOff;
 }

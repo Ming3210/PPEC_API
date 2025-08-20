@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 public class CourseOffServiceImpl implements ICourseOffService {
 
     private final CourseOffRepository courseOffRepository;
-    private final CenterRepository centerRepository;
     private final SkillRepository skillRepository;
     private final ICloudinaryService cloudinaryService;
 
@@ -52,10 +51,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
         if (courseOffRepository.existsByName(courseOffRequestDTO.getName())) {
             throw new HttpConflict("Tên khóa học đã tồn tại: " + courseOffRequestDTO.getName());
         }
-
-        // Validate center exists
-        Center center = centerRepository.findById(courseOffRequestDTO.getCenterId())
-                .orElseThrow(() -> new HttpNotFound("Không tìm thấy trung tâm với ID: " + courseOffRequestDTO.getCenterId()));
 
         // Validate skills exist
         Set<Skill> skills = new HashSet<>();
@@ -81,7 +76,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
         courseOff.setEstimatedHours(courseOffRequestDTO.getEstimatedHours());
         courseOff.setPrice(courseOffRequestDTO.getPrice());
         courseOff.setBannerUrl(bannerUrl);
-        courseOff.setCenter(center);
         courseOff.setSkills(skills);
         courseOff.setCreatedAt(LocalDateTime.now());
         courseOff.setUpdatedAt(LocalDateTime.now());
@@ -107,10 +101,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
         if (courseOffRepository.existsByNameAndIdNot(courseOffRequestDTO.getName(), id)) {
             throw new HttpConflict("Tên khóa học đã tồn tại: " + courseOffRequestDTO.getName());
         }
-
-        // Validate center exists
-        Center center = centerRepository.findById(courseOffRequestDTO.getCenterId())
-                .orElseThrow(() -> new HttpNotFound("Không tìm thấy trung tâm với ID: " + courseOffRequestDTO.getCenterId()));
 
         // Validate skills exist
         Set<Skill> skills = new HashSet<>();
@@ -143,7 +133,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
         existingCourseOff.setEstimatedHours(courseOffRequestDTO.getEstimatedHours());
         existingCourseOff.setPrice(courseOffRequestDTO.getPrice());
         existingCourseOff.setBannerUrl(bannerUrl);
-        existingCourseOff.setCenter(center);
         existingCourseOff.setSkills(skills);
         existingCourseOff.setUpdatedAt(LocalDateTime.now());
 
@@ -230,11 +219,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 predicates.add(criteriaBuilder.equal(root.get("targetAudience"), filterDTO.getTargetAudience()));
             }
 
-            // Filter by center ID
-            if (filterDTO.getCenterId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("center").get("id"), filterDTO.getCenterId()));
-            }
-
             // Filter by price range
             if (filterDTO.getPriceFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), filterDTO.getPriceFrom()));
@@ -290,8 +274,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 courseOff.getPrice(),
                 courseOff.getCreatedAt(),
                 courseOff.getUpdatedAt(),
-                courseOff.getCenter().getId(),
-                courseOff.getCenter().getName(),
                 skillDTOs
         );
     }

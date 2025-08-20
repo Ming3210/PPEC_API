@@ -23,9 +23,6 @@ public interface CourseOffRepository extends JpaRepository<CourseOff, Long>, Jpa
 
     Page<CourseOff> findByTargetAudience(TargetAudience targetAudience, Pageable pageable);
 
-    Page<CourseOff> findByCenterId(Long centerId, Pageable pageable);
-    long countByCenterId(Long centerId);
-
     Page<CourseOff> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     @Query("SELECT c FROM CourseOff c WHERE c.price BETWEEN :from AND :to")

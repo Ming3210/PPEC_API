@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface PartnerRepository extends JpaRepository<Partner, Integer> {
+public interface PartnerRepository extends JpaRepository<Partner, Long> {
     boolean existsByPartnerCode(String partnerCode);
     boolean existsByPartnerCodeAndIdNot(String partnerCode, Long id);
     boolean existsByName(String name);

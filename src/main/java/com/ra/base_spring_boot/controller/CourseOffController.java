@@ -3,12 +3,13 @@ package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.CourseOffRequestDTO;
 import com.ra.base_spring_boot.dto.request.CourseOffSearchFilterDTO;
 import com.ra.base_spring_boot.dto.ResponseWrapper;
+import com.ra.base_spring_boot.dto.request.ExamScheduleRequest;
 import com.ra.base_spring_boot.dto.request.StudyProgramRequest;
-import com.ra.base_spring_boot.dto.response.CourseOffResponseDTO;
-import com.ra.base_spring_boot.dto.response.PaginationResponse;
-import com.ra.base_spring_boot.dto.response.StudyProgramResponseDTO;
+import com.ra.base_spring_boot.dto.response.*;
+import com.ra.base_spring_boot.model.constants.TargetAudience;
 import com.ra.base_spring_boot.service.interfaces.ICourseOffService;
 
+import com.ra.base_spring_boot.service.interfaces.IExamScheduleService;
 import com.ra.base_spring_boot.service.interfaces.IStudyProgramService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,6 +32,8 @@ public class CourseOffController {
     private final ICourseOffService courseOffService;
 
     private final IStudyProgramService studyProgramService;
+
+    private final IExamScheduleService examScheduleService;
 
     @GetMapping
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> getAllCoursesOff(
@@ -69,7 +72,6 @@ public class CourseOffController {
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> searchAndFilterCoursesOff(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String targetAudience,
-            @RequestParam(required = false) Long centerId,
             @RequestParam(required = false) BigDecimal priceFrom,
             @RequestParam(required = false) BigDecimal priceTo,
             @RequestParam(required = false) Integer estimatedHoursFrom,
@@ -84,12 +86,11 @@ public class CourseOffController {
 
         if (targetAudience != null && !targetAudience.trim().isEmpty()) {
             try {
-                filterDTO.setTargetAudience(com.ra.base_spring_boot.model.constants.TargetAudience.valueOf(targetAudience.toUpperCase()));
+                filterDTO.setTargetAudience(TargetAudience.valueOf(targetAudience.toUpperCase()));
             } catch (IllegalArgumentException e) {
             }
         }
 
-        filterDTO.setCenterId(centerId);
         filterDTO.setPriceFrom(priceFrom);
         filterDTO.setPriceTo(priceTo);
         filterDTO.setEstimatedHoursFrom(estimatedHoursFrom);
@@ -272,58 +273,113 @@ public class CourseOffController {
         return ResponseEntity.ok(response);
     }
 
-//    @PostMapping(value = "/{courseId}/input-requirements")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @Operation(summary = "Thêm mới yêu cầu đầu vào theo khóa học")
-//    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> createInputRequirement(
-//            @PathVariable Long courseId,
-//            @Valid @RequestBody StudyProgramRequest studyProgramRequest
-//    ){
-//        StudyProgramResponseDTO createStudyProgram = studyProgramService.addStudyProgram(courseId, studyProgramRequest);
-//
-//        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
-//                .status(HttpStatus.CREATED)
-//                .code(HttpStatus.CREATED.value())
-//                .data(createStudyProgram)
-//                .build();
-//
-//        return new ResponseEntity<>(response, HttpStatus.CREATED);
-//    }
-//
-//    @PutMapping(value = "/{courseId}/input-requirements/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @Operation(summary = "Cập nhật yêu cầu đầu vào theo khóa học")
-//    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> updateInputRequirement(
-//            @PathVariable Long courseId,
-//            @PathVariable Long id,
-//            @Valid @RequestBody StudyProgramRequest studyProgramRequest
-//    ){
-//        StudyProgramResponseDTO updated = studyProgramService.updateStudyProgram(id, courseId, studyProgramRequest);
-//
-//        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
-//                .status(HttpStatus.OK)
-//                .code(HttpStatus.OK.value())
-//                .data(updated)
-//                .build();
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping(value = "/{courseId}/input-requirements/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @Operation(summary = "Xóa yêu cầu đầu vào theo khóa học")
-//    public ResponseEntity<ResponseWrapper<String>> deleteInputRequirement(
-//            @PathVariable Long courseId,
-//            @PathVariable Long id
-//    ){
-//        studyProgramService.deleteStudyProgram(courseId, id);
-//
-//        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
-//                .status(HttpStatus.OK)
-//                .code(HttpStatus.OK.value())
-//                .data("Xóa chương trình học thành công!")
-//                .build();
-//
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping(value = "/{courseId}/input-requirements")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Thêm mới yêu cầu đầu vào theo khóa học")
+    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> createInputRequirement(
+            @PathVariable Long courseId,
+            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+    ){
+        StudyProgramResponseDTO createStudyProgram = studyProgramService.addStudyProgram(courseId, studyProgramRequest);
+
+        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+                .status(HttpStatus.CREATED)
+                .code(HttpStatus.CREATED.value())
+                .data(createStudyProgram)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/{courseId}/input-requirements/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cập nhật yêu cầu đầu vào theo khóa học")
+    public ResponseEntity<ResponseWrapper<StudyProgramResponseDTO>> updateInputRequirement(
+            @PathVariable Long courseId,
+            @PathVariable Long id,
+            @Valid @RequestBody StudyProgramRequest studyProgramRequest
+    ){
+        StudyProgramResponseDTO updated = studyProgramService.updateStudyProgram(id, courseId, studyProgramRequest);
+
+        ResponseWrapper<StudyProgramResponseDTO> response = ResponseWrapper.<StudyProgramResponseDTO>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(updated)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{courseId}/input-requirements/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Xóa yêu cầu đầu vào theo khóa học")
+    public ResponseEntity<ResponseWrapper<String>> deleteInputRequirement(
+            @PathVariable Long courseId,
+            @PathVariable Long id
+    ){
+        studyProgramService.deleteStudyProgram(courseId, id);
+
+        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data("Xóa chương trình học thành công!")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/{courseId}/exam-schedules")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Thêm lịch thi theo khóa học")
+    public ResponseEntity<ResponseWrapper<ExamScheduleDTO>> addExamSchedule(
+            @PathVariable Long courseId,
+            @Valid @RequestBody ExamScheduleRequest examScheduleRequest
+            ){
+        ExamScheduleDTO examResponseDTO = examScheduleService.addExamSchedule(courseId, examScheduleRequest);
+
+        ResponseWrapper<ExamScheduleDTO> response = ResponseWrapper.<ExamScheduleDTO>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(examResponseDTO)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(value = "/{courseId}/exam-schedules/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cập nhật lịch thi theo khóa học")
+    public ResponseEntity<ResponseWrapper<ExamScheduleDTO>> updateExamSchedule(
+            @PathVariable Long courseId,
+            @PathVariable Long id,
+            @Valid @RequestBody ExamScheduleRequest examScheduleRequest
+    ){
+        ExamScheduleDTO examScheduleDTO = examScheduleService.updateExamSchedule(id, courseId, examScheduleRequest);
+
+        ResponseWrapper<ExamScheduleDTO> response = ResponseWrapper.<ExamScheduleDTO>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data(examScheduleDTO)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "/{courseId}/exam-schedules/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Xóa lịch thi theo khóa học")
+    public ResponseEntity<ResponseWrapper<String>> deleteExamSchedule(
+            @PathVariable Long courseId,
+            @PathVariable Long id
+    ){
+        examScheduleService.deleteExamById(courseId, id);
+
+        ResponseWrapper<String> response = ResponseWrapper.<String>builder()
+                .status(HttpStatus.OK)
+                .code(HttpStatus.OK.value())
+                .data("Xóa lịch thi thành công!")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 }

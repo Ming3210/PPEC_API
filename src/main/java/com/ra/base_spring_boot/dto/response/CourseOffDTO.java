@@ -28,8 +28,6 @@ public class CourseOffDTO {
 
     private Integer estimatedHours;
 
-    private String centerName;
-
     private BigDecimal price;
 
     private Set<String> skills;
