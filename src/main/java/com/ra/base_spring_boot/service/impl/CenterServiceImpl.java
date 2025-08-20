@@ -4,12 +4,10 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.dto.request.CenterRequestDTO;
 import com.ra.base_spring_boot.dto.response.CenterResponseDTO;
 import com.ra.base_spring_boot.exception.NotFoundException;
-import com.ra.base_spring_boot.exception.ConflictException;
-import com.ra.base_spring_boot.exception.BadRequestException;
 import com.ra.base_spring_boot.model.Center;
+import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.repository.CenterRepository;
-import com.ra.base_spring_boot.repository.CourseOffRepository;
-import com.ra.base_spring_boot.repository.CourseRepository;
+import com.ra.base_spring_boot.repository.UserRepository;
 import com.ra.base_spring_boot.service.interfaces.ICenterService;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,27 +28,25 @@ import java.util.stream.Collectors;
 public class CenterServiceImpl implements ICenterService {
 
     private final CenterRepository centerRepository;
-    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
     private final ICloudinaryService cloudinaryService;
 
     @Override
     public CenterResponseDTO createCenter(CenterRequestDTO centerRequestDTO) {
-        // Check unique name
-        if (centerRepository.existsByName(centerRequestDTO.getName())) {
-            throw new ConflictException("Tên trung tâm đã tồn tại: " + centerRequestDTO.getName());
-        }
 
-        // Upload logo if provided
         String logoUrl = null;
         MultipartFile logoFile = centerRequestDTO.getLogoFile();
         if (logoFile != null && !logoFile.isEmpty()) {
             logoUrl = cloudinaryService.uploadImage(logoFile, "centers");
         }
 
+        User user = userRepository.findById(centerRequestDTO.getUserId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy user với ID: " + centerRequestDTO.getUserId()));
+
         Center center = new Center();
-        center.setName(centerRequestDTO.getName());
         center.setAddress(centerRequestDTO.getAddress());
         center.setLogoUrl(logoUrl);
+        center.setUser(user);
 
         Center savedCenter = centerRepository.save(center);
         return convertToCenterResponseDTO(savedCenter);
@@ -70,13 +65,7 @@ public class CenterServiceImpl implements ICenterService {
         Center existingCenter = centerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + id));
 
-        // Check unique name (exclude current)
-        if (centerRepository.existsByNameAndIdNot(centerRequestDTO.getName(), id)) {
-            throw new ConflictException("Tên trung tâm đã tồn tại: " + centerRequestDTO.getName());
-        }
-
-        // Upload new logo if provided
-        String logoUrl = existingCenter.getLogoUrl(); // Keep existing if no new logo
+        String logoUrl = existingCenter.getLogoUrl();
         MultipartFile logoFile = centerRequestDTO.getLogoFile();
         if (logoFile != null && !logoFile.isEmpty()) {
             // Delete old logo if exists
@@ -90,7 +79,6 @@ public class CenterServiceImpl implements ICenterService {
             logoUrl = cloudinaryService.uploadImage(logoFile, "centers");
         }
 
-        existingCenter.setName(centerRequestDTO.getName());
         existingCenter.setAddress(centerRequestDTO.getAddress());
         existingCenter.setLogoUrl(logoUrl);
 
@@ -103,12 +91,6 @@ public class CenterServiceImpl implements ICenterService {
         Center existingCenter = centerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + id));
 
-        // Check if center can be deleted
-        if (!canDeleteCenter(id)) {
-            throw new BadRequestException("Không thể xóa trung tâm này vì có khóa học đang sử dụng");
-        }
-
-        // Delete logo from Cloudinary if exists
         if (existingCenter.getLogoUrl() != null) {
             String publicId = cloudinaryService.extractPublicIdFromUrl(existingCenter.getLogoUrl());
             if (publicId != null) {
@@ -136,8 +118,8 @@ public class CenterServiceImpl implements ICenterService {
         if (keyword == null || keyword.isEmpty()) {
             centerPage = centerRepository.findAll(pageable);
         } else {
-            centerPage = centerRepository.findByNameContainingIgnoreCaseOrAddressContainingIgnoreCase(
-                    keyword, keyword, pageable);
+            centerPage = centerRepository
+                    .findByUserFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(keyword, keyword, pageable);
         }
 
         if (centerPage.isEmpty()) {
@@ -147,23 +129,15 @@ public class CenterServiceImpl implements ICenterService {
         return centerPage.map(this::convertToCenterResponseDTO);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean canDeleteCenter(Long id) {
-        long courseCount = courseRepository.countByCenterId(id);
-        return courseCount == 0;
-    }
-
     private CenterResponseDTO convertToCenterResponseDTO(Center center) {
-        Long totalCourses = courseRepository.countByCenterId(center.getId());
-
         return new CenterResponseDTO(
                 center.getId(),
-                center.getName(),
                 center.getAddress(),
                 center.getLogoUrl(),
+                center.getUser().getId(),
+                center.getUser().getFullName(),
                 center.getCreatedAt(),
-                totalCourses
+                center.getUpdatedAt()
         );
     }
 }
