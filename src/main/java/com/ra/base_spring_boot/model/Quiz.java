@@ -26,6 +26,9 @@ public class Quiz {
 
     @OneToMany(mappedBy = "quiz", fetch = FetchType.LAZY)
     private List<Question> questions;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", nullable = false)
+    private Lesson lesson;
 
 
     public Quiz(Long id, String title) {

@@ -20,10 +20,6 @@ public class CourseOff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "partner_id", nullable = false)
-    private Partner partner;
-
     @Column(nullable = false)
     private String name;
 
@@ -39,6 +35,10 @@ public class CourseOff {
     @Column(name = "estimated_hours")
     private Integer estimatedHours;
 
+    @ManyToOne
+    @JoinColumn(name = "partner_id", nullable = false)
+    private Partner partner;
+
     @Column(precision = 19, scale = 2)
     private BigDecimal price;
 
@@ -47,7 +47,7 @@ public class CourseOff {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
-    private Long partnerId;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "course_skills",

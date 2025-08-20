@@ -162,13 +162,15 @@ public class PartnerServiceImpl implements IPartnerService {
                 ))
                 .toList();
 
-        List<CourseOfflineDTO> offlineCourses = courseOffs.stream()
-                .map(c -> new CourseOfflineDTO(
+        List<CourseOffResponse> offlineCourses = courseOffs.stream()
+                .map(c -> new CourseOffResponse(
                         c.getId(),
                         c.getName(),
-                        c.getPrice(),
                         c.getBannerUrl(),
-                        c.getEstimatedHours()
+                        c.getTargetAudience(),
+                        c.getDescription(),
+                        c.getEstimatedHours(),
+                        c.getPrice()
                 ))
                 .toList();
 

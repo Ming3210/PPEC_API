@@ -42,7 +42,8 @@ public class Lesson {
     private String resources;
 
     private LocalDateTime createdAt;
-
+    @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL)
+    private Quiz quiz;
     public Lesson(Long id, String title, Course course) {
         this.id = id;
         this.title = title;

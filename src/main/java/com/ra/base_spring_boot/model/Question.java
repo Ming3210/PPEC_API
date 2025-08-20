@@ -2,13 +2,12 @@ package com.ra.base_spring_boot.model;
 
 import com.ra.base_spring_boot.model.constants.QuestionType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -23,7 +22,7 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quiz_id")
+    @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
 
     @Column(columnDefinition = "TEXT")
@@ -32,9 +31,10 @@ public class Question {
     @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    @Column(columnDefinition = "TEXT")
-    private List<String> options;
-
+    @ElementCollection
+    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "option")
+    private Set<String> options = new HashSet<>();
     private String answer;
 
     private String correctAnswer;
@@ -46,7 +46,6 @@ public class Question {
     private Integer orderNumber;
 
     private LocalDateTime createdAt;
-
 
     public Question(Long id, String questionText, Quiz quiz) {
         this.id = id;
