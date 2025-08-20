@@ -22,6 +22,7 @@ public class Center {
     private String name;
 
     private String address;
+
     private String logoUrl;
 
     @Column(

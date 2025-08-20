@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.service.interfaces;
 
 import com.ra.base_spring_boot.dto.request.AssetRequestDTO;
+import com.ra.base_spring_boot.dto.request.StudentAssetRequestDTO;
 import com.ra.base_spring_boot.dto.response.AssetResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 
@@ -14,4 +15,6 @@ public interface IAssetService {
     PaginationResponse<AssetResponseDTO> getAllAssets(int page, int size, String sortBy, Boolean sortDirection);
 
     AssetResponseDTO getAssetById(Long id);
+
+    AssetResponseDTO studentUploadAsset(StudentAssetRequestDTO studentAssetRequestDTO);
 }

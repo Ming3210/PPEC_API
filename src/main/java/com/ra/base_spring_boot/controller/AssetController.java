@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.AssetRequestDTO;
+import com.ra.base_spring_boot.dto.request.StudentAssetRequestDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.AssetResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IAssetService;
@@ -87,6 +88,18 @@ public class AssetController {
         );
     }
 
+    @PostMapping("student-asset")
+    public ResponseEntity<APIResponse<AssetResponseDTO>> studentUploadAsset(@Valid @RequestBody StudentAssetRequestDTO assetRequestDTO) {
+        return ResponseEntity.ok(
+                new APIResponse<>(
+                        true,
+                        "Upload asset successfully!",
+                        assetService.studentUploadAsset(assetRequestDTO),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                )
+        );
+    }
 
 
 }
