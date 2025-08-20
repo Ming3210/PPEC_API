@@ -1,12 +1,9 @@
 package com.ra.base_spring_boot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,10 +15,12 @@ public class Center {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
     private String address;
+
     private String logoUrl;
 
     @Column(
@@ -32,10 +31,6 @@ public class Center {
     )
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Course> courses;
-    @OneToMany(mappedBy = "center", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<CourseOff> coursesOff;
+    @Column(name = "update_at", insertable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
 }

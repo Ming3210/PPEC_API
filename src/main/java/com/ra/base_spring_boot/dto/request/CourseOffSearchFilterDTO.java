@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class CourseOffSearchFilterDTO {
     private String name;
     private TargetAudience targetAudience;
-    private Long centerId;
+    private Long partnerId;
     private BigDecimal priceFrom;
     private BigDecimal priceTo;
     private Integer estimatedHoursFrom;

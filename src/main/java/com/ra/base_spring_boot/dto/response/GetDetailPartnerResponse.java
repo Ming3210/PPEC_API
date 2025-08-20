@@ -1,7 +1,5 @@
 package com.ra.base_spring_boot.dto.response;
 
-import com.ra.base_spring_boot.model.Course;
-import com.ra.base_spring_boot.model.Partner;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +13,6 @@ public class GetDetailPartnerResponse {
     private int totalStudent;
     private PartnerResponseDTO partner;
     private List<CourseOnlineDTO> onlineCourses;
-    private List<CourseOfflineDTO> offlineCourses;
+    private List<CourseOffResponse> offlineCourses;
 }
 

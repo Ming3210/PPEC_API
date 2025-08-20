@@ -23,7 +23,7 @@ public class CourseOffResponseDTO {
     private BigDecimal price;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long centerId;
-    private String centerName;
+    private Long partnerId;
+    private String partnerName;
     private List<SkillResponseDTO> skills;
 }
