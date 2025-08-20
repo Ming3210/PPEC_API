@@ -16,5 +16,5 @@ public interface IPartnerService {
     void deletePartner(Long id);
     PaginationResponse<PartnerResponseDTO> searchPartners(String keyword, int page, int size);
     Page<PartnerResponseDTO> getPartners(String keyword, int page, int size);
-    GetDetailPartnerResponse getDetailPartner(int partnerId);
+    GetDetailPartnerResponse getDetailPartner(Long partnerId);
 }

@@ -130,14 +130,14 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     @Transactional(readOnly = true)
-    public GetDetailPartnerResponse getDetailPartner(int partnerId) {
+    public GetDetailPartnerResponse getDetailPartner(Long partnerId) {
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         PartnerResponseDTO partnerDTO = mapEntityToResponse(partner);
 
         List<Course> courses = courseRepository.findByPartnerId(partnerId);
-        List<CourseOff> courseOffs = courseOffRepository.findByPartnerId((long) partnerId);
+        List<CourseOff> courseOffs = courseOffRepository.findByPartnerId(partnerId);
 
         List<Long> courseIds = courses.stream().map(Course::getId).toList();
         List<Long> courseOffIds = courseOffs.stream().map(CourseOff::getId).toList();
