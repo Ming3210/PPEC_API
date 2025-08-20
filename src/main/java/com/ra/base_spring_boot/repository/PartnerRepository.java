@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 
 
 @Repository
@@ -24,5 +25,6 @@ public interface PartnerRepository extends JpaRepository<Partner, Long> {
     @Query("SELECT DISTINCT p FROM Partner p LEFT JOIN FETCH p.industries " +
             "WHERE (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Partner> searchWithIndustries(@Param("keyword") String keyword, Pageable pageable);
-
+    @Query("SELECT p FROM Partner p LEFT JOIN FETCH p.industries WHERE p.id = :id")
+    Optional<Partner> findByIdWithIndustries(@Param("id") int id);
 }

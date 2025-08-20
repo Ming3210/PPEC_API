@@ -42,8 +42,8 @@ public class Student {
     private Departments department;
 
     @Size(max = 100)
-    @Column(name = "class_name", length = 100)
-    private String className;
+    @Column(name = "academic_year", length = 100)
+    private String academicYear;
 
     @NotBlank
     @Size(max = 255)

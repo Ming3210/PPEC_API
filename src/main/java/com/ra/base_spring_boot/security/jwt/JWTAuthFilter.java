@@ -12,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
+
 @Component
 public class JWTAuthFilter extends OncePerRequestFilter {
 
@@ -26,7 +28,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         String token = getTokenFromRequest(request);
 
         if (token != null && jwtProvider.validateToken(token)
@@ -40,6 +41,11 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                     userPrincipal, null, userPrincipal.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            if (jwtProvider.isTokenNearExpiry(token, 5 * 60 * 1000)) {
+                String newToken = jwtProvider.generateToken(username);
+                response.setHeader("X-New-Token", newToken);
+            }
         }
 
         filterChain.doFilter(request, response);

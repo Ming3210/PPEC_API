@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.controller;
 import com.ra.base_spring_boot.dto.request.ServiceStaffRequestDTO;
 import com.ra.base_spring_boot.dto.response.APIResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.ServiceStaffResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IServiceStaffService;
 import jakarta.validation.Valid;
@@ -80,22 +81,17 @@ public class ServiceStaffController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<Page<ServiceStaffResponseDTO>>> getAll(
+    public ResponseEntity<APIResponse<PaginationResponse<ServiceStaffResponseDTO>>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ServiceStaffResponseDTO> result;
 
-        if (keyword != null && !keyword.isBlank()) {
-            result = staffService.getAll(keyword, pageable);
-        } else {
-            result = staffService.getAll(keyword,pageable);
-        }
+        PaginationResponse<ServiceStaffResponseDTO> result = staffService.getAll(keyword, pageable);
 
         return ResponseEntity.ok(
-                APIResponse.<Page<ServiceStaffResponseDTO>>builder()
+                APIResponse.<PaginationResponse<ServiceStaffResponseDTO>>builder()
                         .status(true)
                         .message("Lấy danh sách nhân viên dịch vụ thành công")
                         .data(result)
@@ -104,4 +100,5 @@ public class ServiceStaffController {
                         .build()
         );
     }
+
 }

@@ -5,11 +5,16 @@ import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.dto.request.LectureRequest;
 import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
+import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ILectureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class LectureServiceImpl implements ILectureService {
@@ -52,7 +58,10 @@ public class LectureServiceImpl implements ILectureService {
 
 
     @Override
-    public List<LectureResponse> getAllTeachers(String keyword, String specialization, String status) {
+    public PaginationResponse<LectureResponse> getAllTeachers(
+            String keyword, String specialization, String status,
+            int page, int size
+    ) {
         Boolean deletedStatus = null;
         if (status != null && !status.trim().isEmpty()) {
             if (status.equalsIgnoreCase("deleted")) {
@@ -61,15 +70,28 @@ public class LectureServiceImpl implements ILectureService {
                 deletedStatus = false;
             }
         }
-        List<Lecturer> lecturers = lectureRepository.searchLecturers(
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Lecturer> lecturerPage = lectureRepository.searchLecturers(
                 (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null,
                 (specialization != null && !specialization.trim().isEmpty()) ? specialization.trim() : null,
-                deletedStatus
+                deletedStatus,
+                pageable
         );
-        return lecturers.stream()
+
+        List<LectureResponse> responses = lecturerPage.getContent()
+                .stream()
                 .map(LectureServiceImpl::toResponse)
                 .toList();
+
+        return PaginationResponse.of(
+                responses,
+                lecturerPage.getNumber(),
+                lecturerPage.getSize(),
+                lecturerPage.getTotalElements()
+        );
     }
+
 
     @Override
     public LectureResponse createTeacher(LectureRequest request) {
@@ -185,6 +207,15 @@ public class LectureServiceImpl implements ILectureService {
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
     }
+
+    @Override
+    public LectureResponse getMyProfile() {
+        User currentUser = getCurrentUser();
+        Lecturer lecturer = lectureRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy hồ sơ giảng viên cho user hiện tại"));
+        return toResponse(lecturer);
+    }
+
 
     public static LectureResponse toResponse(Lecturer lecturer) {
         return LectureResponse.builder()
