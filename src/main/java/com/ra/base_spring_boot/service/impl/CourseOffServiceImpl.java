@@ -282,6 +282,7 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 courseOff.getPrice(),
                 courseOff.getCreatedAt(),
                 courseOff.getUpdatedAt(),
+                courseOff.getPartner().getName(),
                 skillDTOs
         );
     }
