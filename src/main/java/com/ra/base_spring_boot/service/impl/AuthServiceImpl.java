@@ -11,6 +11,7 @@ import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTProvider jwtProvider;
+
     @Override
     public User Register(RegisterRequest userRegister) {
         if (userRepository.findByUsername(userRegister.getUsername()).isPresent()) {
@@ -35,6 +37,9 @@ public class AuthServiceImpl implements AuthService {
 
         if (userRepository.findByEmail(userRegister.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email đã tồn tại");
+        }
+        if (userRepository.existsByPhoneNumber(userRegister.getPhoneNumber())) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
 
         User newUser = new User();
@@ -47,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
         newUser.setRole(userRegister.getRole());
         newUser.setCreatedAt(java.time.LocalDateTime.now());
         newUser.setUpdatedAt(java.time.LocalDateTime.now());
-            return userRepository.save(newUser);
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -61,7 +66,8 @@ public class AuthServiceImpl implements AuthService {
             );
 
             UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
-            String token = jwtProvider.generateToken(user.getUsername());
+            String accessToken = jwtProvider.generateToken(user.getUsername());
+            String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
 
             return JWTResponse.builder()
                     .username(user.getUsername())
@@ -73,11 +79,14 @@ public class AuthServiceImpl implements AuthService {
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
                     .authorities(user.getAuthorities())
-                    .token(token)
+                    .token(accessToken)
+                    .refreshToken(refreshToken)
                     .build();
 
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Sai tài khoản hoặc mật khẩu");
         } catch (AuthenticationException e) {
-            throw new IllegalArgumentException("Lỗi xác thực: " + e.getMessage());
+            throw new RuntimeException("Xác thực thất bại: " + e.getMessage());
         }
     }
 }

@@ -5,6 +5,9 @@ import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +18,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalHandleException {
@@ -36,7 +40,15 @@ public class GlobalHandleException {
         ex.getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         return buildErrorResponse("Dữ liệu không hợp lệ", errors, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<APIResponse<String>> handleBadCredentials(BadCredentialsException ex) {
+        return buildErrorResponse("Lỗi xác thực", "Tên đăng nhập hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
+    }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<APIResponse<String>> handleAuthenticationException(AuthenticationException ex) {
+        return buildErrorResponse("Lỗi xác thực", ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<APIResponse<String>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         return buildErrorResponse("Kích thước tệp vượt quá giới hạn", ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -94,5 +106,13 @@ public class GlobalHandleException {
     @ExceptionHandler(HttpConflict.class)
     public ResponseEntity<APIResponse<String>> handleHttpConflict(HttpConflict ex) {
         return buildErrorResponse("Xung đột dữ liệu", ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<APIResponse<String>> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return buildErrorResponse("Truy cập bị từ chối", ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<APIResponse<String>> handleNoSuchElementException(NoSuchElementException ex) {
+        return buildErrorResponse("Lỗi", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

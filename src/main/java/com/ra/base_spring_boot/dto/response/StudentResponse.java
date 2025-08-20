@@ -26,7 +26,7 @@ public class StudentResponse {
 
     // Thông tin Student
     private String studentCode;
-    private String className;
+    private String academicYear;
 
     // Thông tin liên kết
     private Long departmentId;
