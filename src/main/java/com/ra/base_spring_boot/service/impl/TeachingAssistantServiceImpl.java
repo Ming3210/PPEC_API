@@ -22,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,10 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public TeachingAssistantResponseDTO createTeachingAssistant(TeachingAssistantRequestDTO requestDTO) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         if (userRepository.existsByUsername(requestDTO.getUsername())) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại: " + requestDTO.getUsername());
         }
@@ -69,7 +75,6 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
         Departments department = departmentRepository.findById(requestDTO.getDepartmentId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khoa với id: " + requestDTO.getDepartmentId()));
-
         User user = new User();
         user.setUsername(requestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
@@ -101,6 +106,10 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public TeachingAssistantResponseDTO updateTeachingAssistant(Long id, TeachingAssistantRequestDTO requestDTO) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         TeachingAssistant assistant = teachingAssistantRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy trợ giảng với id: " + id));
 
@@ -137,6 +146,10 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public void deleteTeachingAssistant(Long id) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         TeachingAssistant assistant = teachingAssistantRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy trợ giảng với id: " + id));
         teachingAssistantRepository.delete(assistant);
@@ -154,7 +167,13 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
     public PaginationResponse<TeachingAssistantResponseDTO> getAllTeachingAssistants(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<TeachingAssistant> assistants = teachingAssistantRepository.findAll(pageable);
+        Page<TeachingAssistant> assistants;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            assistants = teachingAssistantRepository.searchByKeyword(keyword, pageable);
+        } else {
+            assistants = teachingAssistantRepository.findAll(pageable);
+        }
+
         List<TeachingAssistantResponseDTO> assistantDTOs = assistants.getContent().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
@@ -165,10 +184,9 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
                 assistants.getTotalPages(),
                 assistants.getTotalElements()
         );
-
-        // Trả về PaginationResponse
         return new PaginationResponse<>(assistantDTOs, paginationDTO);
     }
+
 
 
     private String generateUniqueEmployeeCode() {

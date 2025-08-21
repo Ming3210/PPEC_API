@@ -5,6 +5,7 @@ import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.dto.response.*;
 import com.ra.base_spring_boot.model.*;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IPartnerService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,10 @@ public class PartnerServiceImpl implements IPartnerService {
     private final StudentProgressRepository studentProgressRepository;
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() != RoleName.ADMIN) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
             throw new PartnerAlreadyExistsException("Mã đối tác đã tồn tại");
         }
@@ -51,6 +57,10 @@ public class PartnerServiceImpl implements IPartnerService {
     @Override
     @Transactional
     public PartnerResponseDTO updatePartner(Long id, PartnerDTO dto) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() != RoleName.ADMIN) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
@@ -73,6 +83,10 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public PartnerResponseDTO getPartnerById(Long id) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() != RoleName.ADMIN) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
         return mapEntityToResponse(partner);
@@ -88,6 +102,10 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public void deletePartner(Long id) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() != RoleName.ADMIN) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
