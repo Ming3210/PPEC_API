@@ -8,9 +8,11 @@ import com.ra.base_spring_boot.model.Center;
 import com.ra.base_spring_boot.model.ServiceStaff;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.constants.AccountStatus;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IServiceStaffService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,6 +47,10 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
     @Override
     @Transactional
     public ServiceStaffResponseDTO create(ServiceStaffRequestDTO requestDTO) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
 
         if (userRepository.findByUsername(requestDTO.getUsername()).isPresent()) {
         throw new IllegalArgumentException("Tên tài khoản đã tồn tại");
@@ -55,8 +61,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
                 if (userRepository.findByPhoneNumber(requestDTO.getPhoneNumber()).isPresent()) {
         throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
-        Center center = centerRepository.findById(requestDTO.getCenterId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getCenterId()));
+        Center center = centerRepository.findById(requestDTO.getPartnerId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getPartnerId()));
 
         String uniqueCode = generateUniqueEmployeeCode();
 
@@ -93,6 +99,10 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
 
     @Override
     public ServiceStaffResponseDTO update(Long id, ServiceStaffRequestDTO requestDTO) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         ServiceStaff serviceStaff = staffRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên với id: " + id));
 
@@ -119,8 +129,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         serviceStaff.setHometown(requestDTO.getHometown());
         serviceStaff.setPosition(requestDTO.getPosition());
 
-        Center center = centerRepository.findById(requestDTO.getCenterId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getCenterId()));
+        Center center = centerRepository.findById(requestDTO.getPartnerId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getPartnerId()));
         serviceStaff.setCenter(center);
 
         if (requestDTO.getAvatar() != null && !requestDTO.getAvatar().isEmpty()) {
@@ -135,6 +145,10 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
 
     @Override
     public void delete(Long id) {
+        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (isCheck.getRole() == RoleName.STUDENT) {
+            throw new IllegalArgumentException("Bạn không có quyền truy cập");
+        }
         ServiceStaff serviceStaff = staffRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên với id: " + id));
 

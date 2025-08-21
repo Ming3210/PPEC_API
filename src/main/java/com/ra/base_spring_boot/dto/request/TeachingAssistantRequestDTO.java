@@ -37,7 +37,6 @@ public class TeachingAssistantRequestDTO {
     @NotBlank(message = "Mã trợ giảng không được để trống")
     private String taCode;
     private MultipartFile avatarUrl;
-    private String avatar;
     @NotNull(message = "Giảng viên phụ trách không được để trống")
     @Min(value = 1, message = "ID giảng viên phụ trách phải lớn hơn 0")
     private Long assignedLecturerId;
