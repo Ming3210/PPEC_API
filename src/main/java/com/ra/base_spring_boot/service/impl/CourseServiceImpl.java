@@ -46,7 +46,7 @@ public class CourseServiceImpl implements ICourseService {
             throw new ConflictException("Mã khóa học đã tồn tại: " + courseRequestDTO.getCode());
         }
 
-        Partner partner = partnerRepository.findById(Math.toIntExact(courseRequestDTO.getPartnerId()))
+        Partner partner = partnerRepository.findById(courseRequestDTO.getPartnerId())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getPartnerId()));
 
         // Upload image if provided
@@ -103,7 +103,7 @@ public class CourseServiceImpl implements ICourseService {
             throw new ConflictException("Mã khóa học đã tồn tại: " + courseRequestDTO.getCode());
         }
 
-        Partner partner = partnerRepository.findById(Math.toIntExact(courseRequestDTO.getPartnerId()))
+        Partner partner = partnerRepository.findById(courseRequestDTO.getPartnerId())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getPartnerId()));
 
         // Upload new image if provided

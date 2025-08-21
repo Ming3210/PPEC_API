@@ -37,10 +37,6 @@ public class PartnerServiceImpl implements IPartnerService {
     private final StudentProgressRepository studentProgressRepository;
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() != RoleName.ADMIN) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
             throw new PartnerAlreadyExistsException("Mã đối tác đã tồn tại");
         }
@@ -57,10 +53,6 @@ public class PartnerServiceImpl implements IPartnerService {
     @Override
     @Transactional
     public PartnerResponseDTO updatePartner(Long id, PartnerDTO dto) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() != RoleName.ADMIN) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
@@ -83,10 +75,6 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public PartnerResponseDTO getPartnerById(Long id) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() != RoleName.ADMIN) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
         return mapEntityToResponse(partner);
@@ -102,10 +90,6 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     public void deletePartner(Long id) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() != RoleName.ADMIN) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 

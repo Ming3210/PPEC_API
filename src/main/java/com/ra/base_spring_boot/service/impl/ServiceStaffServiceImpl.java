@@ -4,15 +4,13 @@ import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.ServiceStaffRequestDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.ServiceStaffResponseDTO;
-import com.ra.base_spring_boot.model.Center;
+import com.ra.base_spring_boot.model.Partner;
 import com.ra.base_spring_boot.model.ServiceStaff;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.constants.AccountStatus;
-import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
 import com.ra.base_spring_boot.service.interfaces.IServiceStaffService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,34 +32,30 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
     @Autowired
     private ICloudinaryService cloudinaryService;
     @Autowired
-    private CenterRepository centerRepository;
+    private PartnerRepository partnerRepository;   // ✅ thay CenterRepository -> PartnerRepository
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ServiceStaffRepository serviceStaffRepository;
     @Autowired
     private LectureRepository lectureRepository;
     @Autowired
     private TeachingAssistantRepository teachingAssistantRepository;
+
     @Override
     @Transactional
     public ServiceStaffResponseDTO create(ServiceStaffRequestDTO requestDTO) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
 
         if (userRepository.findByUsername(requestDTO.getUsername()).isPresent()) {
-        throw new IllegalArgumentException("Tên tài khoản đã tồn tại");
+            throw new IllegalArgumentException("Tên tài khoản đã tồn tại");
         }
-                if (userRepository.findByEmail(requestDTO.getEmail()).isPresent()) {
-        throw new IllegalArgumentException("Email đã tồn tại");
+        if (userRepository.findByEmail(requestDTO.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã tồn tại");
         }
-                if (userRepository.findByPhoneNumber(requestDTO.getPhoneNumber()).isPresent()) {
-        throw new IllegalArgumentException("Số điện thoại đã tồn tại");
+        if (userRepository.findByPhoneNumber(requestDTO.getPhoneNumber()).isPresent()) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
-        Center center = centerRepository.findById(requestDTO.getPartnerId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getPartnerId()));
+
+        Partner partner = partnerRepository.findById(requestDTO.getPartnerId()) // ✅ centerId -> partnerId
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đối tác với id: " + requestDTO.getPartnerId()));
 
         String uniqueCode = generateUniqueEmployeeCode();
 
@@ -77,32 +70,28 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+
         ServiceStaff serviceStaff = new ServiceStaff();
         serviceStaff.setUser(user);
         serviceStaff.setStaffCode(uniqueCode);
         serviceStaff.setDateOfBirth(requestDTO.getDateOfBirth());
         serviceStaff.setHometown(requestDTO.getHometown());
-        serviceStaff.setCenter(center);
+        serviceStaff.setPartner(partner); // ✅ setPartner thay cho setCenter
         serviceStaff.setPosition(requestDTO.getPosition());
 
         if (requestDTO.getAvatar() != null && !requestDTO.getAvatar().isEmpty()) {
-            String uploadedUrl = cloudinaryService.uploadImage(requestDTO.getAvatar(), "assistants");
+            String uploadedUrl = cloudinaryService.uploadImage(requestDTO.getAvatar(), "service-staffs");
             serviceStaff.setAvatarUrl(uploadedUrl);
         }
 
-
         staffRepository.save(serviceStaff);
 
-        return toResponseDTO(user, serviceStaff, center);
+        return toResponseDTO(user, serviceStaff, partner);
     }
 
 
     @Override
     public ServiceStaffResponseDTO update(Long id, ServiceStaffRequestDTO requestDTO) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         ServiceStaff serviceStaff = staffRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên với id: " + id));
 
@@ -129,26 +118,22 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         serviceStaff.setHometown(requestDTO.getHometown());
         serviceStaff.setPosition(requestDTO.getPosition());
 
-        Center center = centerRepository.findById(requestDTO.getPartnerId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trung tâm với id: " + requestDTO.getPartnerId()));
-        serviceStaff.setCenter(center);
+        Partner partner = partnerRepository.findById(requestDTO.getPartnerId()) // ✅ thay Center -> Partner
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đối tác với id: " + requestDTO.getPartnerId()));
+        serviceStaff.setPartner(partner);
 
         if (requestDTO.getAvatar() != null && !requestDTO.getAvatar().isEmpty()) {
-            String uploadedUrl = cloudinaryService.uploadImage(requestDTO.getAvatar(), "assistants");
+            String uploadedUrl = cloudinaryService.uploadImage(requestDTO.getAvatar(), "service-staffs");
             serviceStaff.setAvatarUrl(uploadedUrl);
         }
         staffRepository.save(serviceStaff);
 
-        return toResponseDTO(user, serviceStaff, center);
+        return toResponseDTO(user, serviceStaff, partner);
     }
 
 
     @Override
     public void delete(Long id) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         ServiceStaff serviceStaff = staffRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên với id: " + id));
 
@@ -168,7 +153,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         Page<ServiceStaff> serviceStaffs = staffRepository.search(keyword, pageable);
 
         List<ServiceStaffResponseDTO> listDTO = serviceStaffs.getContent().stream()
-                .map(s -> toResponseDTO(s.getUser(), s, s.getCenter()))
+                .map(s -> toResponseDTO(s.getUser(), s, s.getPartner())) // ✅ s.getCenter() -> s.getPartner()
                 .collect(Collectors.toList());
 
         PaginationDTO paginationDTO = new PaginationDTO(
@@ -180,12 +165,11 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         return new PaginationResponse<>(listDTO, paginationDTO);
     }
 
-
-
     @Override
     public ServiceStaffResponseDTO getById(Long id) {
         return null;
     }
+
     private String generateUniqueEmployeeCode() {
         String code;
         do {
@@ -193,7 +177,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         } while (staffRepository.isCheckStaffCode(code));
         return code;
     }
-    private ServiceStaffResponseDTO toResponseDTO(User user, ServiceStaff staff, Center center) {
+
+    private ServiceStaffResponseDTO toResponseDTO(User user, ServiceStaff staff, Partner partner) { // ✅ dùng Partner thay Center
         return ServiceStaffResponseDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -207,8 +192,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
                 .hometown(staff.getHometown())
                 .avatarUrl(staff.getAvatarUrl())
                 .position(staff.getPosition())
-                .centerId(center.getId())
-                .centerName(center.getName())
+                .partnerId(partner.getId())          // ✅ centerId -> partnerId
+                .partnerName(partner.getName())      // ✅ centerName -> partnerName
                 .staffServiceCode(staff.getStaffCode())
                 .build();
     }

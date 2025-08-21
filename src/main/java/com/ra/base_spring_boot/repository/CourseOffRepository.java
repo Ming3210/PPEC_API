@@ -23,8 +23,8 @@ public interface CourseOffRepository extends JpaRepository<CourseOff, Long>, Jpa
 
     Page<CourseOff> findByTargetAudience(TargetAudience targetAudience, Pageable pageable);
 
-    Page<CourseOff> findByCenterId(Long centerId, Pageable pageable);
-    long countByPartnerId(Long partnerId);
+//    Page<CourseOff> findByCenterId(Long centerId, Pageable pageable);
+//    long countByPartnerId(Long partnerId);
 
     Page<CourseOff> findByNameContainingIgnoreCase(String name, Pageable pageable);
 

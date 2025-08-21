@@ -17,7 +17,7 @@ public interface ServiceStaffRepository extends JpaRepository<ServiceStaff, Long
     boolean isCheckStaffCode(String staffCode);
     @Query("SELECT s FROM ServiceStaff s " +
             "JOIN s.user u " +
-            "JOIN s.center c " +
+            "JOIN s.partner c " +
             "WHERE (:keyword IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "   OR LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
