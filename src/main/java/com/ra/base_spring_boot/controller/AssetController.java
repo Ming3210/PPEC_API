@@ -87,7 +87,7 @@ public class AssetController {
                 )
         );
     }
-
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("student-asset")
     public ResponseEntity<APIResponse<AssetResponseDTO>> studentUploadAsset(@Valid @RequestBody StudentAssetRequestDTO assetRequestDTO) {
         return ResponseEntity.ok(
@@ -100,6 +100,33 @@ public class AssetController {
                 )
         );
     }
+
+    @PreAuthorize( "hasRole('STUDENT')")
+    @PutMapping("/student-asset/{id}")
+    public ResponseEntity<APIResponse<AssetResponseDTO>> studentUpdateAsset(
+            @PathVariable Long id,
+            @Valid @RequestBody StudentAssetRequestDTO assetRequestDTO
+    ) {
+        return ResponseEntity.ok(
+                new APIResponse<>(
+                        true,
+                        "Update asset successfully!",
+                        assetService.studentUpdateAsset(id, assetRequestDTO),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @PreAuthorize( "hasAnyRole('ADMIN', 'LECTURER', 'STUDENT')")
+    @GetMapping("/own")
+    public ResponseEntity<APIResponse<?>> getOwnAssets(@RequestParam(defaultValue = "0") Integer page,
+                                                       @RequestParam(defaultValue = "10") Integer itemPage,
+                                                       @RequestParam(defaultValue = "id") String sortBy,
+                                                       @RequestParam(defaultValue = "true") Boolean orderBy) {
+        return ResponseEntity.ok(new APIResponse<>(true, "Get own assets successfully!", assetService.getAllLoginUserAssets(page, itemPage, sortBy, orderBy), HttpStatus.OK, LocalDateTime.now()));
+    }
+
 
 
 }

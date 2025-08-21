@@ -176,7 +176,7 @@ public class AssetServiceImpl implements IAssetService {
         asset.setCode(studentAssetRequestDTO.getCode());
         asset.setName(studentAssetRequestDTO.getName());
         asset.setNotes(studentAssetRequestDTO.getNotes());
-        asset.setAssignedUser(null);
+        asset.setAssignedUser(creator);
         asset.setCreatedAt(LocalDate.now());
         asset.setCreator(creator);
         asset.setUpdatedAt(null);
@@ -192,6 +192,66 @@ public class AssetServiceImpl implements IAssetService {
                 .assignedUserEmail(creator.getEmail())
                 .assignedUserPhone(creator.getPhoneNumber())
                 .build();
+    }
+
+    @Override
+    public AssetResponseDTO studentUpdateAsset(Long id, StudentAssetRequestDTO studentAssetRequestDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User creator = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+        Asset asset = assetRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Asset not found with id: " + id));
+        if (asset.getAssignedUser() != null && !asset.getAssignedUser().getId().equals(creator.getId())) {
+            throw new RuntimeException("You are not authorized to update this asset");
+        }
+        asset.setCode(studentAssetRequestDTO.getCode());
+        asset.setName(studentAssetRequestDTO.getName());
+        asset.setNotes(studentAssetRequestDTO.getNotes());
+        asset.setAssignedUser(creator);
+        asset.setUpdatedAt(LocalDate.now());
+        asset.setUpdater(creator);
+        Asset updatedAsset = assetRepository.save(asset);
+        return AssetResponseDTO.builder()
+                .id(updatedAsset.getId())
+                .code(updatedAsset.getCode())
+                .name(updatedAsset.getName())
+                .notes(updatedAsset.getNotes())
+                .assignedUserId(updatedAsset.getAssignedUser() != null ? updatedAsset.getAssignedUser().getId() : null)
+                .assignedUserName(updatedAsset.getAssignedUser() != null ? updatedAsset.getAssignedUser().getFullName() : null)
+                .assignedUserEmail(updatedAsset.getAssignedUser() != null ? updatedAsset.getAssignedUser().getEmail() : null)
+                .assignedUserPhone(updatedAsset.getAssignedUser() != null ? updatedAsset.getAssignedUser().getPhoneNumber() : null)
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<AssetResponseDTO> getAllLoginUserAssets(int page, int size, String sortBy, Boolean sortDirection) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+        Page<Asset> assetPage = assetRepository.findByAssignedUser(user, pageable);
+        List<AssetResponseDTO> items = assetPage.getContent()
+                .stream()
+                .map(asset -> AssetResponseDTO.builder()
+                        .id(asset.getId())
+                        .code(asset.getCode())
+                        .name(asset.getName())
+                        .notes(asset.getNotes())
+                        .assignedUserId(asset.getAssignedUser() != null ? asset.getAssignedUser().getId() : null)
+                        .assignedUserName(asset.getAssignedUser() != null ? asset.getAssignedUser().getFullName() : null)
+                        .assignedUserEmail(asset.getAssignedUser() != null ? asset.getAssignedUser().getEmail() : null)
+                        .assignedUserPhone(asset.getAssignedUser() != null ? asset.getAssignedUser().getPhoneNumber() : null)
+                        .build()
+                ).toList();
+        return new PaginationResponse<>(
+                items,
+                assetPage.getNumber(),
+                assetPage.getSize(),
+                assetPage.getTotalPages(),
+                assetPage.getTotalElements()
+        );
     }
 
 
