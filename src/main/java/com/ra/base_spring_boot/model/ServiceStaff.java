@@ -32,8 +32,8 @@ public class ServiceStaff {
     private String avatarUrl;
     private String staffCode;
     @ManyToOne
-    @JoinColumn(name = "center_id")
-    private Center center;
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 
     @NotBlank
     @Column(name = "position", length = 100)
