@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.request.StudentRequest;
 import com.ra.base_spring_boot.dto.request.StudentUpdateDTO;
+import com.ra.base_spring_boot.dto.request.UpdatePasswordRequest;
 import com.ra.base_spring_boot.dto.request.UpdateStudentProfileRequest;
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.service.interfaces.IStudentService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/students")
@@ -76,9 +78,19 @@ public class StudentController {
     }
 
     @PutMapping(value = "/profile/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<APIResponse<?>> updateProfile(@PathVariable Long studentId, @ModelAttribute UpdateStudentProfileRequest request) {
+    public ResponseEntity<APIResponse<?>> updateProfile(@PathVariable Long studentId,
+                                                        @ModelAttribute UpdateStudentProfileRequest request) {
         return ResponseEntity.ok(new APIResponse<>(true, "Update profile successfully!",
                 IStudentService.updateProfile(studentId, request), HttpStatus.OK, LocalDateTime.now()));
+    }
+
+    @PutMapping("password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<APIResponse<?>> updatePassword(
+            @Valid @RequestBody UpdatePasswordRequest request) {
+        return ResponseEntity.ok(new APIResponse<>(true, "Update password successfully!",
+                IStudentService.updatePassword(request), HttpStatus.OK, LocalDateTime.now()));
     }
 }

@@ -20,5 +20,8 @@ public class CenterRequestDTO {
     @Size(max = 500, message = "Địa chỉ không được vượt quá 500 ký tự")
     private String address;
 
+    @NotNull(message = "ID người dùng không được để trống")
+    private Long userId;
+
     private MultipartFile logoFile;
 }

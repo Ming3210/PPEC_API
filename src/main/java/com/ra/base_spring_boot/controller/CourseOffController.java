@@ -69,7 +69,7 @@ public class CourseOffController {
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> searchAndFilterCoursesOff(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String targetAudience,
-            @RequestParam(required = false) Long centerId,
+            @RequestParam(required = false) Long partnerId,
             @RequestParam(required = false) BigDecimal priceFrom,
             @RequestParam(required = false) BigDecimal priceTo,
             @RequestParam(required = false) Integer estimatedHoursFrom,
@@ -89,7 +89,7 @@ public class CourseOffController {
             }
         }
 
-        filterDTO.setCenterId(centerId);
+        filterDTO.setPartnerId(partnerId);
         filterDTO.setPriceFrom(priceFrom);
         filterDTO.setPriceTo(priceTo);
         filterDTO.setEstimatedHoursFrom(estimatedHoursFrom);

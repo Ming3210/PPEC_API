@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.ra.base_spring_boot.dto.request.StudentRequest;
 import com.ra.base_spring_boot.dto.request.StudentUpdateDTO;
+import com.ra.base_spring_boot.dto.request.UpdatePasswordRequest;
 import com.ra.base_spring_boot.dto.request.UpdateStudentProfileRequest;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.StudentProfileResponse;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 public class StudentServiceImpl implements IStudentService {
@@ -186,6 +188,7 @@ public class StudentServiceImpl implements IStudentService {
         }
 
         MultipartFile avatar = dto.getAvatar();
+
         if (avatar != null && !avatar.isEmpty()) {
             try {
                 Map uploadResult = cloudinary.uploader().upload(
@@ -264,7 +267,6 @@ public class StudentServiceImpl implements IStudentService {
                 .orElseThrow(() -> new NoSuchElementException("Không tìm thấy sinh viên"));
         User user = student.getUser();
 
-        // chỉ update nếu khác null & không rỗng
         if (request.getFullName() != null && !request.getFullName().isBlank()) {
             user.setFullName(request.getFullName());
         }
@@ -278,11 +280,8 @@ public class StudentServiceImpl implements IStudentService {
             student.setAddress(request.getAddress());
         }
 
-        // Xử lý avatar
         MultipartFile avatar = request.getAvatar();
-        String avatarUrl = request.getAvatarUrl();
 
-        // Nếu có file avatar mới
         if (avatar != null && !avatar.isEmpty()) {
             try {
                 Map uploadResult = cloudinary.uploader().upload(
@@ -294,13 +293,8 @@ public class StudentServiceImpl implements IStudentService {
                 throw new RuntimeException("Lỗi khi tải ảnh", e);
             }
         }
-        // Nếu không có file mới nhưng có avatarUrl
-        else if (avatarUrl != null && !avatarUrl.isBlank()) {
-            student.setAvatarUrl(avatarUrl);
-        }
-        // Nếu không có cả hai thì giữ nguyên avatar cũ
 
-        // các field khác
+
         if (request.getDateOfBirth() != null) {
             student.setDateOfBirth(request.getDateOfBirth());
         }
@@ -327,6 +321,27 @@ public class StudentServiceImpl implements IStudentService {
         return toStudentResponse(student);
     }
 
+    @Override
+    public Boolean updatePassword( UpdatePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User userLogin = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+
+        if (!passwordEncoder.matches(request.getOldPassword(), userLogin.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu cũ không chính xác");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Xác nhận mật khẩu không khớp");
+        }
+
+        userLogin.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(userLogin);
+
+        return true;
+    }
 
 
 

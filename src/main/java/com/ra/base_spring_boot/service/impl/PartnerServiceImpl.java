@@ -61,7 +61,7 @@ public class PartnerServiceImpl implements IPartnerService {
         if (isCheck.getRole() != RoleName.ADMIN) {
             throw new IllegalArgumentException("Bạn không có quyền truy cập");
         }
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         if (!partner.getPartnerCode().equals(dto.getPartnerCode()) &&
@@ -87,7 +87,7 @@ public class PartnerServiceImpl implements IPartnerService {
         if (isCheck.getRole() != RoleName.ADMIN) {
             throw new IllegalArgumentException("Bạn không có quyền truy cập");
         }
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
         return mapEntityToResponse(partner);
     }
@@ -106,7 +106,7 @@ public class PartnerServiceImpl implements IPartnerService {
         if (isCheck.getRole() != RoleName.ADMIN) {
             throw new IllegalArgumentException("Bạn không có quyền truy cập");
         }
-        Partner partner = partnerRepository.findById(Math.toIntExact(id))
+        Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         if (partner.getAvatarUrl() != null) {
@@ -148,14 +148,14 @@ public class PartnerServiceImpl implements IPartnerService {
 
     @Override
     @Transactional(readOnly = true)
-    public GetDetailPartnerResponse getDetailPartner(int partnerId) {
+    public GetDetailPartnerResponse getDetailPartner(Long partnerId) {
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
         PartnerResponseDTO partnerDTO = mapEntityToResponse(partner);
 
         List<Course> courses = courseRepository.findByPartnerId(partnerId);
-        List<CourseOff> courseOffs = courseOffRepository.findByPartnerId((long) partnerId);
+        List<CourseOff> courseOffs = courseOffRepository.findByPartnerId(partnerId);
 
         List<Long> courseIds = courses.stream().map(Course::getId).toList();
         List<Long> courseOffIds = courseOffs.stream().map(CourseOff::getId).toList();
@@ -180,13 +180,15 @@ public class PartnerServiceImpl implements IPartnerService {
                 ))
                 .toList();
 
-        List<CourseOfflineDTO> offlineCourses = courseOffs.stream()
-                .map(c -> new CourseOfflineDTO(
+        List<CourseOffResponse> offlineCourses = courseOffs.stream()
+                .map(c -> new CourseOffResponse(
                         c.getId(),
                         c.getName(),
-                        c.getPrice(),
                         c.getBannerUrl(),
-                        c.getEstimatedHours()
+                        c.getTargetAudience(),
+                        c.getDescription(),
+                        c.getEstimatedHours(),
+                        c.getPrice()
                 ))
                 .toList();
 

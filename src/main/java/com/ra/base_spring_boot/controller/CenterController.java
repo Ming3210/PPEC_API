@@ -82,25 +82,6 @@ public class CenterController {
 
         return ResponseEntity.ok(response);
     }
-    // chưa kiểm tra id có tồn tại hay
-    @GetMapping("/{id}/can-delete")
-    public ResponseEntity<ResponseWrapper<Map<String, Object>>> checkCanDelete(@PathVariable Long id) {
-        boolean canDelete = centerService.canDeleteCenter(id);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("canDelete", canDelete);
-        result.put("message", canDelete ?
-                "Có thể xóa trung tâm" :
-                "Không thể xóa trung tâm vì có khóa học đang sử dụng");
-
-        ResponseWrapper<Map<String, Object>> response = ResponseWrapper.<Map<String, Object>>builder()
-                .status(HttpStatus.OK)
-                .code(HttpStatus.OK.value())
-                .data(result)
-                .build();
-
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping
     public ResponseEntity<ResponseWrapper<List<CenterResponseDTO>>> getAllCenters() {

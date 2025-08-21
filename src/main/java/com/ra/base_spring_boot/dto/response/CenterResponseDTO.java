@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CenterResponseDTO {
     private Long id;
-    private String name;
     private String address;
     private String logoUrl;
+    private Long userId;
+    private String fullName;
     private LocalDateTime createdAt;
-    private Long totalCourses;
-    private Long totalCoursesOff;
+    private LocalDateTime updatedAt;
 }
