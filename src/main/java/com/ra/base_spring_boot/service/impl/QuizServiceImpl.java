@@ -1,20 +1,26 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ra.base_spring_boot.dto.request.QuizRequestDTO;
 import com.ra.base_spring_boot.dto.request.QuizSubmissionRequest;
 import com.ra.base_spring_boot.dto.response.QuestionResponseDTO;
 import com.ra.base_spring_boot.dto.response.QuizResponseDTO;
 import com.ra.base_spring_boot.dto.response.QuizResultResponse;
-import com.ra.base_spring_boot.model.Lesson;
-import com.ra.base_spring_boot.model.Question;
-import com.ra.base_spring_boot.model.Quiz;
+import com.ra.base_spring_boot.model.*;
+import com.ra.base_spring_boot.model.constants.SubmissionStatus;
 import com.ra.base_spring_boot.repository.LessonRepository;
 import com.ra.base_spring_boot.repository.QuizRepository;
+import com.ra.base_spring_boot.repository.QuizResultRepository;
+import com.ra.base_spring_boot.repository.UserRepository;
+import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.IQuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.desktop.UserSessionEvent;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +30,10 @@ public class QuizServiceImpl implements IQuizService {
     private QuizRepository quizRepository;
     @Autowired
     private LessonRepository lessonRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private QuizResultRepository quizResultRepository;
     @Override
     public List<QuizResponseDTO> listQuiz() {
         return quizRepository.findAll()
@@ -31,18 +41,7 @@ public class QuizServiceImpl implements IQuizService {
                 .map(this::mapToResponseDTO)
                 .toList();
     }
-    @Override
-    public QuizResponseDTO getQuizById(Long id) {
-        try {
-            Quiz quiz = quizRepository.findAll().stream()
-                    .filter(q -> q.getId().equals(id))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Quiz với ID: " + id));
-            return mapToResponseDTO(quiz);
-        } catch(Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-    }
+
 
 
     @Override
@@ -96,7 +95,6 @@ public class QuizServiceImpl implements IQuizService {
     public List<QuizResponseDTO> getQuizzesByLesson(Long lessonId) {
         List<Quiz> quizzes = quizRepository.findByLessonIdWithQuestions(lessonId);
         quizzes.forEach(q -> q.getQuestions().forEach(question -> question.getOptions().size()));
-
         return quizzes.stream()
                 .map(this::mapToResponseDTO)
                 .toList();
@@ -104,15 +102,35 @@ public class QuizServiceImpl implements IQuizService {
 
 
 
+    @Override
+    @Transactional
+    public QuizResponseDTO getQuizById(Long id) {
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Quiz với ID: " + id));
+
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user với id " + userPrincipal.getId()));
+
+        QuizResult quizResult = QuizResult.builder()
+                .quiz(quiz)
+                .studentId(user.getId())
+                .totalQuestions(quiz.getTotalQuestions())
+                .startTime(LocalDateTime.now())
+                .status(SubmissionStatus.STARTED)
+                .build();
+
+        quizResultRepository.save(quizResult);
+
+        return mapToResponseDTO(quiz);
+    }
 
     @Override
     @Transactional
     public QuizResultResponse submitQuiz(Long quizId, QuizSubmissionRequest submission) {
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quiz với id: " + quizId));
+        Quiz quiz = quizRepository.findAll().stream().filter(q->q.getId().equals(quizId)).findFirst().orElseThrow(()-> new IllegalArgumentException("Không tìm thấy bài quiz với id " + quizId));
 
         List<QuizSubmissionRequest.AnswerDTO> answers = submission.getAnswers();
-
         int totalQuestions = quiz.getQuestions() != null ? quiz.getQuestions().size() : 0;
 
         List<QuizResultResponse.QuestionResultDTO> details = quiz.getQuestions().stream().map(q -> {
@@ -133,17 +151,39 @@ public class QuizServiceImpl implements IQuizService {
         }).toList();
 
         int correctAnswers = (int) details.stream().filter(QuizResultResponse.QuestionResultDTO::isCorrect).count();
-        int wrongAnswers = totalQuestions - correctAnswers;
         int score = totalQuestions > 0 ? (int) ((double) correctAnswers / totalQuestions * 100) : 0;
+
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user với id " + userPrincipal.getId()));
+
+        QuizResult quizResult = quizResultRepository
+                .findLatestByQuizIdAndStudentId(quizId, user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy kết quả quiz để nộp"));
+
+        LocalDateTime now = LocalDateTime.now();
+        int timeSpent = (int) java.time.Duration.between(quizResult.getStartTime(), now).toSeconds();
+
+        quizResult.setCorrectAnswers(correctAnswers);
+        quizResult.setScore(score);
+        quizResult.setTimeSpent(timeSpent);
+        quizResult.setStatus(SubmissionStatus.COMPLETED);
+        quizResult.setSubmittedAt(now);
+
+        quizResultRepository.save(quizResult);
+
         return QuizResultResponse.builder()
                 .quizId(quizId)
                 .score(score)
                 .totalQuestions(totalQuestions)
                 .correctAnswers(correctAnswers)
-                .wrongAnswers(wrongAnswers)
+                .wrongAnswers(totalQuestions - correctAnswers)
                 .details(details)
                 .build();
     }
+
+
+
 
 
 
