@@ -53,8 +53,8 @@ public class CourseRequestDTO {
 
     private Boolean isActive = true;
 
-    @NotNull(message = "Center ID không được để trống")
-    private Long centerId;
+    @NotNull(message = "Partner ID không được để trống")
+    private Long partnerId;
 
     private MultipartFile imageFile;
 }

@@ -31,6 +31,6 @@ public class CourseResponseDTO {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long centerId;
-    private String centerName;
+    private Long partnerId;
+    private String partnerName;
 }

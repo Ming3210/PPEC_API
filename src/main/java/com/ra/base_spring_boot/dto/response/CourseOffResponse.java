@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.dto.response;
 
+import com.ra.base_spring_boot.model.constants.TargetAudience;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,12 +8,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class CourseOfflineDTO {
+@AllArgsConstructor
+public class CourseOffResponse {
     private Long id;
     private String name;
-    private BigDecimal price;
     private String bannerUrl;
+    private TargetAudience targetAudience;
+    private String description;
     private Integer estimatedHours;
+    private BigDecimal price;
 }

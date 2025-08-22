@@ -9,9 +9,9 @@ import com.ra.base_spring_boot.exception.NotFoundException;
 import com.ra.base_spring_boot.exception.ConflictException;
 import com.ra.base_spring_boot.model.Course;
 import com.ra.base_spring_boot.model.Center;
-
-import com.ra.base_spring_boot.repository.CenterRepository;
+import com.ra.base_spring_boot.model.Partner;
 import com.ra.base_spring_boot.repository.CourseRepository;
+import com.ra.base_spring_boot.repository.PartnerRepository;
 import com.ra.base_spring_boot.service.interfaces.ICourseService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,21 +35,19 @@ import java.util.stream.Collectors;
 public class CourseServiceImpl implements ICourseService {
 
     private final CourseRepository courseRepository;
-    private final CenterRepository centerRepository;
+    private final PartnerRepository partnerRepository;
 
     @Autowired
     private Cloudinary cloudinary;
 
     @Override
     public CourseResponseDTO createCourse(CourseRequestDTO courseRequestDTO) {
-        // Check unique code
         if (courseRepository.existsByCode(courseRequestDTO.getCode())) {
             throw new ConflictException("Mã khóa học đã tồn tại: " + courseRequestDTO.getCode());
         }
 
-        // Validate center exists
-        Center center = centerRepository.findById(courseRequestDTO.getCenterId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getCenterId()));
+        Partner partner = partnerRepository.findById(courseRequestDTO.getPartnerId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getPartnerId()));
 
         // Upload image if provided
         String imageUrl = null;
@@ -79,7 +77,7 @@ public class CourseServiceImpl implements ICourseService {
         course.setLessonCount(courseRequestDTO.getLessonCount());
         course.setImageUrl(imageUrl);
         course.setIsActive(courseRequestDTO.getIsActive());
-        course.setCenter(center);
+        course.setPartner(partner);
         course.setCreatedAt(LocalDateTime.now());
         course.setUpdatedAt(LocalDateTime.now());
 
@@ -105,8 +103,8 @@ public class CourseServiceImpl implements ICourseService {
             throw new ConflictException("Mã khóa học đã tồn tại: " + courseRequestDTO.getCode());
         }
 
-        Center center = centerRepository.findById(courseRequestDTO.getCenterId())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getCenterId()));
+        Partner partner = partnerRepository.findById(courseRequestDTO.getPartnerId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy trung tâm với ID: " + courseRequestDTO.getPartnerId()));
 
         // Upload new image if provided
         String imageUrl = existingCourse.getImageUrl(); // Keep existing if no new image
@@ -135,7 +133,7 @@ public class CourseServiceImpl implements ICourseService {
         existingCourse.setLessonCount(courseRequestDTO.getLessonCount());
         existingCourse.setImageUrl(imageUrl);
         existingCourse.setIsActive(courseRequestDTO.getIsActive());
-        existingCourse.setCenter(center);
+        existingCourse.setPartner(partner);
         existingCourse.setUpdatedAt(LocalDateTime.now());
 
         Course updatedCourse = courseRepository.save(existingCourse);
@@ -197,8 +195,8 @@ public class CourseServiceImpl implements ICourseService {
                 course.getIsActive(),
                 course.getCreatedAt(),
                 course.getUpdatedAt(),
-                course.getCenter().getId(),
-                course.getCenter().getName()
+                course.getPartner().getId(),
+                course.getPartner().getName()
         );
     }
 }

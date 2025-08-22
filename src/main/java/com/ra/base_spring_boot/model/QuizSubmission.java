@@ -25,7 +25,7 @@ public class QuizSubmission {
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    private String studentId;
+    private Long studentId;
 
     @Column(columnDefinition = "TEXT")
     private String answers;
@@ -43,7 +43,7 @@ public class QuizSubmission {
 
     private LocalDateTime submittedAt;
 
-    public QuizSubmission(Long id, Quiz quiz, String studentId) {
+    public QuizSubmission(Long id, Quiz quiz, Long studentId) {
         this.id = id;
         this.quiz = quiz;
         this.studentId = studentId;

@@ -16,11 +16,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     boolean existsByCodeAndIdNot(String code, Long id);
 
     Page<Course> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
-    Page<Course> findByLevel(Level level, Pageable pageable);
-    Page<Course> findByIsActiveTrue(Pageable pageable);
-    Page<Course> findByCenterId(Long centerId, Pageable pageable);
-
-    List<Course> findByProviderContainingIgnoreCase(String provider);
-    long countByCenterId(Long centerId);
-    List<Course> findByPartnerId(int partnerId);
+//    Page<Course> findByLevel(Level level, Pageable pageable);
+//    Page<Course> findByIsActiveTrue(Pageable pageable);
+//    Page<Course> findByCenterId(Long centerId, Pageable pageable);
+//
+//    List<Course> findByProviderContainingIgnoreCase(String provider);
+//    long countByCenterId(Long centerId);
+    List<Course> findByPartnerId(Long partnerId);
 }

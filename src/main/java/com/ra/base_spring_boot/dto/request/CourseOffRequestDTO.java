@@ -35,8 +35,8 @@ public class CourseOffRequestDTO {
     @DecimalMin(value = "0.0", message = "Giá phải lớn hơn hoặc bằng 0")
     private BigDecimal price;
 
-    @NotNull(message = "Center ID không được để trống")
-    private Long centerId;
+    @NotNull(message = "Partner ID không được để trống")
+    private Long partnerId;
 
     private List<Long> skillIds;
 

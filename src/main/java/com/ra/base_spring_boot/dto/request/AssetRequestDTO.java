@@ -23,5 +23,5 @@ public class AssetRequestDTO {
     private String notes;
 
     @NotNull(message = "Người phụ trách không được để trống")
-    private Long assignedUserId;
+    private Long assignedServiceStaffId;
 }

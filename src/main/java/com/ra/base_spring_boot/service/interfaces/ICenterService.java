@@ -13,5 +13,4 @@ public interface ICenterService {
     void deleteCenter(Long id);
     List<CenterResponseDTO> getAllCenters();
     Page<CenterResponseDTO> searchCenters(String keyword, int page, int size);
-    boolean canDeleteCenter(Long id);
 }

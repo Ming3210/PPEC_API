@@ -23,8 +23,8 @@ public interface CourseOffRepository extends JpaRepository<CourseOff, Long>, Jpa
 
     Page<CourseOff> findByTargetAudience(TargetAudience targetAudience, Pageable pageable);
 
-    Page<CourseOff> findByCenterId(Long centerId, Pageable pageable);
-    long countByCenterId(Long centerId);
+//    Page<CourseOff> findByCenterId(Long centerId, Pageable pageable);
+//    long countByPartnerId(Long partnerId);
 
     Page<CourseOff> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
@@ -36,6 +36,6 @@ public interface CourseOffRepository extends JpaRepository<CourseOff, Long>, Jpa
 
     @Query("SELECT c FROM CourseOff c JOIN c.skills s WHERE s.id = :skillId")
     Page<CourseOff> findBySkillId(@Param("skillId") Long skillId, Pageable pageable);
-    @Query("SELECT c FROM CourseOff c WHERE c.partnerId = :partnerId")
+    @Query("SELECT c FROM CourseOff c JOIN c.partner p WHERE p.id = :partnerId")
     List<CourseOff> findByPartnerId(@Param("partnerId") Long partnerId);
 }

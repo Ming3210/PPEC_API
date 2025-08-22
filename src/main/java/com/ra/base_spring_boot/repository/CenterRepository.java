@@ -9,12 +9,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CenterRepository extends JpaRepository<Center, Long> {
+    // Tìm tất cả centers của một user theo userId
+    Page<Center> findByUserId(Long userId, Pageable pageable);
 
-    boolean existsByName(String name);
-    boolean existsByNameAndIdNot(String name, Long id);
+    // Tìm theo fullName User hoặc address
+    Page<Center> findByUserFullNameContainingIgnoreCaseOrAddressContainingIgnoreCase(
+            String fullName, String address, Pageable pageable);
 
-    Page<Center> findByNameContainingIgnoreCase(String name, Pageable pageable);
-    Page<Center> findByAddressContainingIgnoreCase(String address, Pageable pageable);
-    Page<Center> findByNameContainingIgnoreCaseOrAddressContainingIgnoreCase(
-            String name, String address, Pageable pageable);
 }

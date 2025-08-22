@@ -18,6 +18,5 @@ public class ExamResponseDTO {
     private ExamStatus status;
     private Long courseId;
     private String courseName;
-    private Long partnerId;
     private String partnerName;
 }

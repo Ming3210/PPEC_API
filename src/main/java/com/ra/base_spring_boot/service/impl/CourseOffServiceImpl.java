@@ -6,6 +6,7 @@ import com.ra.base_spring_boot.exception.HttpConflict;
 import com.ra.base_spring_boot.exception.HttpBadRequest;
 import com.ra.base_spring_boot.model.CourseOff;
 import com.ra.base_spring_boot.model.Center;
+import com.ra.base_spring_boot.model.Partner;
 import com.ra.base_spring_boot.model.Skill;
 import com.ra.base_spring_boot.dto.request.CourseOffRequestDTO;
 import com.ra.base_spring_boot.dto.request.CourseOffSearchFilterDTO;
@@ -14,6 +15,7 @@ import com.ra.base_spring_boot.dto.response.CourseOffResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.repository.CenterRepository;
 import com.ra.base_spring_boot.repository.CourseOffRepository;
+import com.ra.base_spring_boot.repository.PartnerRepository;
 import com.ra.base_spring_boot.repository.SkillRepository;
 import com.ra.base_spring_boot.service.interfaces.ICourseOffService;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
@@ -30,10 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,9 +41,9 @@ import java.util.stream.Collectors;
 public class CourseOffServiceImpl implements ICourseOffService {
 
     private final CourseOffRepository courseOffRepository;
-    private final CenterRepository centerRepository;
     private final SkillRepository skillRepository;
     private final ICloudinaryService cloudinaryService;
+    private final PartnerRepository partnerRepository;
 
     @Override
     public CourseOffResponseDTO createCourseOff(CourseOffRequestDTO courseOffRequestDTO) {
@@ -52,10 +51,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
         if (courseOffRepository.existsByName(courseOffRequestDTO.getName())) {
             throw new HttpConflict("Tên khóa học đã tồn tại: " + courseOffRequestDTO.getName());
         }
-
-        // Validate center exists
-        Center center = centerRepository.findById(courseOffRequestDTO.getCenterId())
-                .orElseThrow(() -> new HttpNotFound("Không tìm thấy trung tâm với ID: " + courseOffRequestDTO.getCenterId()));
 
         // Validate skills exist
         Set<Skill> skills = new HashSet<>();
@@ -66,6 +61,9 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 skills.add(skill);
             }
         }
+
+        Partner partner = partnerRepository.findById(courseOffRequestDTO.getPartnerId())
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy đối tác!"));
 
         // Upload banner if provided
         String bannerUrl = null;
@@ -81,8 +79,8 @@ public class CourseOffServiceImpl implements ICourseOffService {
         courseOff.setEstimatedHours(courseOffRequestDTO.getEstimatedHours());
         courseOff.setPrice(courseOffRequestDTO.getPrice());
         courseOff.setBannerUrl(bannerUrl);
-        courseOff.setCenter(center);
         courseOff.setSkills(skills);
+        courseOff.setPartner(partner);
         courseOff.setCreatedAt(LocalDateTime.now());
         courseOff.setUpdatedAt(LocalDateTime.now());
 
@@ -108,9 +106,8 @@ public class CourseOffServiceImpl implements ICourseOffService {
             throw new HttpConflict("Tên khóa học đã tồn tại: " + courseOffRequestDTO.getName());
         }
 
-        // Validate center exists
-        Center center = centerRepository.findById(courseOffRequestDTO.getCenterId())
-                .orElseThrow(() -> new HttpNotFound("Không tìm thấy trung tâm với ID: " + courseOffRequestDTO.getCenterId()));
+        Partner partner = partnerRepository.findById(courseOffRequestDTO.getPartnerId())
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy đối tác!"));
 
         // Validate skills exist
         Set<Skill> skills = new HashSet<>();
@@ -143,8 +140,8 @@ public class CourseOffServiceImpl implements ICourseOffService {
         existingCourseOff.setEstimatedHours(courseOffRequestDTO.getEstimatedHours());
         existingCourseOff.setPrice(courseOffRequestDTO.getPrice());
         existingCourseOff.setBannerUrl(bannerUrl);
-        existingCourseOff.setCenter(center);
         existingCourseOff.setSkills(skills);
+        existingCourseOff.setPartner(partner);
         existingCourseOff.setUpdatedAt(LocalDateTime.now());
 
         CourseOff updatedCourseOff = courseOffRepository.save(existingCourseOff);
@@ -230,11 +227,6 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 predicates.add(criteriaBuilder.equal(root.get("targetAudience"), filterDTO.getTargetAudience()));
             }
 
-            // Filter by center ID
-            if (filterDTO.getCenterId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("center").get("id"), filterDTO.getCenterId()));
-            }
-
             // Filter by price range
             if (filterDTO.getPriceFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), filterDTO.getPriceFrom()));
@@ -290,8 +282,7 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 courseOff.getPrice(),
                 courseOff.getCreatedAt(),
                 courseOff.getUpdatedAt(),
-                courseOff.getCenter().getId(),
-                courseOff.getCenter().getName(),
+                courseOff.getPartner().getName(),
                 skillDTOs
         );
     }

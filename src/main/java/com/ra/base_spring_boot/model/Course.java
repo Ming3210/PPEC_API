@@ -60,9 +60,9 @@ public class Course {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "center_id")
-    private Center center;
-    private Long partnerId;
+    @JoinColumn(name = "partner_id", nullable = false)
+    private Partner partner;
+
     public Course(Long id, String code, String title) {
         this.id = id;
         this.code = code;
