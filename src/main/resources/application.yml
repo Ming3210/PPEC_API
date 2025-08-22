@@ -32,6 +32,18 @@ spring:
           CharSet: utf8mb4
           useUnicode: true
     open-in-view: false
+    mail:
+      host: smtp.gmail.com
+      port: 587
+      username: "vminh0227@gmail.com"
+      password: "jydg yuon rjyk vgpv"
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+          debug: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -44,6 +56,7 @@ spring:
           starttls:
             enable: true
         debug: true
+
 components:
   securitySchemes:
     bearerAuth:
@@ -65,3 +78,10 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
+
+
+paypal:
+  client-id: AYFLvWiqFqlIMKf0GaKWd5db7rKdERFoW5DTrvhMDs65XiPlrAx3Qff4PRXQa9d-g7QMyAj4HIm1byu2
+  client-secret: EKfEXQv_DCGUzjh6ofSF5fRRT0i-pV6SMmGSeUmu0LuHxA8B1SxZi-t9rVTYFVckYGso0nMuqu3sGxKB
+  mode: sandbox
+

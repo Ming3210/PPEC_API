@@ -2,10 +2,7 @@ package com.ra.base_spring_boot.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,8 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Payment {
-
+public class Payments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
@@ -47,3 +43,4 @@ public class Payment {
         }
     }
 }
+

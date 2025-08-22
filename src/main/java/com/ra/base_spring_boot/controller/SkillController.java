@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/skills")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class SkillController {
 
     private final ISkillService skillService;
