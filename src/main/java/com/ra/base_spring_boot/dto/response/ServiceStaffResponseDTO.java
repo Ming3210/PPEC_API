@@ -29,7 +29,7 @@ public class ServiceStaffResponseDTO {
     private String position;
     private String staffServiceCode;
 
-    private Long centerId;
-    private String centerName;
+    private Long partnerId;
+    private String partnerName;
 }
 
