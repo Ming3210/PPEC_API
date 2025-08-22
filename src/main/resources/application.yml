@@ -32,7 +32,18 @@ spring:
           CharSet: utf8mb4
           useUnicode: true
     open-in-view: false
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "vminh0227@gmail.com"
+    password: "jydg yuon rjyk vgpv"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
 components:
   securitySchemes:
     bearerAuth:

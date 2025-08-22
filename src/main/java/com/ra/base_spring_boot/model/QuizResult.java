@@ -2,51 +2,40 @@ package com.ra.base_spring_boot.model;
 
 import com.ra.base_spring_boot.model.constants.SubmissionStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Setter
 @Getter
-@Entity
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "quiz_submissions")
-public class QuizSubmission {
+@Builder
+@Entity
+@Table(name = "quiz_results")
+public class QuizResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quiz_id")
+    @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
 
     private Long studentId;
-
-    @Column(columnDefinition = "TEXT")
-    private String answers;
-
-    private Integer score;
 
     private Integer totalQuestions;
 
     private Integer correctAnswers;
 
+    private Integer score;
+
     private Integer timeSpent;
+    private LocalDateTime startTime;
 
     @Enumerated(EnumType.STRING)
     private SubmissionStatus status;
 
     private LocalDateTime submittedAt;
-
-    public QuizSubmission(Long id, Quiz quiz, Long studentId) {
-        this.id = id;
-        this.quiz = quiz;
-        this.studentId = studentId;
-    }
-
 }
