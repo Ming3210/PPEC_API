@@ -31,6 +31,11 @@ public class UserNotification {
     @Column(name = "is_read")
     private Boolean isRead = false;
 
-    @Column(name = "read_at")
+    @Column(name = "read_at", updatable = false, nullable = false)
     private LocalDateTime readAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.readAt = LocalDateTime.now();
+    }
 }

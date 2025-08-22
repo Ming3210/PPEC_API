@@ -3,6 +3,7 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.dto.request.NotificationRequest;
 import com.ra.base_spring_boot.dto.response.NotificationResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.dto.response.UserNotificationResponse;
 import com.ra.base_spring_boot.model.Notification;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.UserNotification;
@@ -184,35 +185,46 @@ public class NotificationServiceImpl implements NotificationService {
         return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
-    /* --------- Mapper ---------- */
-
-    /** Map per-user record -> response đầy đủ */
+    /** Map per-user record -> response đầy đủ (notification + info user đó) */
     private NotificationResponse mapToResponse(UserNotification un) {
         return NotificationResponse.builder()
                 .notificationId(un.getNotification().getNotificationId())
                 .title(un.getNotification().getTitle())
                 .content(un.getNotification().getContent())
-                .isRead(un.getIsRead())
                 .createdAt(un.getNotification().getCreatedAt())
                 .updatedAt(un.getNotification().getUpdatedAt())
-                .userId(un.getUser().getId())
-                .fullName(un.getUser().getFullName())
-                .role(un.getUser().getRole())
+                .userNotifications(
+                        List.of(UserNotificationResponse.builder()
+                                .userId(un.getUser().getId())
+                                .fullName(un.getUser().getFullName())
+                                .role(un.getUser().getRole())
+                                .isRead(un.getIsRead())
+                                .readAt(un.getReadAt())
+                                .build())
+                )
                 .build();
     }
 
-    /** Map notification tổng quan (dùng khi tạo/cập nhật; các field user sẽ null) */
+    /** Map notification tổng quan (dùng khi tạo/cập nhật; gồm danh sách tất cả user) */
     private NotificationResponse mapToResponse(Notification n) {
         return NotificationResponse.builder()
                 .notificationId(n.getNotificationId())
                 .title(n.getTitle())
                 .content(n.getContent())
-                .isRead(null)
                 .createdAt(n.getCreatedAt())
                 .updatedAt(n.getUpdatedAt())
-                .userId(null)
-                .fullName(null)
-                .role(null)
+                .userNotifications(
+                        n.getUserNotifications() == null ? List.of() :
+                                n.getUserNotifications().stream()
+                                        .map(un -> UserNotificationResponse.builder()
+                                                .userId(un.getUser().getId())
+                                                .fullName(un.getUser().getFullName())
+                                                .role(un.getUser().getRole())
+                                                .isRead(un.getIsRead())
+                                                .readAt(un.getReadAt())
+                                                .build()
+                                        ).toList()
+                )
                 .build();
     }
 }
