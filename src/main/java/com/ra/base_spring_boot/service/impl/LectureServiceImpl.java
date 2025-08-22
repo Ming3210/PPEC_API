@@ -6,6 +6,8 @@ import com.ra.base_spring_boot.dto.request.LectureRequest;
 import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.exception.BadRequestException;
+import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
@@ -42,14 +44,14 @@ public class LectureServiceImpl implements ILectureService {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user hiện tại"));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy user hiện tại"));
     }
 
     private void checkOwnerOrAdmin(Long lectureId) {
         User currentUser = getCurrentUser();
         if (currentUser.getRole() == RoleName.LECTURER) {
             Lecturer myLecturer = lectureRepository.findByUserId(currentUser.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên của user hiện tại"));
+                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên của user hiện tại"));
             if (!myLecturer.getId().equals(lectureId)) {
                 throw new AccessDeniedException("Không có quyền truy cập");
             }
@@ -96,7 +98,7 @@ public class LectureServiceImpl implements ILectureService {
     @Override
     public LectureResponse createTeacher(LectureRequest request) {
         User user = userRepository.findByIdAndRole(request.getUserId(), RoleName.LECTURER)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user có role LECTURER"));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy user có role LECTURER"));
 
         Lecturer lecturer = new Lecturer();
         lecturer.setUser(user);
@@ -107,13 +109,13 @@ public class LectureServiceImpl implements ILectureService {
 
         if (request.getDepartmentId() != null) {
             Departments departments = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy trường với ID: " + request.getDepartmentId()));
+                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy trường với ID: " + request.getDepartmentId()));
             lecturer.setDepartment(departments);
         }
 
         if (request.getIndustryId() != null) {
             Industry industry = industryRepository.findById(request.getIndustryId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyên ngành với ID: " + request.getIndustryId()));
+                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy chuyên ngành với ID: " + request.getIndustryId()));
             lecturer.setIndustry(industry);
         }
 
@@ -138,7 +140,7 @@ public class LectureServiceImpl implements ILectureService {
     public LectureResponse updateTeacher(Long id, UpdateLectureRequest request) {
         checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên với ID: " + id));
 
         lecturer.setLecturerCode(request.getLecturerCode());
         lecturer.setDateOfBirth(request.getDateOfBirth());
@@ -147,13 +149,13 @@ public class LectureServiceImpl implements ILectureService {
 
         if (request.getDepartmentId() != null) {
             Departments department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khoa với ID: " + request.getDepartmentId()));
+                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy khoa với ID: " + request.getDepartmentId()));
             lecturer.setDepartment(department);
         }
 
         if (request.getIndustryId() != null) {
             Industry industry = industryRepository.findById(request.getIndustryId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyên ngành với ID: " + request.getIndustryId()));
+                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy chuyên ngành với ID: " + request.getIndustryId()));
             lecturer.setIndustry(industry);
         }
 
@@ -179,7 +181,7 @@ public class LectureServiceImpl implements ILectureService {
     public void deleteTeacher(Long id) {
         checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên với ID: " + id));
         lecturer.setDeleted(true);
         lectureRepository.save(lecturer);
     }
@@ -188,7 +190,7 @@ public class LectureServiceImpl implements ILectureService {
     public LectureResponse getTeacher(Long id) {
         checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên với ID: " + id));
         return toResponse(lecturer);
     }
 
@@ -196,13 +198,13 @@ public class LectureServiceImpl implements ILectureService {
     public LectureResponse updateStatus(Long id, String status) {
         checkOwnerOrAdmin(id);
         Lecturer lecturer = lectureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên với ID: " + id));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên với ID: " + id));
         if ("DELETED".equalsIgnoreCase(status)) {
             lecturer.setDeleted(true);
         } else if ("ACTIVE".equalsIgnoreCase(status)) {
             lecturer.setDeleted(false);
         } else {
-            throw new RuntimeException("Trạng thái không hợp lệ: " + status);
+            throw new BadRequestException("Trạng thái không hợp lệ: " + status);
         }
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
