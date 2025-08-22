@@ -22,6 +22,7 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    // Lấy danh sách thông báo của user đang đăng nhập
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<NotificationResponse>>> getAllByUser(
             Authentication authentication,
@@ -34,15 +35,20 @@ public class NotificationController {
                         HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Tạo thông báo gửi cho nhiều user
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
-    public ResponseEntity<APIResponse<NotificationResponse>> create(@Valid @RequestBody NotificationRequest request) {
+    public ResponseEntity<APIResponse<NotificationResponse>> create(
+            @Valid @RequestBody NotificationRequest request
+    ) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Tạo thông báo thành công",
                         notificationService.create(request),
-                        HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);
+                        HttpStatus.CREATED, LocalDateTime.now()),
+                HttpStatus.CREATED);
     }
 
+    // Cập nhật nội dung thông báo (ADMIN, SCHOOL_ADMIN)
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
     public ResponseEntity<APIResponse<NotificationResponse>> update(
@@ -55,6 +61,7 @@ public class NotificationController {
                         HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Tìm kiếm thông báo (theo user hiện tại)
     @GetMapping("/search")
     public ResponseEntity<APIResponse<PaginationResponse<NotificationResponse>>> search(
             Authentication authentication,
@@ -68,33 +75,45 @@ public class NotificationController {
                         HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Đánh dấu 1 thông báo là đã đọc (cho user hiện tại)
     @PutMapping("/{id}/read")
-    public ResponseEntity<APIResponse<NotificationResponse>> markAsRead(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<APIResponse<NotificationResponse>> markAsRead(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Thông báo đã được đọc",
                         notificationService.markAsRead(id, authentication),
                         HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Đánh dấu 1 thông báo là chưa đọc (cho user hiện tại)
     @PutMapping("/{id}/unread")
-    public ResponseEntity<APIResponse<NotificationResponse>> markAsUnread(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<APIResponse<NotificationResponse>> markAsUnread(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Đánh dấu chưa đọc thành công",
                         notificationService.markAsUnread(id, authentication),
                         HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Đánh dấu tất cả thông báo của user hiện tại là đã đọc
     @PutMapping("/mark-all-read")
     public ResponseEntity<APIResponse<String>> markAllAsRead(Authentication authentication) {
         notificationService.markAllAsRead(authentication);
         return ResponseEntity.ok(
-                new APIResponse<>(true, "Tất cả thông báo đã được đọc", null,
-                        HttpStatus.OK, LocalDateTime.now())
-        );
+                new APIResponse<>(true, "Tất cả thông báo đã được đọc",
+                        null, HttpStatus.OK, LocalDateTime.now()));
     }
 
+    // Xóa thông báo
     @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> delete(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<APIResponse<String>> delete(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
         notificationService.delete(id, authentication);
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Xóa thông báo thành công",

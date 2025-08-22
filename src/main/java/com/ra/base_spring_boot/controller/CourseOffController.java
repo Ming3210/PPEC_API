@@ -112,7 +112,7 @@ public class CourseOffController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<CourseOffResponseDTO>> createCourseOff(
             @Valid @ModelAttribute CourseOffRequestDTO courseOffRequestDTO) {
 
@@ -129,7 +129,7 @@ public class CourseOffController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<CourseOffResponseDTO>> updateCourseOff(
             @PathVariable Long id,
             @Valid @ModelAttribute CourseOffRequestDTO courseOffRequestDTO) {
@@ -147,7 +147,7 @@ public class CourseOffController {
 
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<String>> deleteCourseOff(@PathVariable Long id) {
         courseOffService.deleteCourseOff(id);
 
@@ -162,7 +162,7 @@ public class CourseOffController {
 
     //need admin role to access these endpoints
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<PaginationResponse<CourseOffResponseDTO>>> getCoursesOffForAdmin(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -183,7 +183,7 @@ public class CourseOffController {
     }
 
     @GetMapping("/admin/statistics")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<Map<String, Object>>> getCourseOffStatistics() {
         Map<String, Object> statistics = new HashMap<>();
         statistics.put("totalCourses", "Placeholder - implement in service");
@@ -202,7 +202,7 @@ public class CourseOffController {
 
 
     @DeleteMapping("/admin/bulk")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseWrapper<String>> bulkDeleteCoursesOff(@RequestBody java.util.List<Long> ids) {
         for (Long id : ids) {
             courseOffService.deleteCourseOff(id);

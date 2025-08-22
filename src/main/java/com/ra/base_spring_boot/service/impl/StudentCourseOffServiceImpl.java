@@ -3,6 +3,9 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.dto.request.StudentCourseOffRequest;
 import com.ra.base_spring_boot.dto.request.StudentRegisterCourseOffRequest;
 import com.ra.base_spring_boot.dto.response.StudentCourseOffResponse;
+import com.ra.base_spring_boot.exception.BadRequestException;
+import com.ra.base_spring_boot.exception.HttpBadRequest;
+import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.CourseOff;
 import com.ra.base_spring_boot.model.Student;
 import com.ra.base_spring_boot.model.StudentCourseOff;
@@ -31,13 +34,13 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
     @Override
     public StudentCourseOffResponse addStudentToCourse(StudentCourseOffRequest request) {
         Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên với ID: " + request.getStudentId()));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy sinh viên với ID: " + request.getStudentId()));
 
         CourseOff courseOff = courseOffRepository.findById(request.getCourseOffId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
 
         studentCourseOffRepository.findByStudentIdAndCourseOffId(student.getId(), courseOff.getId())
-                .ifPresent(sc -> { throw new RuntimeException("Sinh viên đã đăng ký khóa học này"); });
+                .ifPresent(sc -> { throw new HttpBadRequest("Sinh viên đã đăng ký khóa học này"); });
 
         StudentCourseOff studentCourseOff = StudentCourseOff.builder()
                 .student(student)
@@ -81,12 +84,12 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
         Long studentId = principal.getId();
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên với ID: " + studentId));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy sinh viên với ID: " + studentId));
 
         CourseOff courseOff = courseOffRepository.findById(request.getCourseOffId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
         studentCourseOffRepository.findByStudentIdAndCourseOffId(studentId, courseOff.getId())
-                .ifPresent(sc -> { throw new RuntimeException("Bạn đã đăng ký khóa học này rồi"); });
+                .ifPresent(sc -> { throw new HttpBadRequest("Bạn đã đăng ký khóa học này rồi"); });
 
         StudentCourseOff studentCourseOff = StudentCourseOff.builder()
                 .student(student)
