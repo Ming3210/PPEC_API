@@ -37,7 +37,7 @@ public class ServiceStaffRequestDTO {
     private MultipartFile avatar;
 
     @NotNull(message = "Trung tâm không được để trống")
-    private Long centerId;
+    private Long partnerId;
 
     @NotBlank(message = "Chức vụ không được để trống")
     private String position;

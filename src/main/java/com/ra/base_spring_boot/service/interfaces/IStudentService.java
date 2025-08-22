@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.service.interfaces;
 
 import com.ra.base_spring_boot.dto.request.StudentRequest;
 import com.ra.base_spring_boot.dto.request.StudentUpdateDTO;
+import com.ra.base_spring_boot.dto.request.UpdatePasswordRequest;
 import com.ra.base_spring_boot.dto.request.UpdateStudentProfileRequest;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.dto.response.StudentProfileResponse;
@@ -23,4 +24,6 @@ public interface IStudentService {
     StudentProfileResponse toProfile();
 
     StudentResponse updateProfile(Long studentId, UpdateStudentProfileRequest request);
+
+    Boolean updatePassword ( UpdatePasswordRequest request);
 }

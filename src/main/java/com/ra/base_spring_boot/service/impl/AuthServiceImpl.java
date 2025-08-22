@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            throw new RuntimeException("Sai tài khoản hoặc mật khẩu");
+            throw new BadCredentialsException("Sai tài khoản hoặc mật khẩu");
         } catch (AuthenticationException e) {
             throw new RuntimeException("Xác thực thất bại: " + e.getMessage());
         }

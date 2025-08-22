@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 public class QuizResultResponse {
     private Long quizId;
-    private int score; // điểm %
+    private int score;
     private int totalQuestions;
     private int correctAnswers;
     private int wrongAnswers;
