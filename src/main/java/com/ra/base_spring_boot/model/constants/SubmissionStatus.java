@@ -1,5 +1,5 @@
 package com.ra.base_spring_boot.model.constants;
 
 public enum SubmissionStatus {
-    PASS, FAIL
+    PASS, FAIL,COMPLETED,STARTED
 }
