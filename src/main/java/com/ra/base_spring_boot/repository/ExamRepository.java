@@ -20,7 +20,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long>, JpaSpecificat
 
     Page<Exam> findByStatus(ExamStatus status, Pageable pageable);
 
-    Page<Exam> findByCourseId(Long courseId, Pageable pageable);
+    Page<Exam> findByCourseOffId(Long courseId, Pageable pageable);
 
     Page<Exam> findByPartnerId(Long partnerId, Pageable pageable);
 

@@ -69,7 +69,7 @@ public class PartnerController {
                 new APIResponse<>(
                         true,
                         "Lấy chi tiết đối tác thành công !!!",
-                        partnerService.getDetailPartner(Math.toIntExact(id)),
+                        partnerService.getDetailPartner(id),
                         HttpStatus.OK,
                         LocalDateTime.now()
                 )
