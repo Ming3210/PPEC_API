@@ -227,6 +227,14 @@ public class CourseOffServiceImpl implements ICourseOffService {
                 predicates.add(criteriaBuilder.equal(root.get("targetAudience"), filterDTO.getTargetAudience()));
             }
 
+<<<<<<< HEAD
+            // Filter by partner ID
+            if (filterDTO.getPartnerId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("partner").get("id"), filterDTO.getPartnerId()));
+            }
+
+=======
+>>>>>>> b34bce75dc5613c7470a0809c11a1341a2cd8d4e
             // Filter by price range
             if (filterDTO.getPriceFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), filterDTO.getPriceFrom()));

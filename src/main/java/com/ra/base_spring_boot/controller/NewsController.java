@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,25 +23,57 @@ public class NewsController {
     private NewsService newsService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<NewsResponse>> create(@Valid @ModelAttribute NewsRequest request) {
+    public ResponseEntity<APIResponse<NewsResponse>> create(
+            @Valid @ModelAttribute NewsRequest request,
+            Authentication authentication
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Thêm tin tức thành công", newsService.create(request),
-                        HttpStatus.CREATED, LocalDateTime.now()), HttpStatus.CREATED);
+                new APIResponse<>(
+                        true,
+                        "Thêm tin tức thành công",
+                        newsService.create(request, authentication),
+                        HttpStatus.CREATED,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.CREATED
+        );
     }
 
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<NewsResponse>> update(@PathVariable Long id, @Valid @ModelAttribute NewsRequest request) {
+    public ResponseEntity<APIResponse<NewsResponse>> update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute NewsRequest request,
+            Authentication authentication
+    ) {
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Cập nhật tin tức thành công", newsService.update(id, request),
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(
+                        true,
+                        "Cập nhật tin tức thành công",
+                        newsService.update(id, request, authentication),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<String>> delete(@PathVariable Long id) {
-        newsService.delete(id);
+    public ResponseEntity<APIResponse<String>> delete(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        newsService.delete(id, authentication);
         return new ResponseEntity<>(
-                new APIResponse<>(true, "Xóa tin tức thành công", null,
-                        HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                new APIResponse<>(
+                        true,
+                        "Xóa tin tức thành công",
+                        null,
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping
