@@ -22,7 +22,7 @@ public class LectureController {
     @Autowired
     private ILectureService lectureService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<LectureResponse>>> getAllTeachers(
             @RequestParam(required = false) String keyword,
