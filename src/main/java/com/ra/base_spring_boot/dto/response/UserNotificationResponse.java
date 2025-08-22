@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserNotificationResponse {
-    private long id;
+    private Long id;
+    private Long notificationId;
     private Long userId;
     private String fullName;
     private RoleName role;
