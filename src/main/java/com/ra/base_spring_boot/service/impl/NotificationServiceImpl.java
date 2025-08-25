@@ -47,10 +47,10 @@ public class NotificationServiceImpl implements NotificationService {
         if (isAdminOrSchoolAdmin(user)) {
             pageData = notificationRepository.findAll(PageRequest.of(page, size));
         } else {
-            pageData = notificationRepository.findByUserId(user.getId(), PageRequest.of(page, size));
+            pageData = notificationRepository.findByUserNotifications_User_Id(user.getId(), PageRequest.of(page, size));
         }
 
-        return PaginationResponse.of(pageData.map(this::mapToResponse2));
+        return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
     /** Tạo 1 notification và gán cho N user */
@@ -75,8 +75,8 @@ public class NotificationServiceImpl implements NotificationService {
         }
         userNotificationRepository.saveAll(links);
 
-        // Trả về "thông tin thông báo" (không gắn user cụ thể) -> các field user sẽ null
-        return mapToResponse2(saved);
+        saved.setUserNotifications(links);
+        return mapToResponse(saved);
     }
 
     /** Cập nhật tiêu đề/nội dung; nếu request có userIds thì thay danh sách người nhận */
@@ -108,7 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
             userNotificationRepository.saveAll(newLinks);
         }
 
-        return mapToResponse2(saved);
+        return mapToResponse(saved);
     }
 
     /** Đánh dấu đã đọc: áp dụng CHO BẢN GHI CỦA NGƯỜI ĐANG ĐĂNG NHẬP */
@@ -126,7 +126,7 @@ public class NotificationServiceImpl implements NotificationService {
         userNotificationRepository.save(link);
 
         // trả về toàn bộ notification kèm tất cả user
-        return mapToResponse2(link.getNotification());
+        return mapToResponse(link.getNotification());
     }
 
     /** Đánh dấu chưa đọc: áp dụng CHO BẢN GHI CỦA NGƯỜI ĐANG ĐĂNG NHẬP */
@@ -142,7 +142,7 @@ public class NotificationServiceImpl implements NotificationService {
         link.setIsRead(false);
         userNotificationRepository.save(link);
 
-        return mapToResponse2(link.getNotification());
+        return mapToResponse(link.getNotification());
     }
 
     /** Đánh dấu tất cả đã đọc: CHO NGƯỜI ĐANG ĐĂNG NHẬP */
@@ -180,23 +180,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public PaginationResponse<NotificationResponse> search(Authentication authentication, String keyword, int page, int size) {
         User user = getCurrentUser(authentication);
-
         Page<Notification> pageData;
+
         if (isAdminOrSchoolAdmin(user)) {
             pageData = notificationRepository
                     .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword, PageRequest.of(page, size));
         } else {
-            pageData = notificationRepository
-                    .findByUserNotifications_User_IdAndTitleContainingIgnoreCaseOrUserNotifications_User_IdAndContentContainingIgnoreCase(
-                            user.getId(), keyword, user.getId(), keyword, PageRequest.of(page, size));
+            pageData = notificationRepository.searchByUser(user.getId(), keyword, PageRequest.of(page, size));
         }
 
-        return PaginationResponse.of(pageData.map(this::mapToResponse2));
+        return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
 
     /** Map notification tổng quan (dùng khi tạo/cập nhật; gồm danh sách tất cả user) */
-    private NotificationResponse mapToResponse2(Notification n) {
+    private NotificationResponse mapToResponse(Notification n) {
         return NotificationResponse.builder()
                 .notificationId(n.getNotificationId())
                 .title(n.getTitle())
