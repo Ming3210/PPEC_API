@@ -10,16 +10,22 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    @Query("SELECT DISTINCT n FROM Notification n JOIN n.userNotifications un WHERE un.user.id = :userId")
-    Page<Notification> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    Page<Notification> findByUserNotifications_User_Id(Long userId, Pageable pageable);
 
     Page<Notification> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
             String title, String content, Pageable pageable
     );
 
-    Page<Notification> findByUserNotifications_User_IdAndTitleContainingIgnoreCaseOrUserNotifications_User_IdAndContentContainingIgnoreCase(
-            Long userId1, String titleKeyword,
-            Long userId2, String contentKeyword,
-            Pageable pageable
-    );
+    @Query("""
+                SELECT n FROM Notification n 
+                JOIN n.userNotifications un 
+                WHERE un.user.id = :userId
+                  AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) 
+                       OR LOWER(n.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """)
+    Page<Notification> searchByUser(@Param("userId") Long userId,
+                                    @Param("keyword") String keyword,
+                                    Pageable pageable);
+
 }
