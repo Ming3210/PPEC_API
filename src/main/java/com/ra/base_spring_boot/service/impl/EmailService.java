@@ -32,8 +32,7 @@ public class EmailService {
                         resetLink + "\n\n" +
                         "Liên kết này sẽ hết hạn sau 1 giờ.\n\n" +
                         "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
-                        "Trân trọng,\n" +
-                        "Đội ngũ Phenikaa Course Management"
+                        "Trân trọng,\n"
         );
 
         try {
@@ -42,29 +41,6 @@ public class EmailService {
         } catch (Exception e) {
             log.error("Failed to send reset password email to: {}", toEmail, e);
             throw new RuntimeException("Không thể gửi email. Vui lòng thử lại sau.");
-        }
-    }
-
-
-    public void sendPasswordChangedNotification(String toEmail) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Mật khẩu đã được thay đổi - Phenikaa Course Management");
-
-        message.setText(
-                "Xin chào,\n\n" +
-                        "Mật khẩu cho tài khoản của bạn tại Phenikaa Course Management đã được thay đổi thành công.\n\n" +
-                        "Nếu bạn không thực hiện thay đổi này, vui lòng liên hệ với chúng tôi ngay lập tức.\n\n" +
-                        "Trân trọng,\n" +
-                        "Đội ngũ Phenikaa Course Management"
-        );
-
-        try {
-            mailSender.send(message);
-            log.info("Password changed notification sent successfully to: {}", toEmail);
-        } catch (Exception e) {
-            log.error("Failed to send password changed notification to: {}", toEmail, e);
         }
     }
 }

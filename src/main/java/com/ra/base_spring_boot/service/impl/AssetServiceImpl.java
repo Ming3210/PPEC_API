@@ -122,13 +122,21 @@ public class AssetServiceImpl implements IAssetService {
     }
 
     @Override
-    public PaginationResponse<AssetResponseDTO> getAllAssets(int page, int size, String sortBy, Boolean sortDirection) {
+    public PaginationResponse<AssetResponseDTO> getAllAssets(
+            int page, int size, String sortBy, Boolean sortDirection, String keyword) {
+
         Sort sort = (sortDirection != null && sortDirection)
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Asset> assetPage = assetRepository.findAll(pageable);
+
+        Page<Asset> assetPage;
+        if (keyword != null && !keyword.isBlank()) {
+            assetPage = assetRepository.findByCodeContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword, pageable);
+        } else {
+            assetPage = assetRepository.findAll(pageable);
+        }
 
         List<AssetResponseDTO> items = assetPage.getContent()
                 .stream()
