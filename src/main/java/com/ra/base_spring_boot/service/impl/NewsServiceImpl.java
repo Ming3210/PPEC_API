@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,8 +27,10 @@ public class NewsServiceImpl implements NewsService {
     private ICloudinaryService cloudinaryService;
 
     @Override
-    public NewsResponse create(NewsRequest request) {
-        User user = userRepository.findById(request.getUserId())
+    public NewsResponse create(NewsRequest request, Authentication authentication) {
+        // Lấy user đang đăng nhập từ Authentication
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
         // Upload ảnh lên Cloudinary
@@ -48,9 +51,19 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public NewsResponse update(Long id, NewsRequest request) {
+    public NewsResponse update(Long id, NewsRequest request, Authentication authentication) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tin tức không tồn tại"));
+
+        // Lấy user đang đăng nhập
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        // Check quyền: ADMIN hoặc chính chủ mới được update
+        if (!user.getRole().equals("ADMIN") && !news.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Bạn không có quyền sửa tin này");
+        }
 
         news.setTitle(request.getTitle());
         news.setSummary(request.getSummary());
@@ -65,8 +78,19 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public void delete(Long id) {
-        newsRepository.deleteById(id);
+    public void delete(Long id, Authentication authentication) {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tin tức không tồn tại"));
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        if (!user.getRole().equals("ADMIN") && !news.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Bạn không có quyền xoá tin này");
+        }
+
+        newsRepository.delete(news);
     }
 
     @Override
@@ -86,7 +110,6 @@ public class NewsServiceImpl implements NewsService {
         Page<NewsResponse> mappedPage = newsPage.map(this::mapToResponse);
         return PaginationResponse.of(mappedPage);
     }
-
 
     private NewsResponse mapToResponse(News news) {
         return NewsResponse.builder()
