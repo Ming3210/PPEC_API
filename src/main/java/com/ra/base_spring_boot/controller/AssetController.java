@@ -25,8 +25,10 @@ public class AssetController {
     public ResponseEntity<APIResponse<?>> getAllAssets(@RequestParam(defaultValue = "0") Integer page,
                                                        @RequestParam(defaultValue = "10") Integer itemPage,
                                                        @RequestParam(defaultValue = "id") String sortBy,
-                                                       @RequestParam(defaultValue = "true") Boolean orderBy) {
-        return new ResponseEntity<>(new APIResponse<>(true, "Get all assets successfully!", assetService.getAllAssets(page, itemPage, sortBy, orderBy), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
+                                                       @RequestParam(defaultValue = "true") Boolean orderBy,
+                                                       @RequestParam(defaultValue = "") String keyword
+    ) {
+        return new ResponseEntity<>(new APIResponse<>(true, "Get all assets successfully!", assetService.getAllAssets(page, itemPage, sortBy, orderBy, keyword), HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
     }
 
     @PreAuthorize( "hasRole('ADMIN')")
