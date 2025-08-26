@@ -18,14 +18,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     );
 
     @Query("""
-                SELECT n FROM Notification n 
-                JOIN n.userNotifications un 
-                WHERE un.user.id = :userId
-                  AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%')) 
-                       OR LOWER(n.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            """)
+    SELECT n FROM Notification n
+    JOIN n.userNotifications un
+    WHERE un.user.id = :userId
+      AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(CAST(n.content AS string)) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """)
     Page<Notification> searchByUser(@Param("userId") Long userId,
                                     @Param("keyword") String keyword,
                                     Pageable pageable);
+
 
 }
