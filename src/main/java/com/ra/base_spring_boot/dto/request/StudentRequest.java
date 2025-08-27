@@ -1,8 +1,10 @@
 package com.ra.base_spring_boot.dto.request;
 
 import com.ra.base_spring_boot.model.constants.Gender;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -14,7 +16,6 @@ import java.time.LocalDate;
 @Builder
 public class StudentRequest {
 
-    // --- Thông tin tài khoản (User) ---
     @NotBlank(message = "Tên đăng nhập không được để trống")
     @Size(max = 50, message = "Tên đăng nhập tối đa 50 ký tự")
     private String username;
@@ -41,17 +42,19 @@ public class StudentRequest {
     @Size(max = 255, message = "Địa chỉ tối đa 255 ký tự")
     private String address;
 
-    // Ảnh đại diện
+    @Schema(type = "string", format = "binary", description = "Ảnh đại diện (bắt buộc)")
     private MultipartFile avatar;
 
-    // --- Thông tin sinh viên ---
     @NotBlank(message = "Mã sinh viên không được để trống")
     @Size(max = 50, message = "Mã sinh viên tối đa 50 ký tự")
     private String studentCode;
 
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
+    @NotNull(message = "Ngày sinh không được sé trống")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
+    @NotNull(message = "Giới tính không được để trống")
     private Gender gender;
 
     @NotNull(message = "Khoa không được để trống")

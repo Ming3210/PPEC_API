@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/admin/exams")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('_ROLE_ADMIN')")
 public class ExamController {
 
     private final IExamService examService;
