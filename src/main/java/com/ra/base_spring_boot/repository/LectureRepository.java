@@ -23,7 +23,9 @@ public interface LectureRepository extends JpaRepository<Lecturer, Long> {
             @Param("status") Boolean status,
             org.springframework.data.domain.Pageable pageable
     );
+    boolean existsByLecturerCode(String lecturerCode);
 
     Lecturer findByUser(User user);
+
 }
 
