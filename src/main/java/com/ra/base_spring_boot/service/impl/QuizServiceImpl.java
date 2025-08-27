@@ -183,10 +183,6 @@ public class QuizServiceImpl implements IQuizService {
     }
 
 
-
-
-
-
     private QuizResponseDTO mapToResponseDTO(Quiz quiz) {
         List<QuestionResponseDTO> questions = null;
         if (quiz.getQuestions() != null) {
