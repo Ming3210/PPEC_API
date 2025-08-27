@@ -24,8 +24,7 @@ public class Notification {
     @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "VARCHAR(2000)")
     private String content;
 
     @Column(name = "created_at", nullable = false, updatable = false)

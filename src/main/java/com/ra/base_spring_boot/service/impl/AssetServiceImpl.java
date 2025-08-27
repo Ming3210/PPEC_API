@@ -4,6 +4,8 @@ import com.ra.base_spring_boot.dto.request.AssetRequestDTO;
 import com.ra.base_spring_boot.dto.request.StudentAssetRequestDTO;
 import com.ra.base_spring_boot.dto.response.AssetResponseDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.exception.HttpForbiden;
+import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.Asset;
 import com.ra.base_spring_boot.model.ServiceStaff;
 import com.ra.base_spring_boot.model.User;
@@ -42,7 +44,7 @@ public class AssetServiceImpl implements IAssetService {
         String username = authentication.getName();
 
         User creator = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+                .orElseThrow(() -> new HttpNotFound("User not found with username: " + username));
 
         Asset asset = new Asset();
         asset.setCode(assetRequestDTO.getCode());
@@ -54,7 +56,7 @@ public class AssetServiceImpl implements IAssetService {
         asset.setUpdater(creator);
 
         ServiceStaff serviceStaff = serviceStaffRepository.findById(assetRequestDTO.getAssignedServiceStaffId())
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new HttpNotFound(
                         "Service Staff not found with id: " + assetRequestDTO.getAssignedServiceStaffId()
                 ));
 
@@ -84,17 +86,17 @@ public class AssetServiceImpl implements IAssetService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User creator = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new HttpNotFound("User not found with username: " + username));
 
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+                .orElseThrow(() -> new HttpNotFound("Asset not found with id: " + id));
 
         asset.setCode(assetRequestDTO.getCode());
         asset.setName(assetRequestDTO.getName());
         asset.setNotes(assetRequestDTO.getNotes());
 
         User assignedUser = userRepository.findById(assetRequestDTO.getAssignedServiceStaffId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + assetRequestDTO.getAssignedServiceStaffId()));
+                .orElseThrow(() -> new HttpNotFound("User not found with id: " + assetRequestDTO.getAssignedServiceStaffId()));
         asset.setAssignedUser(assignedUser);
 
         asset.setUpdatedAt(LocalDate.now());
@@ -115,18 +117,26 @@ public class AssetServiceImpl implements IAssetService {
     @Override
     public void deleteAsset(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+                .orElseThrow(() -> new HttpNotFound("Asset not found with id: " + id));
         assetRepository.delete(asset);
     }
 
     @Override
-    public PaginationResponse<AssetResponseDTO> getAllAssets(int page, int size, String sortBy, Boolean sortDirection) {
+    public PaginationResponse<AssetResponseDTO> getAllAssets(
+            int page, int size, String sortBy, Boolean sortDirection, String keyword) {
+
         Sort sort = (sortDirection != null && sortDirection)
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Asset> assetPage = assetRepository.findAll(pageable);
+
+        Page<Asset> assetPage;
+        if (keyword != null && !keyword.isBlank()) {
+            assetPage = assetRepository.findByCodeContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword, pageable);
+        } else {
+            assetPage = assetRepository.findAll(pageable);
+        }
 
         List<AssetResponseDTO> items = assetPage.getContent()
                 .stream()
@@ -153,7 +163,7 @@ public class AssetServiceImpl implements IAssetService {
     @Override
     public AssetResponseDTO getAssetById(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Asset not found with id: " + id));
+                .orElseThrow(() -> new HttpNotFound("Asset not found with id: " + id));
         return AssetResponseDTO.builder()
                 .id(asset.getId())
                 .code(asset.getCode())
@@ -171,7 +181,7 @@ public class AssetServiceImpl implements IAssetService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User creator = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new HttpNotFound("User not found with username: " + username));
         Asset asset = new Asset();
         asset.setCode(studentAssetRequestDTO.getCode());
         asset.setName(studentAssetRequestDTO.getName());
@@ -199,11 +209,11 @@ public class AssetServiceImpl implements IAssetService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User creator = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+                .orElseThrow(() -> new HttpNotFound("User not found with username: " + username));
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Asset not found with id: " + id));
+                .orElseThrow(() -> new HttpNotFound("Asset not found with id: " + id));
         if (asset.getAssignedUser() != null && !asset.getAssignedUser().getId().equals(creator.getId())) {
-            throw new RuntimeException("You are not authorized to update this asset");
+            throw new HttpForbiden("You are not authorized to update this asset");
         }
         asset.setCode(studentAssetRequestDTO.getCode());
         asset.setName(studentAssetRequestDTO.getName());
@@ -229,7 +239,7 @@ public class AssetServiceImpl implements IAssetService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+                .orElseThrow(() -> new HttpNotFound("User not found with username: " + username));
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
         Page<Asset> assetPage = assetRepository.findByAssignedUser(user, pageable);
         List<AssetResponseDTO> items = assetPage.getContent()

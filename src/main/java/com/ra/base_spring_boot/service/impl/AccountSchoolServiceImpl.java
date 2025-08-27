@@ -73,6 +73,7 @@ public class AccountSchoolServiceImpl implements IAccountSchoolService {
         staff.setEmployeeCode(generateUniqueEmployeeCode());
         staff.setStartYear(staffDTO.getStartYear());
         staff.setPosition(staffDTO.getPosition());
+        staff.setDateOfBirth(staffDTO.getDateOfBirth());
         staffRepository.save(staff);
 
         return mapToResponse(user, userDetail, staff);
@@ -111,6 +112,8 @@ public class AccountSchoolServiceImpl implements IAccountSchoolService {
         staff.setSchool(school);
         staff.setStartYear(staffDTO.getStartYear());
         staff.setPosition(staffDTO.getPosition());
+        staff.setDateOfBirth(staffDTO.getDateOfBirth());
+
         staffRepository.save(staff);
 
         return mapToResponse(user, userDetail, staff);

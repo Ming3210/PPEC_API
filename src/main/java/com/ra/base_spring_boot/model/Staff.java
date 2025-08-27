@@ -3,6 +3,8 @@ package com.ra.base_spring_boot.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "staffs")
 @Getter
@@ -18,6 +20,7 @@ public class Staff {
     private String employeeCode;
     private Integer startYear;
     private String position;
+    private LocalDate dateOfBirth;
 
     @ManyToOne
     @JoinColumn(name = "school_id", nullable = false)

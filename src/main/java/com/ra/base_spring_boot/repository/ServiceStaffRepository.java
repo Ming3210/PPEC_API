@@ -24,4 +24,5 @@ public interface ServiceStaffRepository extends JpaRepository<ServiceStaff, Long
             "   OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<ServiceStaff> search(@Param("keyword") String keyword, Pageable pageable);
 
+    ServiceStaff findByUser(User user);
 }

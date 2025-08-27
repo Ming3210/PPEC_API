@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Builder
 public class UserNotificationResponse {
     private Long id;
-    private Long notificationId;
     private Long userId;
     private String fullName;
     private RoleName role;

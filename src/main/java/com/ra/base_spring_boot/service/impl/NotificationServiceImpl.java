@@ -40,6 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     /** Lấy danh sách thông báo theo NGƯỜI DÙNG (từng bản ghi UserNotification) */
     @Override
+    @Transactional(readOnly = true)
     public PaginationResponse<NotificationResponse> getAllByUser(Authentication authentication, int page, int size) {
         User user = getCurrentUser(authentication);
 
@@ -118,7 +119,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = getCurrentUser(authentication);
 
         UserNotification link = userNotificationRepository
-                .findByUserIdAndNotification_NotificationId(user.getId(), notificationId)
+                .findByUser_IdAndNotification_NotificationId(user.getId(), notificationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo thuộc về bạn"));
 
         link.setIsRead(true);
@@ -136,7 +137,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = getCurrentUser(authentication);
 
         UserNotification link = userNotificationRepository
-                .findByUserIdAndNotification_NotificationId(user.getId(), notificationId)
+                .findByUser_IdAndNotification_NotificationId(user.getId(), notificationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo thuộc về bạn"));
 
         link.setIsRead(false);
@@ -150,7 +151,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void markAllAsRead(Authentication authentication) {
         User user = getCurrentUser(authentication);
-        List<UserNotification> links = userNotificationRepository.findAllByUserId(user.getId());
+        List<UserNotification> links = userNotificationRepository.findAllByUser_Id(user.getId());
         links.forEach(l -> { l.setIsRead(true); l.setReadAt(LocalDateTime.now()); });
         userNotificationRepository.saveAll(links);
     }
@@ -169,7 +170,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRepository.delete(noti);
         } else {
             // xóa liên kết của riêng user
-            userNotificationRepository.deleteByUserIdAndNotification_NotificationId(user.getId(), notificationId);
+            userNotificationRepository.deleteByUser_IdAndNotification_NotificationId(user.getId(), notificationId);
         }
     }
 
@@ -189,9 +190,8 @@ public class NotificationServiceImpl implements NotificationService {
             pageData = notificationRepository.searchByUser(user.getId(), keyword, PageRequest.of(page, size));
         }
 
-        return PaginationResponse.of(pageData.map(this::mapToResponse));
+        return PaginationResponse.of(pageData.map(this::mapToResponse1));
     }
-
 
     /** Map notification tổng quan (dùng khi tạo/cập nhật; gồm danh sách tất cả user) */
     private NotificationResponse mapToResponse(Notification n) {
@@ -216,4 +216,15 @@ public class NotificationServiceImpl implements NotificationService {
                 )
                 .build();
     }
+
+    private NotificationResponse mapToResponse1(Notification notification) {
+        return NotificationResponse.builder()
+                .notificationId(notification.getNotificationId())
+                .title(notification.getTitle())
+                .content(notification.getContent())
+                .createdAt(notification.getCreatedAt())
+                .updatedAt(notification.getUpdatedAt())
+                .build();
+    }
+
 }
