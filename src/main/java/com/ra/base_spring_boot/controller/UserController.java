@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.controller;
 
 import com.ra.base_spring_boot.dto.response.APIResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.dto.response.UserDetailResponseDTO;
 import com.ra.base_spring_boot.dto.response.UserResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,9 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<UserResponseDTO>> getUserById(@PathVariable Long id) {
-        UserResponseDTO user = userService.getUserById(id);
-        APIResponse<UserResponseDTO> response = new APIResponse<>(true,"Lấy thông tin user thành công", user,HttpStatus.OK, LocalDateTime.now());
+    public ResponseEntity<APIResponse<UserDetailResponseDTO>> getUserById(@PathVariable Long id) {
+        UserDetailResponseDTO user = userService.getUserById(id);
+        APIResponse<UserDetailResponseDTO> response = new APIResponse<>(true,"Lấy thông tin user thành công", user,HttpStatus.OK, LocalDateTime.now());
         return ResponseEntity.ok(response);
     }
 

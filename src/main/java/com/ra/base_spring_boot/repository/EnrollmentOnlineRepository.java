@@ -1,9 +1,12 @@
 package com.ra.base_spring_boot.repository;
 
 import com.ra.base_spring_boot.model.EnrollmentOnline;
+import com.ra.base_spring_boot.model.Student;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -16,4 +19,6 @@ public interface EnrollmentOnlineRepository extends JpaRepository<EnrollmentOnli
 //    long countByCourseOffId(Long courseOffId);
     int countByCourseIdIn(List<Long> courseIds);
     List<Long> findStudentIdsByCourseId(Long courseId);
+
+    List<EnrollmentOnline> findByStudent(@NotNull(message = "Student không được để trống") Student student);
 }
