@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 public class TeachingAssistantController {
 
     private final ITeachingAssistantService teachingAssistantService;
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @PostMapping
     public ResponseEntity<APIResponse<TeachingAssistantResponseDTO>> createTeachingAssistant(
             @Valid @ModelAttribute TeachingAssistantRequestDTO requestDTO) {
@@ -35,7 +36,7 @@ public class TeachingAssistantController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<TeachingAssistantResponseDTO>> updateTeachingAssistant(
             @PathVariable Long id,
@@ -51,7 +52,7 @@ public class TeachingAssistantController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> deleteTeachingAssistant(@PathVariable Long id) {
         teachingAssistantService.deleteTeachingAssistant(id);
@@ -65,7 +66,7 @@ public class TeachingAssistantController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT')")
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<TeachingAssistantResponseDTO>> getTeachingAssistantById(@PathVariable Long id) {
         TeachingAssistantResponseDTO responseDTO = teachingAssistantService.getTeachingAssistantById(id);
@@ -79,7 +80,7 @@ public class TeachingAssistantController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER')")
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<TeachingAssistantResponseDTO>>> getAllTeachingAssistants(
             @RequestParam(defaultValue = "") String keyword,

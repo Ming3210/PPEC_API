@@ -54,6 +54,11 @@ public class GlobalHandleException {
         return buildErrorResponse("Kích thước tệp vượt quá giới hạn", ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<APIResponse<String>> handleBusinessException(BusinessException ex) {
+        return buildErrorResponse("Lỗi nghiệp vụ", ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<APIResponse<String>> handleNoResourceFoundException(NoResourceFoundException ex) {
         return buildErrorResponse("Không tìm thấy tài nguyên", ex.getMessage(), HttpStatus.NOT_FOUND);

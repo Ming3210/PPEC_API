@@ -3,8 +3,11 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.dto.request.LoginRequest;
 import com.ra.base_spring_boot.dto.request.RegisterRequest;
 import com.ra.base_spring_boot.dto.response.JWTResponse;
+import com.ra.base_spring_boot.model.Student;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.constants.AccountStatus;
+import com.ra.base_spring_boot.model.constants.Gender;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.UserRepository;
 import com.ra.base_spring_boot.security.jwt.JWTProvider;
 import com.ra.base_spring_boot.security.principal.UserPrincipal;
@@ -28,7 +31,6 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTProvider jwtProvider;
-
     @Override
     public User Register(RegisterRequest userRegister) {
         if (userRepository.findByUsername(userRegister.getUsername()).isPresent()) {
@@ -89,4 +91,26 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Xác thực thất bại: " + e.getMessage());
         }
     }
+
+    @Override
+    public boolean changeUserRole(Long userId, String newRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại"));
+
+        try {
+            RoleName roleEnum = RoleName.valueOf(newRole.toUpperCase()); // ép String -> Enum
+            if (roleEnum == RoleName.STUDENT || roleEnum == RoleName.LECTURER
+                    || roleEnum == RoleName.ASSISTANT || roleEnum == RoleName.SERVICE_STAFF) {
+                user.setRole(roleEnum);
+                userRepository.save(user);
+                return true;
+            } else {
+                throw new IllegalArgumentException("Vai trò không hợp lệ");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Vai trò không hợp lệ: " + newRole);
+        }
+    }
+
+
 }

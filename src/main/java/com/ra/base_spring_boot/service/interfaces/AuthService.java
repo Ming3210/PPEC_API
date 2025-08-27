@@ -8,4 +8,5 @@ import com.ra.base_spring_boot.model.User;
 public interface AuthService {
     User Register(RegisterRequest registerRequest);
     JWTResponse login(LoginRequest userLogin);
+    boolean changeUserRole(Long userId, String newRole);
 }

@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.ra.base_spring_boot.advice.BusinessException;
 import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.ServiceStaffRequestDTO;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
@@ -32,7 +33,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
     @Autowired
     private ICloudinaryService cloudinaryService;
     @Autowired
-    private PartnerRepository partnerRepository;   // ✅ thay CenterRepository -> PartnerRepository
+    private PartnerRepository partnerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -54,7 +55,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
             throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
 
-        Partner partner = partnerRepository.findById(requestDTO.getPartnerId()) // ✅ centerId -> partnerId
+        Partner partner = partnerRepository.findById(requestDTO.getPartnerId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đối tác với id: " + requestDTO.getPartnerId()));
 
         String uniqueCode = generateUniqueEmployeeCode();
@@ -76,7 +77,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         serviceStaff.setStaffCode(uniqueCode);
         serviceStaff.setDateOfBirth(requestDTO.getDateOfBirth());
         serviceStaff.setHometown(requestDTO.getHometown());
-        serviceStaff.setPartner(partner); // ✅ setPartner thay cho setCenter
+        serviceStaff.setPartner(partner);
         serviceStaff.setPosition(requestDTO.getPosition());
 
         if (requestDTO.getAvatar() != null && !requestDTO.getAvatar().isEmpty()) {
@@ -140,7 +141,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         User user = serviceStaff.getUser();
 
         if (user.getStatus() == AccountStatus.ACTIVE) {
-            throw new IllegalStateException("Không thể xoá nhân viên đang ACTIVE. Vui lòng chuyển trạng thái trước.");
+            throw new BusinessException("Không thể xoá nhân viên đang ACTIVE. Vui lòng chuyển trạng thái trước.");
         }
         staffRepository.delete(serviceStaff);
         userRepository.delete(user);
@@ -153,7 +154,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         Page<ServiceStaff> serviceStaffs = staffRepository.search(keyword, pageable);
 
         List<ServiceStaffResponseDTO> listDTO = serviceStaffs.getContent().stream()
-                .map(s -> toResponseDTO(s.getUser(), s, s.getPartner())) // ✅ s.getCenter() -> s.getPartner()
+                .map(s -> toResponseDTO(s.getUser(), s, s.getPartner()))
                 .collect(Collectors.toList());
 
         PaginationDTO paginationDTO = new PaginationDTO(
@@ -167,7 +168,9 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
 
     @Override
     public ServiceStaffResponseDTO getById(Long id) {
-        return null;
+        ServiceStaff serviceStaff = staffRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên với id: " + id));
+        return toResponseDTO(serviceStaff.getUser(), serviceStaff, serviceStaff.getPartner());
     }
 
     private String generateUniqueEmployeeCode() {
@@ -178,7 +181,7 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
         return code;
     }
 
-    private ServiceStaffResponseDTO toResponseDTO(User user, ServiceStaff staff, Partner partner) { // ✅ dùng Partner thay Center
+    private ServiceStaffResponseDTO toResponseDTO(User user, ServiceStaff staff, Partner partner) {
         return ServiceStaffResponseDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -192,8 +195,8 @@ public class ServiceStaffServiceImpl implements IServiceStaffService {
                 .hometown(staff.getHometown())
                 .avatarUrl(staff.getAvatarUrl())
                 .position(staff.getPosition())
-                .partnerId(partner.getId())          // ✅ centerId -> partnerId
-                .partnerName(partner.getName())      // ✅ centerName -> partnerName
+                .partnerId(partner.getId())
+                .partnerName(partner.getName())
                 .staffServiceCode(staff.getStaffCode())
                 .build();
     }
