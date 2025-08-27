@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class PartnerServiceImpl implements IPartnerService {
     private final LessonRepository lessonRepository;
     private final CourseOffRepository courseOffRepository;
     private final StudentProgressRepository studentProgressRepository;
+    private final ServiceStaffRepository serviceStaffRepository;
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
         if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
@@ -74,6 +76,7 @@ public class PartnerServiceImpl implements IPartnerService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public PartnerResponseDTO getPartnerById(Long id) {
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
@@ -93,6 +96,14 @@ public class PartnerServiceImpl implements IPartnerService {
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy đối tác"));
 
+        Optional<ServiceStaff> isCheck = serviceStaffRepository.findAll().stream()
+                .filter(s -> s.getPartner().getId().equals(id))
+                .findFirst();
+
+        if (isCheck.isPresent()) {
+            throw new IllegalArgumentException("Đối tác đang có nhân viên dịch vụ, không thể xóa");
+        }
+
         if (partner.getAvatarUrl() != null) {
             String publicId = cloudinaryService.extractPublicIdFromUrl(partner.getAvatarUrl());
             cloudinaryService.deleteImage(publicId);
@@ -100,6 +111,7 @@ public class PartnerServiceImpl implements IPartnerService {
 
         partnerRepository.delete(partner);
     }
+
 
     @Override
     @Transactional(readOnly = true)

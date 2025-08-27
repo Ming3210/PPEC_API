@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,30 +21,35 @@ import java.time.LocalDateTime;
 public class PartnerController {
     @Autowired
     private IPartnerService partnerService;
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF')")
     @PostMapping
     public ResponseEntity<APIResponse<PartnerResponseDTO>> createPartner(@Valid @ModelAttribute PartnerDTO partnerDTO) {
         PartnerResponseDTO createdPartner = partnerService.createPartner(partnerDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new APIResponse<>(true, "Thêm đối tác thành công !!!", createdPartner, HttpStatus.CREATED, LocalDateTime.now()));
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER')")
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<PartnerResponseDTO>> updatePartner(@PathVariable Long id, @Valid @ModelAttribute PartnerDTO partnerDTO) {
         PartnerResponseDTO updatedPartner = partnerService.updatePartner(id, partnerDTO);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new APIResponse<>(true, "Cập nhật đối tác thành công !!!", updatedPartner, HttpStatus.OK, LocalDateTime.now()));
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF')")
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<String>> deletePartner(@PathVariable Long id) {
         partnerService.deletePartner(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new APIResponse<>(true, "Xóa đối tác thành công !!!", "Đối tác đã được xóa", HttpStatus.OK, LocalDateTime.now()));
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT', 'ROLE_STUDENT')")
     @GetMapping("/{id}")
     public ResponseEntity<APIResponse<PartnerResponseDTO>> getPartnerById(@PathVariable Long id) {
         PartnerResponseDTO partner = partnerService.getPartnerById(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new APIResponse<>(true, "Lấy thông tin đối tác thành công !!!", partner, HttpStatus.OK, LocalDateTime.now()));
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER')")
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<PartnerResponseDTO>>> getPartners(
             @RequestParam(required = false) String keyword,
@@ -61,6 +67,7 @@ public class PartnerController {
 
         return ResponseEntity.ok(apiResponse);
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT', 'ROLE_STUDENT')")
     @GetMapping("/{id}/students")
     public ResponseEntity<APIResponse<GetDetailPartnerResponse>> getStudentsByPartnerId(
             @PathVariable Long id
@@ -75,6 +82,4 @@ public class PartnerController {
                 )
         );
     }
-
-
 }
