@@ -11,5 +11,4 @@ public class StudentCourseOffRequest {
     @NotNull(message = "CourseOff ID không được để trống")
     private Long courseOffId;
 
-    private String status;
 }

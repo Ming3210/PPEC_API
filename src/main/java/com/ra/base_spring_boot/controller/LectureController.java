@@ -7,12 +7,14 @@ import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.service.interfaces.ILectureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -36,8 +38,8 @@ public class LectureController {
                         true,
                         "Danh sách giảng viên",
                         lectureService.getAllTeachers(keyword, specialization, status, page, size),
-                        null,
-                        null
+                        HttpStatus.CREATED,
+                        LocalDateTime.now()
                 )
         );
     }
@@ -49,7 +51,7 @@ public class LectureController {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Lecture created successfully",
                         lectureService.createTeacher(request),
-                        null, null)
+                        HttpStatus.OK, LocalDateTime.now())
         );
     }
 
@@ -61,7 +63,7 @@ public class LectureController {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Lecture updated successfully",
                         lectureService.updateTeacher(id, request),
-                        null, null)
+                        HttpStatus.OK, LocalDateTime.now())
         );
     }
 
@@ -69,7 +71,7 @@ public class LectureController {
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> deleteTeacher(@PathVariable Long id) {
         lectureService.deleteTeacher(id);
-        return ResponseEntity.ok(new APIResponse<>(true, "Teacher deleted successfully", null, null, null));
+        return ResponseEntity.ok(new APIResponse<>(true, "Teacher deleted successfully", null,  HttpStatus.OK, LocalDateTime.now()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -78,7 +80,7 @@ public class LectureController {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Teacher retrieved successfully",
                         lectureService.getTeacher(id),
-                        null, null)
+                        HttpStatus.OK, LocalDateTime.now())
         );
     }
 
@@ -90,7 +92,7 @@ public class LectureController {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Teacher status updated successfully",
                         lectureService.updateStatus(id, status),
-                        null, null)
+                        HttpStatus.OK, LocalDateTime.now())
         );
     }
     @PreAuthorize("hasAnyRole('LECTURER','ADMIN')")
@@ -99,7 +101,7 @@ public class LectureController {
         return ResponseEntity.ok(
                 new APIResponse<>(true, "Lấy thông tin profile thành công",
                         lectureService.getMyProfile(),
-                        null, null)
+                        HttpStatus.OK, LocalDateTime.now())
         );
     }
 
