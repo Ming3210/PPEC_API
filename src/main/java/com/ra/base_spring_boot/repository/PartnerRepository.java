@@ -27,4 +27,7 @@ public interface PartnerRepository extends JpaRepository<Partner, Long> {
     Page<Partner> searchWithIndustries(@Param("keyword") String keyword, Pageable pageable);
     @Query("SELECT p FROM Partner p LEFT JOIN FETCH p.industries WHERE p.id = :id")
     Optional<Partner> findByIdWithIndustries(@Param("id") int id);
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Partner p WHERE p.partnerCode = :partnerCode")
+    boolean isCheckPartnerCode(@Param("partnerCode") String partnerCode);
+
 }

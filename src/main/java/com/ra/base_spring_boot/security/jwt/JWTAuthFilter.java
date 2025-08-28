@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.security.jwt;
 
+import com.ra.base_spring_boot.repository.BlacklistedTokenRepository;
 import com.ra.base_spring_boot.security.principal.UserDetailService;
 import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import jakarta.servlet.FilterChain;
@@ -24,31 +25,44 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailService userDetailService;
 
+    @Autowired
+    private BlacklistedTokenRepository blacklistedTokenRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
+        try {
+            String token = getTokenFromRequest(request);
 
-        if (token != null && jwtProvider.validateToken(token)
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (token != null && jwtProvider.validateToken(token)
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            String username = jwtProvider.getUsernameFromToken(token);
+                if (blacklistedTokenRepository.existsByToken(token)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token đã bị vô hiệu hóa (logout)");
+                    return;
+                }
+                String username = jwtProvider.getUsernameFromToken(token);
 
-            UserPrincipal userPrincipal = (UserPrincipal) userDetailService.loadUserByUsername(username);
+                UserPrincipal userPrincipal =
+                        (UserPrincipal) userDetailService.loadUserByUsername(username);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userPrincipal, null, userPrincipal.getAuthorities());
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        userPrincipal, null, userPrincipal.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            if (jwtProvider.isTokenNearExpiry(token, 5 * 60 * 1000)) {
-                String newToken = jwtProvider.generateToken(username);
-                response.setHeader("X-New-Token", newToken);
+                if (jwtProvider.isTokenNearExpiry(token, 5 * 60 * 1000)) {
+                    String newToken = jwtProvider.generateToken(username);
+                    response.setHeader("X-New-Token", newToken);
+                }
             }
-        }
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Xác thực thất bại: " + e.getMessage());
+        }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

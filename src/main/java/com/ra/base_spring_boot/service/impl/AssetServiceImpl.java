@@ -144,6 +144,7 @@ public class AssetServiceImpl implements IAssetService {
                         .id(asset.getId())
                         .code(asset.getCode())
                         .name(asset.getName())
+                        .assignedUserId(asset.getAssignedUser().getId())
                         .notes(asset.getNotes())
                         .assignedUserName(asset.getAssignedUser() != null ? asset.getAssignedUser().getFullName() : null)
                         .assignedUserEmail(asset.getAssignedUser() != null ? asset.getAssignedUser().getEmail() : null)

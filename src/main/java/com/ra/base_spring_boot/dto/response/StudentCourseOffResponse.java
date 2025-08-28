@@ -16,5 +16,4 @@ public class StudentCourseOffResponse {
     private String courseOffName;
     private LocalDateTime registrationDate;
     private String status;
-    private Double grade;
 }

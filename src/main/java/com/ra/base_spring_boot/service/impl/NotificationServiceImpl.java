@@ -39,7 +39,6 @@ public class NotificationServiceImpl implements NotificationService {
         return user.getRole() == RoleName.ADMIN || user.getRole() == RoleName.CENTER;
     }
 
-    /** Lấy danh sách thông báo theo NGƯỜI DÙNG (từng bản ghi UserNotification) */
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<NotificationResponse> getAllByUser(Authentication authentication, int page, int size) {
@@ -58,7 +57,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    /** Tạo 1 notification và gán cho N user */
     @Override
     @Transactional
     public NotificationResponse create(NotificationRequest request) {

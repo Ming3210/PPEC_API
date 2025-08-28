@@ -54,7 +54,7 @@ public class StudentController {
                 IStudentService.getStudentById(studentId), HttpStatus.OK, LocalDateTime.now()));
     }
 
-    @PutMapping("/{studentId}")
+    @PutMapping(value = "/{studentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<APIResponse<?>> updateStudent(@PathVariable Long studentId,
                                                         @Valid @ModelAttribute StudentUpdateDTO studentRequest) {

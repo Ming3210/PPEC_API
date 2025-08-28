@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.dto.request;
 
+import com.ra.base_spring_boot.model.constants.AccountStatus;
 import com.ra.base_spring_boot.model.constants.PartnerStatus;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
@@ -12,9 +13,7 @@ import java.util.Set;
 @Builder
 public class PartnerDTO {
 
-    @NotBlank(message = "Mã đối tác là bắt buộc")
-    @Size(max = 50, message = "Mã đối tác không được vượt quá 50 ký tự")
-    private String partnerCode;
+    private String partnerCode = null;
 
     @NotBlank(message = "Tên đối tác là bắt buộc")
     @Size(max = 255, message = "Tên đối tác không được vượt quá 255 ký tự")
@@ -35,9 +34,7 @@ public class PartnerDTO {
 
     private MultipartFile avatarUrl;
     private String avatar;
-
-    @NotNull(message = "Trạng thái là bắt buộc")
-    private PartnerStatus status;
+    private PartnerStatus status = PartnerStatus.ACTIVE;
 
     private Set<Long> industryIds;
     @Size(max = 100, message = "Danh sách giảng viên không được vượt quá 100 người")

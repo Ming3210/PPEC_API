@@ -55,10 +55,6 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public TeachingAssistantResponseDTO createTeachingAssistant(TeachingAssistantRequestDTO requestDTO) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         if (userRepository.existsByUsername(requestDTO.getUsername())) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại: " + requestDTO.getUsername());
         }
@@ -106,10 +102,6 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public TeachingAssistantResponseDTO updateTeachingAssistant(Long id, TeachingAssistantRequestDTO requestDTO) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         TeachingAssistant assistant = teachingAssistantRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy trợ giảng với id: " + id));
 
@@ -146,10 +138,6 @@ public class TeachingAssistantServiceImpl implements ITeachingAssistantService {
 
     @Override
     public void deleteTeachingAssistant(Long id) {
-        User isCheck = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (isCheck.getRole() == RoleName.STUDENT) {
-            throw new IllegalArgumentException("Bạn không có quyền truy cập");
-        }
         TeachingAssistant assistant = teachingAssistantRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy trợ giảng với id: " + id));
         teachingAssistantRepository.delete(assistant);

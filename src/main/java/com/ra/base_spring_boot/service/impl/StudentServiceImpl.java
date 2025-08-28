@@ -23,6 +23,7 @@ import com.ra.base_spring_boot.repository.DepartmentRepository;
 import com.ra.base_spring_boot.repository.IndustryRepository;
 import com.ra.base_spring_boot.repository.StudentRepository;
 import com.ra.base_spring_boot.repository.UserRepository;
+import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.IStudentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -171,11 +173,7 @@ public class StudentServiceImpl implements IStudentService {
             user.setPhoneNumber(dto.getPhoneNumber());
         }
         if (dto.getRole() != null) {
-            try {
-                user.setRole(RoleName.valueOf(dto.getRole().name()));
-            } catch (IllegalArgumentException e) {
-                throw new HttpBadRequest("Role không hợp lệ");
-            }
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không có quyền thay đổi role");
         }
 
         if (dto.getDateOfBirth() != null) {
@@ -275,6 +273,7 @@ public class StudentServiceImpl implements IStudentService {
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy sinh viên"));
         User user = student.getUser();
 
+
         if (request.getFullName() != null && !request.getFullName().isBlank()) {
             user.setFullName(request.getFullName());
         }
@@ -308,19 +307,6 @@ public class StudentServiceImpl implements IStudentService {
         }
         if (request.getGender() != null) {
             student.setGender(request.getGender());
-        }
-        if (request.getAcademicYear() != null && !request.getAcademicYear().isBlank()) {
-            student.setAcademicYear(request.getAcademicYear());
-        }
-        if (request.getDepartmentId() != null) {
-            Departments department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy khoa"));
-            student.setDepartment(department);
-        }
-        if (request.getIndustryId() != null) {
-            Industry industry = industryRepository.findById(request.getIndustryId())
-                    .orElseThrow(() -> new HttpNotFound("Không tìm thấy ngành"));
-            student.setIndustry(industry);
         }
 
         userRepository.save(user);

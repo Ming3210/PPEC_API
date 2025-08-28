@@ -19,4 +19,5 @@ public class LectureResponse {
     private Long departmentId;
     private Long industryId;
     private Integer workYear;
+    private String status;
 }

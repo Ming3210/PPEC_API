@@ -2,11 +2,16 @@ package com.ra.base_spring_boot.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 
@@ -14,40 +19,44 @@ import java.util.Date;
 @Slf4j
 public class JWTProvider {
 
-    @Value("${jwt.expire}")
-    private long jwtExpire;
-
-    @Value("${jwt.refresh}")
-    private long jwtRefresh;
-
     @Value("${jwt.secret}")
     private String secretKeyString;
 
+    @Value("${jwt.expire}")
+    private long jwtExpirationMs;
+
+    @Value("${jwt.refresh}")
+    private long refreshTokenExpirationSec;
+
     private Key key;
 
-    @jakarta.annotation.PostConstruct
+    @PostConstruct
     public void init() {
-        byte[] keyBytes = Base64.getEncoder().encode(secretKeyString.getBytes());
-        key = Keys.hmacShaKeyFor(keyBytes);
+        byte[] keyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username) {
         Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + jwtExpire))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String generateRefreshToken(String username) {
         Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshTokenExpirationSec * 1000);
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + jwtRefresh))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -55,28 +64,36 @@ public class JWTProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (ExpiredJwtException e) {
-            log.error("JWT token expired!");
-        } catch (UnsupportedJwtException e) {
-            log.error("JWT token unsupported!");
-        } catch (MalformedJwtException e) {
-            log.error("JWT token malformed!");
-        } catch (SignatureException e) {
-            log.error("JWT token signature error!");
-        } catch (IllegalArgumentException e) {
-            log.error("JWT token argument error!");
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
         }
-        return false;
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
+
+    public LocalDateTime getExpiryFromToken(String token) {
+        Date expiry = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+
+        return expiry.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
     public boolean isTokenNearExpiry(String token, long thresholdMillis) {
-        Date expiration = Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getExpiration();
-        long nowMillis = System.currentTimeMillis();
-        return (expiration.getTime() - nowMillis) <= thresholdMillis;
+        LocalDateTime expiry = getExpiryFromToken(token);
+        return expiry.isBefore(LocalDateTime.now().plus(thresholdMillis, ChronoUnit.MILLIS));
     }
 }
+
