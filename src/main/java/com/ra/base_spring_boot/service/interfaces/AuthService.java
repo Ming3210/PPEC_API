@@ -9,4 +9,5 @@ public interface AuthService {
     User Register(RegisterRequest registerRequest);
     JWTResponse login(LoginRequest userLogin);
     boolean changeUserRole(Long userId, String newRole);
+    void logout(String token);
 }

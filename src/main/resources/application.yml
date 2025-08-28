@@ -59,7 +59,7 @@ security:
 server:
   port: 8080
 jwt:
-  secret: "hU6t8F93kd9s8dh3Kls7s9wkd9s8Xj4S9z8wKd7s2l8d7Qp1r7x9j2n8y5b6V"
+  secret: "hU6t8F93kd9s8dh3Kls7s9wkd9s8Xj4S9z8wKd7s2l8d7Qp1r7x9j2n8y5b6VxY"
   refresh : 3600
   expire: 86400000
 paypal:
