@@ -1,6 +1,9 @@
 spring:
   application:
     name: phenikaa-course-management
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
 
   datasource:
     url: jdbc:mysql://localhost:3306/ojt_team5?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh

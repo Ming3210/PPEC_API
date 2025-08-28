@@ -24,14 +24,7 @@ public class UpdateStudentProfileRequest {
 
     private LocalDate dateOfBirth;
     private Gender gender;
-    private Long departmentId;
-    private String academicYear;
-    private Long industryId;
 
-    // Helper method để check có avatar không
-    public boolean hasAvatar() {
-        return avatar != null && !avatar.isEmpty() &&
-                avatar.getOriginalFilename() != null &&
-                !avatar.getOriginalFilename().isEmpty();
-    }
+
+
 }
