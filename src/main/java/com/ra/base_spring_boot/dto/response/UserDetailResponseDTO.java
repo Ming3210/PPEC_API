@@ -4,6 +4,7 @@ import com.ra.base_spring_boot.model.Course;
 import com.ra.base_spring_boot.model.CourseOff;
 import com.ra.base_spring_boot.model.Exam;
 import com.ra.base_spring_boot.model.constants.Gender;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -20,7 +21,6 @@ public class UserDetailResponseDTO {
     private String username;
     private String fullName;
     private LocalDate dateOfBirth;
-    private Gender gender;
     private String email;
     private String phoneNumber;
     private String address;
@@ -33,6 +33,7 @@ public class UserDetailResponseDTO {
     private String departmentName;
     private Long industryId;
     private String industryName;
+    private RoleName role;
     private List<CourseOff> courseOffs;
     private List<Course> assignedCourses;
     private List<Exam> exams;

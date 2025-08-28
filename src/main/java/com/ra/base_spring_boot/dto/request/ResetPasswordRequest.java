@@ -19,7 +19,7 @@ public class ResetPasswordRequest {
     private String token;
 
     @NotBlank(message = "Mật khẩu mới không được để trống")
-    @Size(min = 6, max = 20, message = "Mật khẩu phải có độ dài từ 6-20 ký tự")
+    @Size(min = 8, max = 20, message = "Mật khẩu phải có độ dài từ 6-20 ký tự")
     private String newPassword;
 
     @NotBlank(message = "Xác nhận mật khẩu không được để trống")
