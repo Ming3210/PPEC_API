@@ -63,9 +63,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     @Operation(summary = "Gửi email đặt lại mật khẩu")
     public ResponseEntity<APIResponse<String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        try {
             passwordResetService.sendResetPasswordEmail(request.getEmail());
-
             APIResponse<String> response = APIResponse.<String>builder()
                     .status(true)
                     .message("Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.")
@@ -76,17 +74,7 @@ public class AuthController {
 
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
-            APIResponse<String> response = APIResponse.<String>builder()
-                    .status(false)
-                    .message(e.getMessage())
-                    .data(null)
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .timestamp(LocalDateTime.now())
-                    .build();
 
-            return ResponseEntity.badRequest().body(response);
-        }
     }
 
     @PostMapping("/reset-password")

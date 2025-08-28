@@ -38,7 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
         return "ADMIN".equals(user.getRole().name()) || "SCHOOL_ADMIN".equals(user.getRole().name());
     }
 
-    /** Lấy danh sách thông báo theo NGƯỜI DÙNG (từng bản ghi UserNotification) */
     @Override
     public PaginationResponse<NotificationResponse> getAllByUser(Authentication authentication, int page, int size) {
         User user = getCurrentUser(authentication);
@@ -53,7 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
         return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
-    /** Tạo 1 notification và gán cho N user */
     @Override
     @Transactional
     public NotificationResponse create(NotificationRequest request) {

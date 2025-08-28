@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.service.impl;
 
+import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.PasswordResetToken;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.repository.PasswordResetTokenRepository;
@@ -41,11 +42,8 @@ public class PasswordResetServiceImpl implements IPasswordResetService {
 
     @Override
     public void sendResetPasswordEmail(String email) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            log.warn("Reset password attempted for non-existent email: {}", email);
-            return;
-        }
+        User userOpt = userRepository.findByEmail(email).orElseThrow(()-> new HttpNotFound("Không tìm thấy người dùng với email"));
+
 
         LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
         long recentAttempts = passwordResetTokenRepository.countByEmailAndCreatedAtAfter(email, oneHourAgo);

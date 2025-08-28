@@ -43,6 +43,7 @@ public class StudentRequest {
     private String address;
 
     @Schema(type = "string", format = "binary", description = "Ảnh đại diện (bắt buộc)")
+    @NotNull(message = "Ảnh đại diện không được để trống")
     private MultipartFile avatar;
 
     @NotBlank(message = "Mã sinh viên không được để trống")
