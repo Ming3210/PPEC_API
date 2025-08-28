@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.dto.request;
 
+import com.ra.base_spring_boot.model.constants.RoleName;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -14,6 +15,6 @@ public class NotificationRequest {
     @NotBlank(message = "Nội dung không được để trống")
     private String content;
 
-    @NotNull(message = "Danh sách ID người dùng không được để trống")
-    private List<Long> userIds;
+    @NotNull(message = "Chọn quyền mốn gửi thông báo không được để trống")
+    private List<RoleName> roles;
 }

@@ -37,7 +37,7 @@ public class NotificationController {
 
     // Tạo thông báo gửi cho nhiều user
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','CENTER')")
     public ResponseEntity<APIResponse<NotificationResponse>> create(
             @Valid @RequestBody NotificationRequest request
     ) {
@@ -48,9 +48,9 @@ public class NotificationController {
                 HttpStatus.CREATED);
     }
 
-    // Cập nhật nội dung thông báo (ADMIN, SCHOOL_ADMIN)
+    // Cập nhật nội dung thông báo (ADMIN, CENTER)
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','SCHOOL_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','CENTER')")
     public ResponseEntity<APIResponse<NotificationResponse>> update(
             @PathVariable Long id,
             @RequestBody NotificationRequest request

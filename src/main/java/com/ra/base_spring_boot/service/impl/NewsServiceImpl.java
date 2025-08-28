@@ -3,8 +3,11 @@ package com.ra.base_spring_boot.service.impl;
 import com.ra.base_spring_boot.dto.request.NewsRequest;
 import com.ra.base_spring_boot.dto.response.NewsResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
+import com.ra.base_spring_boot.exception.HttpNotFound;
+import com.ra.base_spring_boot.exception.HttpUnAuthorized;
 import com.ra.base_spring_boot.model.News;
 import com.ra.base_spring_boot.model.User;
+import com.ra.base_spring_boot.model.constants.NewsStatus;
 import com.ra.base_spring_boot.repository.NewsRepository;
 import com.ra.base_spring_boot.repository.UserRepository;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
@@ -13,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,16 +33,18 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public NewsResponse create(NewsRequest request, Authentication authentication) {
-        // Lấy user đang đăng nhập từ Authentication
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
 
-        // Upload ảnh lên Cloudinary
         String imageUrl = null;
         if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
             imageUrl = cloudinaryService.uploadImage(request.getImageUrl(), "news");
         }
+
+        // Nếu ADMIN hoặc CENTER đăng thì status = APPROVED
+        NewsStatus status = (user.getRole().equals("ADMIN") || user.getRole().equals("CENTER"))
+                ? NewsStatus.APPROVED
+                : NewsStatus.PENDING;
 
         News news = News.builder()
                 .title(request.getTitle())
@@ -45,6 +52,7 @@ public class NewsServiceImpl implements NewsService {
                 .content(request.getContent())
                 .imageUrl(imageUrl)
                 .user(user)
+                .status(status)
                 .build();
 
         return mapToResponse(newsRepository.save(news));
@@ -52,17 +60,24 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public NewsResponse update(Long id, NewsRequest request, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
+
         News news = newsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tin tức không tồn tại"));
+                .orElseThrow(() -> new HttpNotFound("Tin tức không tồn tại"));
 
-        // Lấy user đang đăng nhập
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+        boolean isAdmin = user.getRole().equals("ADMIN");
+        boolean isCenter = user.getRole().equals("CENTER");
+        boolean isOwner = news.getUser().getId().equals(user.getId());
 
-        // Check quyền: ADMIN hoặc chính chủ mới được update
-        if (!user.getRole().equals("ADMIN") && !news.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bạn không có quyền sửa tin này");
+        // Chỉ cho phép ADMIN, CENTER hoặc chính chủ
+        if (!(isAdmin || isCenter || isOwner)) {
+            throw new HttpUnAuthorized("Bạn không có quyền sửa tin này");
+        }
+
+        // Nếu không phải ADMIN hoặc CENTER -> set lại trạng thái PENDING
+        if (!isAdmin && !isCenter) {
+            news.setStatus(NewsStatus.PENDING);
         }
 
         news.setTitle(request.getTitle());
@@ -79,36 +94,116 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public void delete(Long id, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
+
         News news = newsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tin tức không tồn tại"));
+                .orElseThrow(() -> new HttpNotFound("Tin tức không tồn tại"));
 
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+        boolean isAdmin = user.getRole().equals("ADMIN");
+        boolean isCenter = user.getRole().equals("CENTER");
+        boolean isOwner = news.getUser().getId().equals(user.getId());
 
-        if (!user.getRole().equals("ADMIN") && !news.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bạn không có quyền xoá tin này");
+        // Chỉ cho phép ADMIN, CENTER hoặc chính chủ
+        if (!(isAdmin || isCenter || isOwner)) {
+            throw new HttpUnAuthorized("Bạn không có quyền xoá tin này");
         }
 
         newsRepository.delete(news);
     }
 
     @Override
-    public PaginationResponse<NewsResponse> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<News> newsPage = newsRepository.findAll(pageable);
+    public PaginationResponse<NewsResponse> getAll(int page, int size, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
 
-        Page<NewsResponse> mappedPage = newsPage.map(this::mapToResponse);
-        return PaginationResponse.of(mappedPage);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<News> newsPage;
+
+        if (user.getRole().equals("ADMIN") || user.getRole().equals("CENTER")) {
+            newsPage = newsRepository.findAll(pageable); // thấy hết
+        } else {
+            newsPage = newsRepository.findByStatus(NewsStatus.APPROVED, pageable); // chỉ thấy đã duyệt
+        }
+
+        return PaginationResponse.of(newsPage.map(this::mapToResponse));
     }
 
     @Override
-    public PaginationResponse<NewsResponse> search(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<News> newsPage = newsRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+    public PaginationResponse<NewsResponse> search(String keyword, int page, int size, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
 
-        Page<NewsResponse> mappedPage = newsPage.map(this::mapToResponse);
-        return PaginationResponse.of(mappedPage);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<News> newsPage;
+
+        if (user.getRole().equals("ADMIN") || user.getRole().equals("CENTER")) {
+            newsPage = newsRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        } else {
+            newsPage = newsRepository.findByTitleContainingIgnoreCaseAndStatus(keyword, NewsStatus.APPROVED, pageable);
+        }
+
+        return PaginationResponse.of(newsPage.map(this::mapToResponse));
+    }
+
+    @Override
+    public NewsResponse getDetail(Long id, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
+
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new HttpNotFound("Tin tức không tồn tại"));
+
+        // ADMIN hoặc CENTER xem tất cả
+        if (user.getRole().equals("ADMIN") || user.getRole().equals("CENTER")) {
+            return mapToResponse(news);
+        }
+
+        // Chính chủ xem tin của mình
+        if (news.getUser().getId().equals(user.getId())) {
+            return mapToResponse(news);
+        }
+
+        // Người khác chỉ xem được khi đã APPROVED
+        if (news.getStatus() == NewsStatus.APPROVED) {
+            return mapToResponse(news);
+        }
+
+        throw new HttpUnAuthorized("Bạn không có quyền xem tin này");
+    }
+
+    @Override
+    public NewsResponse approve(Long id, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
+
+        // Chỉ ADMIN hoặc CENTER được duyệt tin
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("CENTER")) {
+            throw new HttpUnAuthorized("Bạn không có quyền duyệt tin này");
+        }
+
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new HttpNotFound("Tin tức không tồn tại"));
+
+        news.setStatus(NewsStatus.APPROVED);
+        newsRepository.save(news);
+
+        return mapToResponse(news);
+    }
+
+    @Override
+    public PaginationResponse<NewsResponse> getPendingNews(int page, int size, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new HttpNotFound("User không tồn tại"));
+
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("CENTER")) {
+            throw new HttpUnAuthorized("Bạn không có quyền xem danh sách tin chờ duyệt");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<News> newsPage = newsRepository.findByStatus(NewsStatus.PENDING, pageable);
+
+        return PaginationResponse.of(newsPage.map(this::mapToResponse));
     }
 
     private NewsResponse mapToResponse(News news) {
