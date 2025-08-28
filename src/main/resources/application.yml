@@ -76,3 +76,13 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.phenikaauniversity.coursemanagement: DEBUG
+
+
+paypal:
+  client-id: AYFLvWiqFqlIMKf0GaKWd5db7rKdERFoW5DTrvhMDs65XiPlrAx3Qff4PRXQa9d-g7QMyAj4HIm1byu2
+  client-secret: EKfEXQv_DCGUzjh6ofSF5fRRT0i-pV6SMmGSeUmu0LuHxA8B1SxZi-t9rVTYFVckYGso0nMuqu3sGxKB
+  mode: sandbox
+
+socket:
+  host: localhost
+  port: 8085

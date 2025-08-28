@@ -52,6 +52,8 @@ dependencies {
     implementation 'com.paypal.sdk:rest-api-sdk:1.14.0'
     // Nếu project dùng Java 17 cần thêm:
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    //socket io
+    implementation 'com.corundumstudio.socketio:netty-socketio:1.7.22'
 }
 
 tasks.named('test') {

@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 @Data
 public class PaymentRequestDTO {
     private Long courseId;
-    private BigDecimal amount;
-    private String currency;
+    private String currency = "USD";
     private String description;
 }

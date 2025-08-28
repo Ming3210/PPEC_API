@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -36,15 +37,28 @@ public class PayPalServiceImpl implements IPayPalService {
     @Override
     public PaymentResponseDTO createPaypalPayment(PaymentRequestDTO dto) throws PayPalRESTException {
         Course course = courseRepository.findById(dto.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course not found."));
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        String currency = dto.getCurrency();
+        if (currency == null || currency.trim().isEmpty()) {
+            currency = "USD";
+        }
+
+        BigDecimal price = course.getPrice();
+        if (price == null) {
+            throw new IllegalArgumentException("Giá khóa học không hợp lệ");
+        }
 
         Amount amount = new Amount();
-        amount.setCurrency(dto.getCurrency());
-        amount.setTotal(dto.getAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+        amount.setCurrency(currency);
+
+        String totalStr = price.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        amount.setTotal(totalStr);
 
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setDescription(dto.getDescription() != null ? dto.getDescription() : "Course Payments");
+        transaction.setDescription(dto.getDescription() != null ? dto.getDescription() : "Payment for course: " + course.getTitle());
+        transaction.setCustom(String.valueOf(course.getId()));
 
         Payer payer = new Payer();
         payer.setPaymentMethod("paypal");
@@ -61,13 +75,13 @@ public class PayPalServiceImpl implements IPayPalService {
 
         Payment created = payment.create(apiContext);
 
-        String approvalUrl = created.getLinks().stream()
+        String approvalLink = created.getLinks().stream()
                 .filter(link -> "approval_url".equalsIgnoreCase(link.getRel()))
                 .findFirst()
-                .map(Links::getHref)
-                .orElseThrow(() -> new RuntimeException("No PayPal approval_url found"));
+                .orElseThrow(() -> new RuntimeException("No PayPal approval_url found"))
+                .getHref();
 
-        return new PaymentResponseDTO(approvalUrl, created.getId());
+        return new PaymentResponseDTO(approvalLink, created.getId());
     }
 
     @Override
@@ -82,19 +96,19 @@ public class PayPalServiceImpl implements IPayPalService {
             Transaction tx = executedPayment.getTransactions().get(0);
             Amount amount = tx.getAmount();
 
-            // Lấy courseId từ mô tả (nếu lúc tạo order có custom logic lưu courseId ở description/custom field)
-            Optional<Course> courseOpt = courseRepository.findAll().stream().findFirst();
-            Course course = courseOpt.orElse(null);
+            // Lấy courseId từ transaction custom field
+            Long courseId = Long.valueOf(tx.getCustom());
+            Course course = courseRepository.findById(courseId)
+                    .orElseThrow(() -> new RuntimeException("Course not found"));
 
-            // Kiểm tra transactionId (PayPal PaymentId) đã lưu chưa, tránh lưu giao dịch trùng
             if (!paymentRepository.existsByTransactionId(paymentId)) {
-                Payments savedPayment = Payments.builder()
-                        .course(course)
-                        .totalAmount(new BigDecimal(amount.getTotal()))
+                Payments payEntity = Payments.builder()
                         .transactionId(paymentId)
+                        .course(course)
+                        .totalAmount(course.getPrice())
                         .paymentDate(LocalDateTime.now())
                         .build();
-                paymentRepository.save(savedPayment);
+                paymentRepository.save(payEntity);
             }
         }
         return executedPayment.getState();
