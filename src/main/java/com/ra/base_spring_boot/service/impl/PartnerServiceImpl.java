@@ -5,6 +5,7 @@ import com.ra.base_spring_boot.dto.request.PaginationDTO;
 import com.ra.base_spring_boot.dto.request.PartnerDTO;
 import com.ra.base_spring_boot.dto.response.*;
 import com.ra.base_spring_boot.model.*;
+import com.ra.base_spring_boot.model.constants.PartnerStatus;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.ICloudinaryService;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,14 +41,12 @@ public class PartnerServiceImpl implements IPartnerService {
     private final ServiceStaffRepository serviceStaffRepository;
     @Override
     public PartnerResponseDTO createPartner(PartnerDTO dto) {
-        if (partnerRepository.existsByPartnerCode(dto.getPartnerCode())) {
-            throw new PartnerAlreadyExistsException("Mã đối tác đã tồn tại");
-        }
         if (partnerRepository.existsByName(dto.getName())) {
             throw new PartnerAlreadyExistsException("Tên đối tác đã tồn tại");
         }
-
         Partner partner = new Partner();
+        partner.setPartnerCode(generateUniquePartnerCode());
+        partner.setStatus(dto.getStatus() != null ? dto.getStatus() : PartnerStatus.ACTIVE);
         mapDtoToEntity(dto, partner);
         partner = partnerRepository.save(partner);
         return mapEntityToResponse(partner);
@@ -201,27 +201,28 @@ public class PartnerServiceImpl implements IPartnerService {
 
 
     private void mapDtoToEntity(PartnerDTO dto, Partner partner) {
-        partner.setPartnerCode(dto.getPartnerCode());
+
         partner.setName(dto.getName());
         partner.setDescription(dto.getDescription());
         partner.setNumberOfEmployees(dto.getNumberOfEmployees());
         partner.setNumberOfCourses(dto.getNumberOfCourses());
         partner.setAddress(dto.getAddress());
-        partner.setStatus(dto.getStatus());
-
+        if (dto.getStatus() != null) {
+            partner.setStatus(dto.getStatus());
+        }
         if (dto.getAvatarUrl() != null && !dto.getAvatarUrl().isEmpty()) {
             String uploadedUrl = cloudinaryService.uploadImage(dto.getAvatarUrl(), "partners");
             partner.setAvatarUrl(uploadedUrl);
         } else if (dto.getAvatar() != null) {
             partner.setAvatarUrl(dto.getAvatar());
         }
-
         if (dto.getIndustryIds() != null && !dto.getIndustryIds().isEmpty()) {
             Set<Industry> industries = industryRepository.findAllById(dto.getIndustryIds())
                     .stream().collect(Collectors.toSet());
             partner.setIndustries(industries);
         }
     }
+
 
     private PartnerResponseDTO mapEntityToResponse(Partner partner) {
         return PartnerResponseDTO.builder()
@@ -273,5 +274,12 @@ public class PartnerServiceImpl implements IPartnerService {
             }
         }
         return graduated;
+    }
+    private String generateUniquePartnerCode() {
+        String code;
+        do {
+            code = "PN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        } while (partnerRepository.isCheckPartnerCode(code));
+        return code;
     }
 }

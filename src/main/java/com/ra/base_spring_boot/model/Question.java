@@ -33,8 +33,9 @@ public class Question {
 
     @ElementCollection
     @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "option")
+    @Column(name = "option_value")
     private Set<String> options = new HashSet<>();
+
     private String answer;
 
     private String correctAnswer;

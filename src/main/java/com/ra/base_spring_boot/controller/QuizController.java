@@ -1,10 +1,13 @@
 package com.ra.base_spring_boot.controller;
 
+import com.ra.base_spring_boot.dto.request.QuestionRequestDTO;
 import com.ra.base_spring_boot.dto.request.QuizRequestDTO;
 import com.ra.base_spring_boot.dto.request.QuizSubmissionRequest;
+import com.ra.base_spring_boot.dto.response.QuestionResponse;
 import com.ra.base_spring_boot.dto.response.QuizResponseDTO;
 import com.ra.base_spring_boot.dto.response.QuizResultResponse;
 import com.ra.base_spring_boot.service.interfaces.IQuizService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +59,13 @@ public class QuizController {
     public ResponseEntity<QuizResultResponse> submitQuiz(@PathVariable Long quizId, @RequestBody QuizSubmissionRequest submission) {
         QuizResultResponse result = quizService.submitQuiz(quizId, submission);
         return ResponseEntity.ok(result);
+    }
+    @PostMapping("/{quizId}/questions")
+    public ResponseEntity<QuestionResponse> addQuestion(
+            @PathVariable Long quizId,
+            @Valid @RequestBody QuestionRequestDTO dto) {
+        dto.setQuizId(quizId);
+        return ResponseEntity.ok(quizService.addQuestionToQuiz(dto));
     }
 }
 
