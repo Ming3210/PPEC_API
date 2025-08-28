@@ -7,6 +7,7 @@ import com.ra.base_spring_boot.dto.response.UserNotificationResponse;
 import com.ra.base_spring_boot.model.Notification;
 import com.ra.base_spring_boot.model.User;
 import com.ra.base_spring_boot.model.UserNotification;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.NotificationRepository;
 import com.ra.base_spring_boot.repository.UserNotificationRepository;
 import com.ra.base_spring_boot.repository.UserRepository;
@@ -35,21 +36,25 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private boolean isAdminOrSchoolAdmin(User user) {
-        return "ADMIN".equals(user.getRole().name()) || "SCHOOL_ADMIN".equals(user.getRole().name());
+        return user.getRole() == RoleName.ADMIN || user.getRole() == RoleName.CENTER;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaginationResponse<NotificationResponse> getAllByUser(Authentication authentication, int page, int size) {
         User user = getCurrentUser(authentication);
 
-        Page<Notification> pageData;
         if (isAdminOrSchoolAdmin(user)) {
-            pageData = notificationRepository.findAll(PageRequest.of(page, size));
+            Page<Notification> pageData = notificationRepository.findAll(PageRequest.of(page, size));
+            return PaginationResponse.of(pageData.map(this::mapForAdmin));
         } else {
-            pageData = notificationRepository.findByUserNotifications_User_Id(user.getId(), PageRequest.of(page, size));
+            // lấy tất cả notification có chứa role của user
+            Page<Notification> pageData = notificationRepository.findByRoleContains(
+                    user.getRole().name(),
+                    PageRequest.of(page, size)
+            );
+            return PaginationResponse.of(pageData.map(n -> mapForUser(n, user)));
         }
-
-        return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
     @Override
@@ -62,20 +67,25 @@ public class NotificationServiceImpl implements NotificationService {
         Notification saved = notificationRepository.save(notification);
 
         List<UserNotification> links = new ArrayList<>();
-        for (Long uid : request.getUserIds()) {
-            User u = userRepository.findById(uid)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy user id: " + uid));
-            links.add(UserNotification.builder()
-                    .notification(saved)
-                    .user(u)
-                    .isRead(false)
-                    .build());
-        }
-        userNotificationRepository.saveAll(links);
 
+        // Nếu chọn roles → gửi cho tất cả user có role đó
+        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
+            List<User> users = userRepository.findAllByRoleIn(request.getRoles());
+            for (User u : users) {
+                links.add(UserNotification.builder()
+                        .notification(saved)
+                        .user(u)
+                        .isRead(false)
+                        .build());
+            }
+        }
+
+        userNotificationRepository.saveAll(links);
         saved.setUserNotifications(links);
-        return mapToResponse(saved);
+
+        return mapForAdmin(saved);
     }
+
 
     /** Cập nhật tiêu đề/nội dung; nếu request có userIds thì thay danh sách người nhận */
     @Override
@@ -84,29 +94,32 @@ public class NotificationServiceImpl implements NotificationService {
         Notification noti = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Thông báo không tìm thấy"));
 
+        // Cập nhật title, content
         noti.setTitle(request.getTitle());
         noti.setContent(request.getContent());
         Notification saved = notificationRepository.save(noti);
 
-        if (request.getUserIds() != null) {
-            // Xóa danh sách hiện tại và gán lại
+        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
+            // Xóa danh sách người nhận cũ
             List<UserNotification> oldLinks = userNotificationRepository.findAllByNotification_NotificationId(id);
             userNotificationRepository.deleteAll(oldLinks);
 
+            // Lấy user theo role mới
+            List<User> users = userRepository.findAllByRoleIn(request.getRoles());
+
             List<UserNotification> newLinks = new ArrayList<>();
-            for (Long uid : request.getUserIds()) {
-                User u = userRepository.findById(uid)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy user id: " + uid));
+            for (User u : users) {
                 newLinks.add(UserNotification.builder()
                         .notification(saved)
                         .user(u)
-                        .isRead(false) // reset trạng thái đọc khi thay người nhận
+                        .isRead(false) // reset trạng thái đọc
                         .build());
             }
             userNotificationRepository.saveAll(newLinks);
+            saved.setUserNotifications(newLinks);
         }
 
-        return mapToResponse(saved);
+        return mapForAdmin(saved);
     }
 
     /** Đánh dấu đã đọc: áp dụng CHO BẢN GHI CỦA NGƯỜI ĐANG ĐĂNG NHẬP */
@@ -115,17 +128,32 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationResponse markAsRead(Long notificationId, Authentication authentication) {
         User user = getCurrentUser(authentication);
 
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo"));
+
+        // kiểm tra role: chỉ cho phép đọc nếu role user nằm trong roles của notification
+        if (notification.getRole() == null || !notification.getRole().contains(user.getRole())) {
+            throw new RuntimeException("Bạn không có quyền xem thông báo này");
+        }
+
+        // Tìm link hoặc tạo mới
         UserNotification link = userNotificationRepository
-                .findByUserIdAndNotification_NotificationId(user.getId(), notificationId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo thuộc về bạn"));
+                .findByUser_IdAndNotification_NotificationId(user.getId(), notificationId)
+                .orElseGet(() -> UserNotification.builder()
+                        .user(user)
+                        .notification(notification)
+                        .isRead(false)
+                        .build()
+                );
 
         link.setIsRead(true);
         link.setReadAt(LocalDateTime.now());
         userNotificationRepository.save(link);
 
-        // trả về toàn bộ notification kèm tất cả user
-        return mapToResponse(link.getNotification());
+        return mapForUser(link.getNotification(), user);
     }
+
+
 
     /** Đánh dấu chưa đọc: áp dụng CHO BẢN GHI CỦA NGƯỜI ĐANG ĐĂNG NHẬP */
     @Override
@@ -134,13 +162,13 @@ public class NotificationServiceImpl implements NotificationService {
         User user = getCurrentUser(authentication);
 
         UserNotification link = userNotificationRepository
-                .findByUserIdAndNotification_NotificationId(user.getId(), notificationId)
+                .findByUser_IdAndNotification_NotificationId(user.getId(), notificationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông báo thuộc về bạn"));
 
         link.setIsRead(false);
         userNotificationRepository.save(link);
 
-        return mapToResponse(link.getNotification());
+        return mapForUser(link.getNotification(), user);
     }
 
     /** Đánh dấu tất cả đã đọc: CHO NGƯỜI ĐANG ĐĂNG NHẬP */
@@ -148,7 +176,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void markAllAsRead(Authentication authentication) {
         User user = getCurrentUser(authentication);
-        List<UserNotification> links = userNotificationRepository.findAllByUserId(user.getId());
+        List<UserNotification> links = userNotificationRepository.findAllByUser_Id(user.getId());
         links.forEach(l -> { l.setIsRead(true); l.setReadAt(LocalDateTime.now()); });
         userNotificationRepository.saveAll(links);
     }
@@ -167,7 +195,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRepository.delete(noti);
         } else {
             // xóa liên kết của riêng user
-            userNotificationRepository.deleteByUserIdAndNotification_NotificationId(user.getId(), notificationId);
+            userNotificationRepository.deleteByUser_IdAndNotification_NotificationId(user.getId(), notificationId);
         }
     }
 
@@ -183,16 +211,15 @@ public class NotificationServiceImpl implements NotificationService {
         if (isAdminOrSchoolAdmin(user)) {
             pageData = notificationRepository
                     .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword, PageRequest.of(page, size));
+            return PaginationResponse.of(pageData.map(this::mapForAdmin));
         } else {
             pageData = notificationRepository.searchByUser(user.getId(), keyword, PageRequest.of(page, size));
+            return PaginationResponse.of(pageData.map(n -> mapForUser(n, user)));
         }
-
-        return PaginationResponse.of(pageData.map(this::mapToResponse));
     }
 
-
-    /** Map notification tổng quan (dùng khi tạo/cập nhật; gồm danh sách tất cả user) */
-    private NotificationResponse mapToResponse(Notification n) {
+    /** Map cho Admin/Center: gồm danh sách tất cả userNotifications */
+    private NotificationResponse mapForAdmin(Notification n) {
         return NotificationResponse.builder()
                 .notificationId(n.getNotificationId())
                 .title(n.getTitle())
@@ -212,6 +239,23 @@ public class NotificationServiceImpl implements NotificationService {
                                                 .build()
                                         ).toList()
                 )
+                .build();
+    }
+
+    /** Map cho User thường: chỉ hiện trạng thái đọc của chính user */
+    private NotificationResponse mapForUser(Notification n, User user) {
+        UserNotification link = userNotificationRepository
+                .findByUser_IdAndNotification_NotificationId(user.getId(), n.getNotificationId())
+                .orElse(null);
+
+        return NotificationResponse.builder()
+                .notificationId(n.getNotificationId())
+                .title(n.getTitle())
+                .content(n.getContent())
+                .createdAt(n.getCreatedAt())
+                .updatedAt(n.getUpdatedAt())
+                .isRead(link != null && Boolean.TRUE.equals(link.getIsRead()))
+                .readAt(link != null ? link.getReadAt() : null)
                 .build();
     }
 }

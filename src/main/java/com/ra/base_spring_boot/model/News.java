@@ -1,5 +1,6 @@
 package com.ra.base_spring_boot.model;
 
+import com.ra.base_spring_boot.model.constants.NewsStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,9 @@ public class News {
 
     @Column(name = "thumbnail_url")
     private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    private NewsStatus status = NewsStatus.PENDING;
 
     @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;

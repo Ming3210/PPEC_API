@@ -10,6 +10,9 @@ public interface NewsService {
     NewsResponse create(NewsRequest request, Authentication authentication);
     NewsResponse update(Long id, NewsRequest request, Authentication authentication);
     void delete(Long id, Authentication authentication);
-    PaginationResponse<NewsResponse> getAll(int page, int size);
-    PaginationResponse<NewsResponse> search(String keyword, int page, int size);
+    PaginationResponse<NewsResponse> getAll(int page, int size, Authentication authentication);
+    PaginationResponse<NewsResponse> search(String keyword, int page, int size, Authentication authentication);
+    NewsResponse getDetail(Long id, Authentication authentication);
+    NewsResponse approve(Long id, Authentication authentication);
+    PaginationResponse<NewsResponse> getPendingNews(int page, int size, Authentication authentication);
 }

@@ -79,11 +79,12 @@ public class NewsController {
     @GetMapping
     public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+           Authentication authentication
     ) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Lấy tất cả tin tức thành công",
-                        newsService.getAll(page, size), HttpStatus.OK, LocalDateTime.now()
+                        newsService.getAll(page, size, authentication), HttpStatus.OK, LocalDateTime.now()
                 ),
                 HttpStatus.OK
         );
@@ -93,13 +94,59 @@ public class NewsController {
     public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
     ) {
         return new ResponseEntity<>(
                 new APIResponse<>(true, "Tìm kiếm tin tức thành công",
-                        newsService.search(keyword, page, size), HttpStatus.OK, LocalDateTime.now()
+                        newsService.search(keyword, page, size, authentication), HttpStatus.OK, LocalDateTime.now()
                 ),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<NewsResponse>> getDetail(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return new ResponseEntity<>(
+                new APIResponse<>(
+                        true,
+                        "Xem chi tiết tin tức thành công",
+                        newsService.getDetail(id, authentication),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<APIResponse<PaginationResponse<NewsResponse>>> getPendingNews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication
+    ) {
+        return new ResponseEntity<>(
+                new APIResponse<>(
+                        true,
+                        "Lấy danh sách tin chờ duyệt thành công",
+                        newsService.getPendingNews(page, size, authentication),
+                        HttpStatus.OK,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<APIResponse<NewsResponse>> approveNews(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        NewsResponse response = newsService.approve(id, authentication);
+        return new ResponseEntity<>(
+            new APIResponse<>(true, "Duyệt tin thành công", response, HttpStatus.OK, LocalDateTime.now()), HttpStatus.OK);
     }
 }
