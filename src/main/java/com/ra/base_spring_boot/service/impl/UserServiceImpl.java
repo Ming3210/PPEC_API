@@ -8,6 +8,7 @@ import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
 import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.service.interfaces.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements IUserService {
     @Autowired
@@ -55,17 +57,9 @@ public class UserServiceImpl implements IUserService {
         } else {
             pageable = PageRequest.of(page, size);
         }
-        Page<User> users = userRepository.findAll(pageable);
-        Page<User> userWithoutAdmin = new PageImpl<>(
-                users.stream()
-                        .filter(user -> user.getRole() != RoleName.ADMIN)
-                        .toList(),
-                users.getPageable(),
-                users.getTotalElements()
-        );
 
-        Page<UserResponseDTO> userResponses = userWithoutAdmin.map(this::toUserResponse);
-
+        Page<User> users = userRepository.findAllExceptAdmin(RoleName.ADMIN, keyword, pageable);
+        Page<UserResponseDTO> userResponses = users.map(this::toUserResponse);
         return PaginationResponse.of(userResponses);
     }
 
@@ -97,34 +91,46 @@ public class UserServiceImpl implements IUserService {
         LocalDate dateOfBirth = null;
         String address = null;
 
-        switch (user.getRole()) {
-            case STUDENT -> {
-                Student student = studentRepository.findByUser(user);
-                dateOfBirth = student.getDateOfBirth();
-                address = student.getAddress();
+        try {
+            switch (user.getRole()) {
+                case STUDENT -> {
+                    Student student = studentRepository.findByUser(user);
+                    if (student != null) {
+                        dateOfBirth = student.getDateOfBirth();
+                        address = student.getAddress();
+                    }
+                }
+                case LECTURER -> {
+                    Lecturer lecturer = lecturerRepository.findByUser(user);
+                    if (lecturer != null) {
+                        dateOfBirth = lecturer.getDateOfBirth();
+                        address = lecturer.getHometown();
+                    }
+                }
+                case SERVICE_STAFF -> {
+                    ServiceStaff serviceStaff = serviceStaffRepository.findByUser(user);
+                    if (serviceStaff != null) {
+                        dateOfBirth = serviceStaff.getDateOfBirth();
+                        address = serviceStaff.getHometown();
+                    }
+                }
+                case STAFF -> {
+                    Staff staff = staffRepository.findByUser(user);
+                    if (staff != null) {
+                        dateOfBirth = staff.getDateOfBirth();
+                        UserDetail userDetail = userDetailRepository.findByUserId(user.getId()).orElse(null);
+                        if (userDetail != null) {
+                            address = userDetail.getHometown();
+                        }
+                    }
+                }
             }
-            case LECTURER -> {
-                Lecturer lecturer = lecturerRepository.findByUser(user);
-                dateOfBirth = lecturer.getDateOfBirth();
-                address = lecturer.getHometown();
-            }
-            case SERVICE_STAFF -> {
-                ServiceStaff serviceStaff = serviceStaffRepository.findByUser(user);
-                dateOfBirth = serviceStaff.getDateOfBirth();
-                address = serviceStaff.getHometown();
-            }
-            case STAFF -> {
-                Staff staff = staffRepository.findByUser(user);
-                dateOfBirth = staff.getDateOfBirth();
-                UserDetail userDetail =  userDetailRepository.findByUserId(user.getId()).orElseThrow(()->new HttpNotFound("Không tìm thấy thông tin người dùng"));
-                address = userDetail.getHometown();
-            }
-            default -> {
-            }
+        } catch (Exception e) {
+            log.error("Error getting user details: " + e.getMessage());
         }
 
         return UserResponseDTO.builder()
-                .id((user.getId()))
+                .id(user.getId())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
@@ -161,8 +167,8 @@ public class UserServiceImpl implements IUserService {
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .dateOfBirth(student.getDateOfBirth())
-                .gender(student.getGender())
                 .email(user.getEmail())
+                .role(user.getRole())
                 .phoneNumber(user.getPhoneNumber())
                 .address(student.getAddress())
                 .avatarUrl(student.getAvatarUrl())
@@ -191,6 +197,7 @@ public class UserServiceImpl implements IUserService {
                 .dateOfBirth(lecturer.getDateOfBirth())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
                 .address(lecturer.getHometown())
                 .avatarUrl(lecturer.getImageUrl())
                 .build();
@@ -209,6 +216,7 @@ public class UserServiceImpl implements IUserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .address(serviceStaff.getHometown())
+                .role(user.getRole())
                 .avatarUrl(serviceStaff.getAvatarUrl())
                 .build();
     }
@@ -229,6 +237,7 @@ public class UserServiceImpl implements IUserService {
                 .dateOfBirth(staff.getDateOfBirth())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
                 .address(userDetail.getHometown())
                 .avatarUrl(userDetail.getAvatarUrl())
                 .build();
