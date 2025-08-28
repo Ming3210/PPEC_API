@@ -1,17 +1,17 @@
 package com.ra.base_spring_boot.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ra.base_spring_boot.dto.request.QuestionRequestDTO;
 import com.ra.base_spring_boot.dto.request.QuizRequestDTO;
 import com.ra.base_spring_boot.dto.request.QuizSubmissionRequest;
+import com.ra.base_spring_boot.dto.response.QuestionResponse;
 import com.ra.base_spring_boot.dto.response.QuestionResponseDTO;
 import com.ra.base_spring_boot.dto.response.QuizResponseDTO;
 import com.ra.base_spring_boot.dto.response.QuizResultResponse;
 import com.ra.base_spring_boot.model.*;
+import com.ra.base_spring_boot.model.constants.QuestionType;
 import com.ra.base_spring_boot.model.constants.SubmissionStatus;
-import com.ra.base_spring_boot.repository.LessonRepository;
-import com.ra.base_spring_boot.repository.QuizRepository;
-import com.ra.base_spring_boot.repository.QuizResultRepository;
-import com.ra.base_spring_boot.repository.UserRepository;
+import com.ra.base_spring_boot.repository.*;
 import com.ra.base_spring_boot.security.principal.UserPrincipal;
 import com.ra.base_spring_boot.service.interfaces.IQuizService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.awt.desktop.UserSessionEvent;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,11 @@ public class QuizServiceImpl implements IQuizService {
     private UserRepository userRepository;
     @Autowired
     private QuizResultRepository quizResultRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
+
     @Override
+    @Transactional
     public List<QuizResponseDTO> listQuiz() {
         return quizRepository.findAll()
                 .stream()
@@ -63,6 +68,7 @@ public class QuizServiceImpl implements IQuizService {
 
 
     @Override
+    @Transactional
     public QuizResponseDTO updateNewQuiz(QuizRequestDTO updateQuiz, Long id) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Quiz với ID: " + id));
@@ -137,7 +143,7 @@ public class QuizServiceImpl implements IQuizService {
             QuizSubmissionRequest.AnswerDTO answerDTO = answers.stream()
                     .filter(a -> a.getQuestionId().equals(q.getId()))
                     .findFirst()
-                    .orElse(null);
+                    .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy câu hỏi với id " + q.getId()));
 
             boolean isCorrect = answerDTO != null && q.getCorrectAnswer().equals(answerDTO.getSelectedAnswer());
             String yourAnswer = answerDTO != null ? answerDTO.getSelectedAnswer() : null;
@@ -182,7 +188,6 @@ public class QuizServiceImpl implements IQuizService {
                 .build();
     }
 
-
     private QuizResponseDTO mapToResponseDTO(Quiz quiz) {
         List<QuestionResponseDTO> questions = null;
         if (quiz.getQuestions() != null) {
@@ -211,6 +216,33 @@ public class QuizServiceImpl implements IQuizService {
                 .questions(questions)
                 .build();
     }
+    @Override
+    @Transactional
+    public QuestionResponse addQuestionToQuiz(QuestionRequestDTO dto) {
+        Quiz quiz = quizRepository.findById(dto.getQuizId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quiz với id: " + dto.getQuizId()));
+        Question question = new Question();
+        question.setQuiz(quiz);
+        question.setQuestionText(dto.getQuestionText());
+        question.setType(QuestionType.valueOf(dto.getType())); // enum
+        question.setOptions(dto.getOptions() != null ? Set.copyOf(dto.getOptions()) : null);
+        question.setCorrectAnswer(dto.getCorrectAnswer());
+        question.setExplanation(dto.getExplanation());
+        question.setOrderNumber(dto.getOrderNumber());
+        question.setCreatedAt(LocalDateTime.now());
+
+        Question saved = questionRepository.save(question);
+        return QuestionResponse.builder()
+                .id(saved.getId())
+                .questionText(saved.getQuestionText())
+                .type(saved.getType().name())
+                .options(saved.getOptions() != null ? List.copyOf(saved.getOptions()) : null)
+                .correctAnswer(saved.getCorrectAnswer())
+                .explanation(saved.getExplanation())
+                .orderNumber(saved.getOrderNumber())
+                .build();
+    }
+
 
 
 }

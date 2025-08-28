@@ -1,11 +1,14 @@
 spring:
   application:
     name: phenikaa-course-management
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
 
   datasource:
     url: jdbc:mysql://localhost:3306/ojt_team5?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
     username: root
-    password: donut_12321
+    password: 12345678
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 20
@@ -32,18 +35,6 @@ spring:
           CharSet: utf8mb4
           useUnicode: true
     open-in-view: false
-    mail:
-      host: smtp.gmail.com
-      port: 587
-      username: "vminh0227@gmail.com"
-      password: "jydg yuon rjyk vgpv"
-      properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
-          debug: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -56,7 +47,6 @@ spring:
           starttls:
             enable: true
         debug: true
-
 components:
   securitySchemes:
     bearerAuth:
@@ -72,6 +62,14 @@ jwt:
   secret: "hU6t8F93kd9s8dh3Kls7s9wkd9s8Xj4S9z8wKd7s2l8d7Qp1r7x9j2n8y5b6V"
   refresh : 3600
   expire: 86400000
+paypal:
+  client-id: AYFLvWiqFqlIMKf0GaKWd5db7rKdERFoW5DTrvhMDs65XiPlrAx3Qff4PRXQa9d-g7QMyAj4HIm1byu2
+  client-secret: EKfEXQv_DCGUzjh6ofSF5fRRT0i-pV6SMmGSeUmu0LuHxA8B1SxZi-t9rVTYFVckYGso0nMuqu3sGxKB
+  mode: sandbox
+
+socket:
+  host: localhost
+  port: 8080
 
 logging:
   level:

@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.repository;
 
 import com.ra.base_spring_boot.model.Staff;
+import com.ra.base_spring_boot.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,6 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
             "   OR LOWER(u.email) LIKE LOWER(:keyword) " +
             "   OR LOWER(s.employeeCode) LIKE LOWER(:keyword)")
     Page<Staff> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    Staff findByUser(User user);
 }

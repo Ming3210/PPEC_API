@@ -13,10 +13,6 @@ import java.time.LocalDate;
 public class UpdateLectureRequest {
     private MultipartFile image;
 
-    @NotBlank(message = "Mã giảng viên không được để trống")
-    @Size(max = 50, message = "Mã giảng viên không vượt quá 50 ký tự")
-    private String lecturerCode;
-
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
     private LocalDate dateOfBirth;
 

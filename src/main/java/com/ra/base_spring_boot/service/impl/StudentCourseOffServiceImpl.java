@@ -2,6 +2,7 @@ package com.ra.base_spring_boot.service.impl;
 
 import com.ra.base_spring_boot.dto.request.StudentCourseOffRequest;
 import com.ra.base_spring_boot.dto.request.StudentRegisterCourseOffRequest;
+import com.ra.base_spring_boot.dto.response.StudentCourseOfResponse;
 import com.ra.base_spring_boot.dto.response.StudentCourseOffResponse;
 import com.ra.base_spring_boot.exception.BadRequestException;
 import com.ra.base_spring_boot.exception.HttpBadRequest;
@@ -45,7 +46,6 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
         StudentCourseOff studentCourseOff = StudentCourseOff.builder()
                 .student(student)
                 .courseOff(courseOff)
-                .status(request.getStatus() != null ? request.getStatus() : "REGISTERED")
                 .registrationDate(LocalDateTime.now())
                 .build();
 
@@ -61,40 +61,52 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
     }
 
     @Override
-    public List<StudentCourseOffResponse> getCoursesOfStudent(Long studentId) {
+    public List<StudentCourseOfResponse> getCoursesOfStudent(Long studentId) {
         List<StudentCourseOff> list = studentCourseOffRepository.findByStudentId(studentId);
-        return list.stream().map(StudentCourseOffServiceImpl::toResponse).collect(Collectors.toList());
+        return list.stream()
+                .map(StudentCourseOffServiceImpl::toStudentCourseOfResponse)
+                .collect(Collectors.toList());
     }
+
     @Override
-    public List<StudentCourseOffResponse> getMyCourses() {
+    public List<StudentCourseOfResponse> getMyCourses() {
         Long studentId = getCurrentStudentId();
         List<StudentCourseOff> list = studentCourseOffRepository.findByStudentId(studentId);
-        return list.stream().map(StudentCourseOffServiceImpl::toResponse).collect(Collectors.toList());
+        return list.stream()
+                .map(StudentCourseOffServiceImpl::toStudentCourseOfResponse)
+                .collect(Collectors.toList());
     }
+
 
     private Long getCurrentStudentId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        return principal.getId();
+        Long userId = principal.getId();
+
+        Student student = studentRepository.findByUserId(userId)
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy student cho userId: " + userId));
+
+        return student.getId();
     }
+
     @Override
     public StudentCourseOffResponse registerCourseOff(StudentRegisterCourseOffRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        Long studentId = principal.getId();
+        Long userId = principal.getId();
 
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new HttpNotFound("Không tìm thấy sinh viên với ID: " + studentId));
+        Student student = studentRepository.findByUserId(userId)
+                .orElseThrow(() -> new HttpNotFound("Không tìm thấy sinh viên với userId: " + userId));
 
         CourseOff courseOff = courseOffRepository.findById(request.getCourseOffId())
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy khóa học với ID: " + request.getCourseOffId()));
-        studentCourseOffRepository.findByStudentIdAndCourseOffId(studentId, courseOff.getId())
+
+        studentCourseOffRepository.findByStudentIdAndCourseOffId(student.getId(), courseOff.getId())
                 .ifPresent(sc -> { throw new HttpBadRequest("Bạn đã đăng ký khóa học này rồi"); });
 
         StudentCourseOff studentCourseOff = StudentCourseOff.builder()
                 .student(student)
                 .courseOff(courseOff)
-                .status("REGISTERED")
                 .registrationDate(LocalDateTime.now())
                 .build();
 
@@ -102,6 +114,7 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
 
         return toResponse(saved);
     }
+
 
 
 
@@ -114,8 +127,14 @@ public class StudentCourseOffServiceImpl implements IStudentCourseOffService {
                 .courseOffId(sco.getCourseOff().getId())
                 .courseOffName(sco.getCourseOff().getName())
                 .registrationDate(sco.getRegistrationDate())
-                .status(sco.getStatus())
-                .grade(sco.getGrade())
                 .build();
     }
+    private static StudentCourseOfResponse toStudentCourseOfResponse(StudentCourseOff sco) {
+        return StudentCourseOfResponse.builder()
+                .courseOffId(sco.getCourseOff().getId())
+                .courseOffName(sco.getCourseOff().getName())
+                .registrationDate(sco.getRegistrationDate())
+                .build();
+    }
+
 }

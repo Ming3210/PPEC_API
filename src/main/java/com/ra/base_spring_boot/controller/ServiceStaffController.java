@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class ServiceStaffController {
 
     @Autowired
     private IServiceStaffService staffService;
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @PostMapping
     public ResponseEntity<APIResponse<ServiceStaffResponseDTO>> create(
             @ModelAttribute @Valid ServiceStaffRequestDTO requestDTO) {
@@ -35,7 +37,7 @@ public class ServiceStaffController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<APIResponse<ServiceStaffResponseDTO>> update(
             @PathVariable Long id,
@@ -51,7 +53,7 @@ public class ServiceStaffController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> delete(@PathVariable Long id) {
         staffService.delete(id);
@@ -65,8 +67,9 @@ public class ServiceStaffController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER')")
     @GetMapping("/{id}")
+
     public ResponseEntity<APIResponse<ServiceStaffResponseDTO>> getById(@PathVariable Long id) {
         ServiceStaffResponseDTO staff = staffService.getById(id);
         return ResponseEntity.ok(
@@ -79,8 +82,9 @@ public class ServiceStaffController {
                         .build()
         );
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_STAFF', 'ROLE_CENTER')")
     @GetMapping
+
     public ResponseEntity<APIResponse<PaginationResponse<ServiceStaffResponseDTO>>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

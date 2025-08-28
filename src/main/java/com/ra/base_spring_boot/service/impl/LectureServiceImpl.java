@@ -7,6 +7,7 @@ import com.ra.base_spring_boot.dto.request.UpdateLectureRequest;
 import com.ra.base_spring_boot.dto.response.LectureResponse;
 import com.ra.base_spring_boot.dto.response.PaginationResponse;
 import com.ra.base_spring_boot.exception.BadRequestException;
+import com.ra.base_spring_boot.exception.HttpBadRequest;
 import com.ra.base_spring_boot.exception.HttpNotFound;
 import com.ra.base_spring_boot.model.*;
 import com.ra.base_spring_boot.model.constants.RoleName;
@@ -131,7 +132,9 @@ public class LectureServiceImpl implements ILectureService {
                 throw new RuntimeException("Lỗi khi tải ảnh", e);
             }
         }
-
+        if (lectureRepository.existsByLecturerCode(request.getLecturerCode())) {
+            throw new HttpBadRequest("Mã giảng viên đã tồn tại: " + request.getLecturerCode());
+        }
         Lecturer savedLecturer = lectureRepository.save(lecturer);
         return toResponse(savedLecturer);
     }
@@ -142,7 +145,6 @@ public class LectureServiceImpl implements ILectureService {
         Lecturer lecturer = lectureRepository.findById(id)
                 .orElseThrow(() -> new HttpNotFound("Không tìm thấy giảng viên với ID: " + id));
 
-        lecturer.setLecturerCode(request.getLecturerCode());
         lecturer.setDateOfBirth(request.getDateOfBirth());
         lecturer.setHometown(request.getHometown());
         lecturer.setWorkYear(request.getWorkYear());
@@ -231,6 +233,7 @@ public class LectureServiceImpl implements ILectureService {
                 .industryId(lecturer.getIndustry() != null ? lecturer.getIndustry().getId() : null)
                 .workYear(lecturer.getWorkYear())
                 .imageUrl(lecturer.getImageUrl())
+                .status(lecturer.isDeleted() ? "DELETED" : "ACTIVE")
                 .build();
     }
 }

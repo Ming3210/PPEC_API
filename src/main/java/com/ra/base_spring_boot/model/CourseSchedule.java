@@ -16,7 +16,7 @@ public class CourseSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "courseoff_id", nullable = false)
     private CourseOff courseOff;
 

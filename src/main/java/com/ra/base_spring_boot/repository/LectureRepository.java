@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.repository;
 
 import com.ra.base_spring_boot.model.Lecturer;
+import com.ra.base_spring_boot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,5 +23,9 @@ public interface LectureRepository extends JpaRepository<Lecturer, Long> {
             @Param("status") Boolean status,
             org.springframework.data.domain.Pageable pageable
     );
+    boolean existsByLecturerCode(String lecturerCode);
+
+    Lecturer findByUser(User user);
+
 }
 

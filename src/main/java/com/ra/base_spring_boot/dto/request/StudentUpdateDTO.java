@@ -26,6 +26,7 @@ public class StudentUpdateDTO {
 
     @Pattern(regexp = "^(\\+\\d{1,3}[- ]?)?\\d{9,15}$",
             message = "Số điện thoại không hợp lệ")
+    @NotBlank (message = "Số điện thoại không đc để trống")
     private String phoneNumber;
 
     @Email(message = "Email không hợp lệ")
@@ -41,4 +42,6 @@ public class StudentUpdateDTO {
     private Long industryId;
 
     private MultipartFile avatar;
+
+
 }

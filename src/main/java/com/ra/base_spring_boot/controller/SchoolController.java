@@ -4,6 +4,7 @@ import com.ra.base_spring_boot.dto.response.StaffResponseDTO;
 import com.ra.base_spring_boot.service.interfaces.IAccountSchoolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class SchoolController {
 
     // ✅ Thêm nhân viên
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<StaffResponseDTO> createStaff(@ModelAttribute StaffDTO staffDTO) {
         StaffResponseDTO response = accountSchoolService.createAccountSchool(staffDTO);
         return ResponseEntity.ok(response);

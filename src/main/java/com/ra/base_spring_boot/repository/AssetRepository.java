@@ -13,4 +13,6 @@ import java.util.List;
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
     Page<Asset> findByAssignedUser(User user, Pageable pageable);
+
+    Page<Asset> findByCodeContainingIgnoreCaseOrNameContainingIgnoreCase(String code, String name, Pageable pageable);
 }
