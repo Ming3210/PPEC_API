@@ -224,7 +224,7 @@ public class QuizServiceImpl implements IQuizService {
         Question question = new Question();
         question.setQuiz(quiz);
         question.setQuestionText(dto.getQuestionText());
-        question.setType(QuestionType.valueOf(dto.getType())); // enum
+        question.setType(QuestionType.valueOf(dto.getType()));
         question.setOptions(dto.getOptions() != null ? Set.copyOf(dto.getOptions()) : null);
         question.setCorrectAnswer(dto.getCorrectAnswer());
         question.setExplanation(dto.getExplanation());
