@@ -1,6 +1,7 @@
 package com.ra.base_spring_boot.model;
 
 import com.ra.base_spring_boot.model.constants.PartnerStatus;
+import com.ra.base_spring_boot.model.constants.RoleName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -75,4 +76,5 @@ public class Partner {
     )
     @Builder.Default
     private Set<Industry> industries = new HashSet<>();
+    private RoleName role = RoleName.SCHOOL_ADMIN;
 }
