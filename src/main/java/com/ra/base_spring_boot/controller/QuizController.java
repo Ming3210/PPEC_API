@@ -10,6 +10,7 @@ import com.ra.base_spring_boot.service.interfaces.IQuizService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,18 +32,19 @@ public class QuizController {
         QuizResponseDTO quiz = quizService.getQuizById(id);
         return ResponseEntity.ok(quiz);
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT')")
     @PostMapping
-    public ResponseEntity<QuizResponseDTO> createQuiz(@RequestBody QuizRequestDTO newQuiz) {
+    public ResponseEntity<QuizResponseDTO> createQuiz(@Valid @RequestBody QuizRequestDTO newQuiz) {
         QuizResponseDTO createdQuiz = quizService.createNewQuiz(newQuiz);
         return ResponseEntity.ok(createdQuiz);
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT')")
     @PutMapping("/{id}")
-    public ResponseEntity<QuizResponseDTO> updateQuiz(@PathVariable Long id, @RequestBody QuizRequestDTO updateQuiz) {
+    public ResponseEntity<QuizResponseDTO> updateQuiz(@PathVariable Long id, @Valid @RequestBody QuizRequestDTO updateQuiz) {
         QuizResponseDTO updatedQuiz = quizService.updateNewQuiz(updateQuiz, id);
         return ResponseEntity.ok(updatedQuiz);
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
         quizService.deleteQuiz(id);
@@ -56,10 +58,11 @@ public class QuizController {
     }
 
     @PostMapping("/{quizId}/submit")
-    public ResponseEntity<QuizResultResponse> submitQuiz(@PathVariable Long quizId, @RequestBody QuizSubmissionRequest submission) {
+    public ResponseEntity<QuizResultResponse> submitQuiz(@PathVariable Long quizId,@Valid @RequestBody QuizSubmissionRequest submission) {
         QuizResultResponse result = quizService.submitQuiz(quizId, submission);
         return ResponseEntity.ok(result);
     }
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SCHOOL_ADMIN', 'ROLE_SERVICE_STAFF', 'ROLE_STAFF', 'ROLE_CENTER', 'ROLE_LECTURER', 'ROLE_ASSISTANT')")
     @PostMapping("/{quizId}/questions")
     public ResponseEntity<QuestionResponse> addQuestion(
             @PathVariable Long quizId,
