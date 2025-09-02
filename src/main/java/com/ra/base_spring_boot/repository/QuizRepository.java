@@ -12,4 +12,7 @@ import java.util.List;
 public interface QuizRepository extends JpaRepository<Quiz,Long> {
     @Query("SELECT DISTINCT q FROM Quiz q LEFT JOIN FETCH q.questions qu WHERE q.lesson.id = :lessonId")
     List<Quiz> findByLessonIdWithQuestions(@Param("lessonId") Long lessonId);
+    @Query("SELECT CASE WHEN COUNT(q) > 0 THEN true ELSE false END " +
+            "FROM Question q WHERE q.questionText = :questionText")
+    boolean existsByQuestionText(@Param("questionText") String questionText);
 }

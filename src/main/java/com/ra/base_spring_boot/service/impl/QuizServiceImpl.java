@@ -60,7 +60,6 @@ public class QuizServiceImpl implements IQuizService {
         quiz.setTotalQuestions(newQuiz.getTotalQuestions());
         quiz.setAttemptsAllowed(newQuiz.getAttemptsAllowed());
         quiz.setLesson(lesson);
-
         Quiz savedQuiz = quizRepository.save(quiz);
 
         return mapToResponseDTO(savedQuiz);
@@ -134,19 +133,22 @@ public class QuizServiceImpl implements IQuizService {
     @Override
     @Transactional
     public QuizResultResponse submitQuiz(Long quizId, QuizSubmissionRequest submission) {
-        Quiz quiz = quizRepository.findAll().stream().filter(q->q.getId().equals(quizId)).findFirst().orElseThrow(()-> new IllegalArgumentException("Không tìm thấy bài quiz với id " + quizId));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bài quiz với id " + quizId));
 
         List<QuizSubmissionRequest.AnswerDTO> answers = submission.getAnswers();
         int totalQuestions = quiz.getQuestions() != null ? quiz.getQuestions().size() : 0;
 
         List<QuizResultResponse.QuestionResultDTO> details = quiz.getQuestions().stream().map(q -> {
+            // Tìm câu trả lời tương ứng của user (nếu có)
             QuizSubmissionRequest.AnswerDTO answerDTO = answers.stream()
                     .filter(a -> a.getQuestionId().equals(q.getId()))
                     .findFirst()
-                    .orElseThrow(()-> new IllegalArgumentException("Không tìm thấy câu hỏi với id " + q.getId()));
+                    .orElse(null); // không ném exception nữa
 
+            // Nếu không trả lời thì coi như sai
             boolean isCorrect = answerDTO != null && q.getCorrectAnswer().equals(answerDTO.getSelectedAnswer());
-            String yourAnswer = answerDTO != null ? answerDTO.getSelectedAnswer() : null;
+            String yourAnswer = (answerDTO != null) ? answerDTO.getSelectedAnswer() : null;
 
             return QuizResultResponse.QuestionResultDTO.builder()
                     .questionId(q.getId())
@@ -188,6 +190,7 @@ public class QuizServiceImpl implements IQuizService {
                 .build();
     }
 
+
     private QuizResponseDTO mapToResponseDTO(Quiz quiz) {
         List<QuestionResponseDTO> questions = null;
         if (quiz.getQuestions() != null) {
@@ -223,7 +226,11 @@ public class QuizServiceImpl implements IQuizService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy quiz với id: " + dto.getQuizId()));
         Question question = new Question();
         question.setQuiz(quiz);
-        question.setQuestionText(dto.getQuestionText());
+        if (quizRepository.existsByQuestionText(dto.getQuestionText())) {
+            throw new IllegalArgumentException("Câu hỏi đã tồn tại");
+        } else{
+            question.setQuestionText(dto.getQuestionText());
+        }
         question.setType(QuestionType.valueOf(dto.getType()));
         question.setOptions(dto.getOptions() != null ? Set.copyOf(dto.getOptions()) : null);
         question.setCorrectAnswer(dto.getCorrectAnswer());
