@@ -62,14 +62,14 @@ jwt:
   secret: "hU6t8F93kd9s8dh3Kls7s9wkd9s8Xj4S9z8wKd7s2l8d7Qp1r7x9j2n8y5b6VxY"
   refresh : 3600
   expire: 86400000
-paypal:
-  client-id: AYFLvWiqFqlIMKf0GaKWd5db7rKdERFoW5DTrvhMDs65XiPlrAx3Qff4PRXQa9d-g7QMyAj4HIm1byu2
-  client-secret: EKfEXQv_DCGUzjh6ofSF5fRRT0i-pV6SMmGSeUmu0LuHxA8B1SxZi-t9rVTYFVckYGso0nMuqu3sGxKB
-  mode: sandbox
+  paypal:
+    client-id: AYFLvWiqFqlIMKf0GaKWd5db7rKdERFoW5DTrvhMDs65XiPlrAx3Qff4PRXQa9d-g7QMyAj4HIm1byu2
+    client-secret: EKfEXQv_DCGUzjh6ofSF5fRRT0i-pV6SMmGSeUmu0LuHxA8B1SxZi-t9rVTYFVckYGso0nMuqu3sGxKB
+    mode: sandbox
 
-socket:
-  host: localhost
-  port: 8080
+  socket:
+    host: localhost
+    port: 8080
 
 logging:
   level:
